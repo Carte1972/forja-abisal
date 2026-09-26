@@ -4,7 +4,7 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 
 <!-- CAPTURA: añade aquí una captura o GIF del juego, por ejemplo: ![Forja Abisal](docs/captura.gif) -->
 
-> **Demo:** https://&lt;usuario&gt;.github.io/&lt;repositorio&gt;/ _(disponible cuando se publique el repositorio)_
+> **Demo:** https://carte1972.github.io/forja-abisal/
 
 > 🚧 **Estado:** en desarrollo. Fase actual: **4 — Armas**. Ya hay cinco armas con disparo, recarga, proyectiles explosivos (con rocket jump), impactos, partículas y marcas en las paredes. Todavía no hay enemigos, y las puertas y los ascensores aún no se accionan.
 
