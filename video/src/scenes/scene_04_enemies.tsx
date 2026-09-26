@@ -47,14 +47,14 @@ const ENEMIES = [
 export function EnemiesScene({ timing }: SceneProps) {
   const at = (fraction: number) => narrationAt(timing, fraction);
   const end = timing.durationInFrames;
-  const cuts = [at(0.2), at(0.31), at(0.45), at(0.55), at(0.73)];
+  const cuts = [at(0.171), at(0.32), at(0.496), at(0.631), at(0.744)];
   const mosaicFrom = cuts[4]!;
   return (
     <AbsoluteFill style={{ background: COLORS.background }}>
       <Sequence durationInFrames={cuts[0]!} name="no estás solo">
         <Fade duration={cuts[0]!} fadeIn={10} fadeOut={6}>
           <AbsoluteFill style={{ justifyContent: 'center' }}>
-            <SectionTitle text="NO ESTÁS SOLO" start={at(0.12)} size={150} />
+            <SectionTitle text="NO ESTÁS SOLO" start={at(0.1)} size={150} />
           </AbsoluteFill>
         </Fade>
       </Sequence>

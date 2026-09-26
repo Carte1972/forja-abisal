@@ -27,7 +27,7 @@ const TRICKS = [
 export function TricksScene({ timing }: SceneProps) {
   const at = (fraction: number) => narrationAt(timing, fraction);
   const end = timing.durationInFrames;
-  const cuts = [at(0.16), at(0.43), at(0.61), at(0.83), end];
+  const cuts = [at(0.152), at(0.439), at(0.619), at(0.801), end];
   return (
     <AbsoluteFill style={{ background: COLORS.background }}>
       <Sequence durationInFrames={cuts[0]!} name="trucos del oficio">

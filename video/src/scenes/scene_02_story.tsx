@@ -14,7 +14,7 @@ import { COLORS } from '../theme';
 export function StoryScene({ timing }: SceneProps) {
   const at = (fraction: number) => narrationAt(timing, fraction);
   const end = timing.durationInFrames;
-  const cuts = [0, at(0.16), at(0.39), at(0.56), at(0.77), end];
+  const cuts = [0, at(0.16), at(0.39), at(0.556), at(0.745), end];
   // El último plano retoma la entrada donde la dejó el primero.
   const entryResume = (cuts[1]! - cuts[0]!) / FPS;
   return (
@@ -33,7 +33,7 @@ export function StoryScene({ timing }: SceneProps) {
       <TerminalLabel text="TURNO DE RELEVO: 1 TÉCNICO" from={at(0.01)} to={at(0.15)} />
       <TerminalLabel text="FORJA ABISAL · ESTADO: EN FUNCIONAMIENTO" from={at(0.2)} to={at(0.37)} />
       <TerminalLabel text="PERSONAL LOCALIZADO: 0" from={at(0.58)} to={at(0.75)} />
-      <TerminalLabel text="SALIDA DE EMERGENCIA: NÚCLEO ABISAL" from={at(0.89)} to={end - 16} />
+      <TerminalLabel text="SALIDA DE EMERGENCIA: NÚCLEO ABISAL" from={at(0.9)} to={end - 16} />
       <Subtitles captions={timing.captions} offset={timing.narrationFrom} />
     </AbsoluteFill>
   );

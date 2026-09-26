@@ -45,8 +45,8 @@ export function SceneWithVoice({ timing }: { timing: SceneTiming }) {
 /** Vídeo completo: las 7 escenas seguidas, la narración, la música de fondo y los golpes. */
 export function Presentation({ scenes, music }: PresentationProps) {
   const closing = scenes[scenes.length - 1]!;
-  const fadeFrom = closing.from + narrationAt(closing, 0.48);
-  const fadeTo = closing.from + narrationAt(closing, 0.62);
+  const fadeFrom = closing.from + narrationAt(closing, 0.41);
+  const fadeTo = closing.from + narrationAt(closing, 0.6);
   const voice = scenes.map((scene) => [
     scene.from + scene.narrationFrom,
     scene.from + scene.narrationFrom + scene.narrationFrames,

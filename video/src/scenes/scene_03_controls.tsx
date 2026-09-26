@@ -74,7 +74,7 @@ function LeftShade() {
 export function ControlsScene({ timing }: SceneProps) {
   const at = (fraction: number) => narrationAt(timing, fraction);
   const end = timing.durationInFrames;
-  const weaponCuts = [at(0.3), at(0.43), at(0.53), at(0.635), at(0.72), at(0.83)];
+  const weaponCuts = [at(0.3), at(0.391), at(0.527), at(0.645), at(0.745), at(0.87)];
   const altFrom = weaponCuts[5]!;
   const altStep = Math.floor((end - altFrom) / WEAPONS.length);
   return (

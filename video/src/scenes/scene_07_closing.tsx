@@ -29,7 +29,7 @@ export function ClosingScene({ timing }: SceneProps) {
         <Fade duration={cut} fadeIn={16} fadeOut={0}>
           <Clip name="cierre_lago" />
           <Vignette strength={0.85} />
-          <Dim from={at(0.48)} to={at(0.62)} />
+          <Dim from={at(0.41)} to={at(0.6)} />
           <Texts taglineAt={at(0.19)} linksAt={at(0.3)} outAt={cut - 24} />
         </Fade>
       </Sequence>
