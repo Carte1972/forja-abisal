@@ -141,26 +141,261 @@ body,
   left: var(--gap);
 }
 
-.weapon-readout {
+/* ---------- HUD ---------- */
+
+.hud {
   position: absolute;
-  right: 20px;
-  bottom: 16px;
-  font:
-    700 16px/1.3 ui-monospace,
-    'SF Mono',
-    Menlo,
-    monospace;
-  text-align: right;
-  white-space: pre;
+  inset: 0;
+  pointer-events: none;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
   color: #ffd9b0;
-  text-shadow:
-    0 0 6px rgb(255 106 31 / 70%),
-    0 1px 2px #000;
 }
 
-.damage-flash {
+.hud-flash {
   position: absolute;
   inset: 0;
   opacity: 0;
+}
+
+.hud-flash-damage {
   background: radial-gradient(ellipse at center, rgb(160 0 0 / 15%) 30%, rgb(170 0 0 / 85%) 100%);
+}
+
+.hud-flash-pickup {
+  mix-blend-mode: screen;
+}
+
+.hud-indicators {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+
+.hud-indicator {
+  position: absolute;
+  left: -70px;
+  top: -130px;
+  width: 140px;
+  height: 260px;
+  opacity: 0;
+  transform-origin: 70px 130px;
+}
+
+.hud-indicator::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  width: 100px;
+  height: 22px;
+  border-top: 6px solid rgb(255 40 20 / 90%);
+  border-radius: 50% 50% 0 0;
+  filter: drop-shadow(0 0 6px rgb(255 30 10 / 80%));
+}
+
+.hud-messages {
+  position: absolute;
+  top: 18%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow:
+    0 1px 3px #000,
+    0 0 8px rgb(0 0 0 / 80%);
+}
+
+.hud-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  padding: 6px;
+  background: linear-gradient(#2a2622, #15120f);
+  border: 2px solid #4a3e32;
+  border-radius: 6px;
+  box-shadow:
+    0 4px 18px rgb(0 0 0 / 60%),
+    inset 0 1px 0 rgb(255 255 255 / 8%);
+}
+
+.hud-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  padding: 4px 8px;
+  background: #0d0b0a;
+  border: 1px solid #3a3028;
+  border-radius: 4px;
+}
+
+.hud-value {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ff8a3a;
+  text-shadow: 0 0 10px rgb(255 106 31 / 60%);
+}
+
+.hud-value.hud-low {
+  color: #ff3a28;
+  animation: hud-pulse 0.6s infinite alternate;
+}
+
+@keyframes hud-pulse {
+  to {
+    opacity: 0.45;
+  }
+}
+
+.hud-label {
+  margin-top: 3px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: #b09070;
+}
+
+.hud-ammo {
+  min-width: 118px;
+}
+
+.hud-face-box {
+  min-width: 0;
+  padding: 2px 6px;
+}
+
+.hud-face {
+  width: 80px;
+  height: 88px;
+  image-rendering: pixelated;
+}
+
+.hud-inventory {
+  gap: 5px;
+  min-width: 150px;
+}
+
+.hud-slots,
+.hud-keys {
+  display: flex;
+  gap: 4px;
+}
+
+.hud-slot {
+  width: 20px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3e342c;
+}
+
+.hud-slot-owned {
+  color: #c0a080;
+}
+
+.hud-slot-current {
+  color: #ffb070;
+  text-shadow: 0 0 8px rgb(255 140 60 / 80%);
+}
+
+.hud-key {
+  width: 20px;
+  height: 12px;
+  border: 1px solid #3a3028;
+  border-radius: 2px;
+  opacity: 0.25;
+}
+
+.hud-key-owned {
+  opacity: 1;
+  box-shadow: 0 0 8px currentcolor;
+}
+
+.hud-key-red {
+  color: #ff4030;
+  background: #ff4030;
+}
+
+.hud-key-blue {
+  color: #3080ff;
+  background: #3080ff;
+}
+
+.hud-key-yellow {
+  color: #ffd020;
+  background: #ffd020;
+}
+
+.hud-weapon-name {
+  font-size: 10px;
+  color: #b09070;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .hud-bar {
+    transform: translateX(-50%) scale(0.7);
+    transform-origin: bottom center;
+  }
+}
+
+/* ---------- Fin de nivel ---------- */
+
+.level-end {
+  cursor: default;
+  background: rgb(8 5 4 / 88%);
+}
+
+.level-end-table {
+  border-collapse: collapse;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 1.25rem;
+}
+
+.level-end-table th {
+  padding: 6px 24px 6px 0;
+  text-align: left;
+  font-weight: 600;
+  color: #c0a080;
+}
+
+.level-end-table td {
+  padding: 6px 0 6px 12px;
+  text-align: right;
+  font-weight: 800;
+  color: #ff8a3a;
+}
+
+.level-end-table .level-end-count {
+  padding-left: 24px;
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: #8a7058;
+}
+
+.overlay-button {
+  margin-top: 0.75rem;
+  padding: 0.6rem 1.6rem;
+  font: inherit;
+  font-weight: 700;
+  color: #1a0e08;
+  background: #ff8a3a;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.overlay-button:hover {
+  background: #ffa060;
 }

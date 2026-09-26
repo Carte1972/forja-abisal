@@ -50,7 +50,7 @@ npm run typecheck
 - `src/ui/`: React, solo para los menús.
 - `src/levels/`: niveles en JSON, importados por Vite.
 
-La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `event_bus`, `polygon_utils`, `level_parser`, `sector_geometry`, `surface_triangulation`, `noise`, `normal_map`, `texture_catalog`, `decal_textures`, `light_effects`, `weapon_logic` y `damage`; `ai_state_machine`, `perception`, `enemy_defs`, `player_health` y `navmesh` (con WASM); está previsto pickup_rules.
+La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `event_bus`, `polygon_utils`, `level_parser`, `sector_geometry`, `surface_triangulation`, `noise`, `normal_map`, `texture_catalog`, `decal_textures`, `light_effects`, `weapon_logic` y `damage`; `ai_state_machine`, `perception`, `enemy_defs`, `player_health` y `navmesh` (con WASM); `mover_logic`, `pickup_rules` y `level_stats`.
 
 **Qué hay (fase 1).**
 
@@ -122,10 +122,28 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - **Navmesh:** `engine/ai/navmesh.ts`, con recast-navigation (WASM embebido, así que se inicializa con `initNavigation()`, también en los tests de Node) sobre `LoadedLevel.collision`. Las puertas no forman parte de la malla estática, así que el camino las atraviesa: los enemigos se quedan empujando contra una puerta cerrada hasta que en la fase 6 sepan abrirlas.
 - **Modelos:** `enemy_models.ts` construye el rig por articulaciones y luego fusiona las piezas de cada articulación por material (`mergeJoints`). Para animar, se rota la articulación, nunca las piezas.
 
+**Mundo (fase 6).**
+
+- **`game/world/world_system.ts`:** puertas y ascensores (con `mover_logic.ts`, puro), uso con E, llaves, secretos, suelos dañinos, objetos (`pickup_rules.ts`, puro) y salida.
+- **Orden en `Game.fixedUpdate`:**
+  1. `world.fixedUpdate`: mueve las plataformas con `Mover.setProgress` y `propagateModifiedBodyPositionsToColliders`, y teletransporta al jugador el mismo desplazamiento si está encima de un ascensor.
+  2. Jugador.
+  3. Armas.
+  4. Enemigos.
+  5. `physics.step`.
+
+  No cambies este orden: el controlador de personaje debe ver ya la plataforma en su sitio.
+
+- **Estadísticas:** el mundo solo emite eventos (`pickup`, `secretFound`, `levelComplete`, `message`) y `Game` cuenta en `LevelStats`.
+- **Inventario:** llega a las reglas de objetos a través de la interfaz `Inventory` (salud y blindaje de `PlayerCombatant`, armas y munición de `weapon_logic`, llaves en `Game.keys`).
+- **HUD:** `src/hud/hud.ts` (DOM con escrituras solo cuando cambia algo) y `player_face.ts` (canvas, solo se redibuja al cambiar de estado).
+- **Fin de nivel:** `Game` pasa a `status: 'complete'` y llama a `callbacks.onLevelComplete(summary)`. React (`ui/level_end.tsx`) muestra la pantalla, y "Jugar de nuevo" recrea `Game` cambiando la clave del efecto en `App`.
+
 **Previsto.**
 
 - **Automapa:** se generará a partir de `LevelData`.
 - **Rendimiento:** con la pantalla del Mac (2400×1896, DPR 2) el cuello de botella es el relleno de píxeles de la GPU (cielo y post-procesado), no la CPU ni las draw calls. A escala 0,75 va a 120 FPS. Revisarlo en la fase 8.
+- **Niveles:** los tres niveles de la fase 7 sustituirán a `test_level.json` como nivel que carga `Game` (ahora está fijo en el import).
 
 ## Verificación en el navegador
 
@@ -136,6 +154,7 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
   - Se accede a los campos internos con `__forja.player`, por ejemplo `player.body.teleport(...)` o `player.yaw`.
 - Para simular teclas mantenidas, usa `page.keyboard.down/up` en `browser_run_code_unsafe`.
 - Para disparar sin mover el ratón (lo que giraría la vista), usa `__forja.input.press('fire', 'test', false)` y luego `release('fire', 'test')`. Tras cambiar `player.yaw`, espera al menos un frame antes de disparar: la puntería usa la cámara del último render.
+- **Ojo con `.overlay`:** la pantalla de fin de nivel también usa esa clase. Para ocultar solo la de inicio, usa `.overlay:not(.level-end)`.
 - **Galerías sin que se muevan:** si no se entra en modo juego, los enemigos no se mueven. Para fotografiarlos, oculta el overlay con `page.addStyleTag({ content: '.overlay{display:none!important}' })`.
 - **Leer el búfer HDR:** `renderer.composer.inputBuffer` con `readRenderTargetPixels` (HalfFloat, se decodifica con `THREE.DataUtils.fromHalfFloat`). `gl.readPixels` sobre el canvas no sirve con el composer activo.
 - **Cuidado:** no lances en paralelo una edición de código y una recarga de la página. La recarga puede llegar antes del cambio (pasó en la fase 3 y el resultado confundió).

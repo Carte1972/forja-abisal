@@ -32,12 +32,25 @@ export class Mover {
     return this.progressValue;
   }
 
-  /** 0 = posición inicial (puerta cerrada, ascensor arriba); 1 = recorrido completo. */
+  get colliderHandle(): number {
+    return this.body.collider(0).handle;
+  }
+
+  /** Desplazamiento vertical actual respecto a la posición inicial. */
+  get offset(): number {
+    return this.travel * this.progressValue;
+  }
+
+  /**
+   * 0 = posición inicial (puerta cerrada, ascensor arriba); 1 = recorrido completo. El cuerpo se
+   * coloca al momento: quien lo mueva debe llamar después a
+   * `world.propagateModifiedBodyPositionsToColliders()` para que las consultas lo vean ya.
+   */
   setProgress(progress: number): void {
     this.progressValue = clamp(progress, 0, 1);
-    const offset = this.travel * this.progressValue;
+    const offset = this.offset;
     this.object.position.y = offset;
-    this.body.setNextKinematicTranslation({ x: 0, y: offset, z: 0 });
+    this.body.setTranslation({ x: 0, y: offset, z: 0 }, true);
   }
 }
 

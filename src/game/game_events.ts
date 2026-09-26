@@ -1,4 +1,5 @@
 import type { Vec3 } from '../engine/physics/physics_world';
+import type { WeaponId } from './weapons/weapon_defs';
 
 /** Eventos que se cruzan los sistemas del juego a través del EventBus. */
 export type GameEvents = {
@@ -9,4 +10,9 @@ export type GameEvents = {
   playerDamaged: { amount: number; from: Vec3 };
   playerDied: Record<string, never>;
   enemyKilled: { kind: string; position: Vec3 };
+  /** Texto breve para el jugador (llave necesaria, secreto encontrado...). */
+  message: { text: string; color?: number };
+  pickup: { id: string; name: string; color: number; weapon?: WeaponId };
+  secretFound: Record<string, never>;
+  levelComplete: Record<string, never>;
 };

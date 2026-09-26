@@ -40,6 +40,8 @@ export interface EnemySystemDeps {
   rng: Rng;
   level: LoadedLevel;
   player: Combatant;
+  /** Abre la puerta (sin llave) que haya en ese punto, si la hay. */
+  openDoorAt?: (point: Vec3) => void;
 }
 
 /**
@@ -320,6 +322,14 @@ export class EnemySystem {
       if (length > 0.15) {
         wishX = (dx / length) * speed;
         wishZ = (dz / length) * speed;
+        // Si tiene una puerta delante, la abre (como haría el jugador).
+        if (!def.flying) {
+          this.deps.openDoorAt?.({
+            x: feet.x + (dx / length) * (def.radius + 0.5),
+            y: feet.y,
+            z: feet.z + (dz / length) * (def.radius + 0.5),
+          });
+        }
       }
     }
 

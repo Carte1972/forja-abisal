@@ -74,6 +74,7 @@ export class WeaponSystem {
   private readonly ambient = new THREE.HemisphereLight(0xfff0e0, 0x302820, 1);
   private readonly muzzleLight = new THREE.PointLight(0xffb060, 0, 1.5, 2);
   private muzzleLightTimer = 0;
+  private pendingSelect: WeaponId | null = null;
   private lightSampleTimer = 0;
   private sectorLight = 0.8;
   // Vectores reutilizables para no crear objetos en cada disparo.
@@ -110,7 +111,8 @@ export class WeaponSystem {
   }
 
   fixedUpdate(dt: number, input: InputSystem, active: boolean): void {
-    let select: WeaponId | null = null;
+    let select: WeaponId | null = this.pendingSelect;
+    this.pendingSelect = null;
     WEAPON_ORDER.forEach((id, i) => {
       if (input.consumePressed(`weapon${i + 1}` as 'weapon1')) select = id;
     });
@@ -153,6 +155,11 @@ export class WeaponSystem {
     this.muzzleLightTimer -= dt;
     this.muzzleLight.intensity = this.muzzleLightTimer > 0 ? 4 : 0;
     this.muzzleLight.position.copy(this.animator.muzzle.getWorldPosition(this.muzzleWorld));
+  }
+
+  /** Pide sacar un arma (al recoger una nueva); se aplica en el siguiente paso. */
+  select(weapon: WeaponId): void {
+    this.pendingSelect = weapon;
   }
 
   setVisible(visible: boolean): void {

@@ -5,6 +5,35 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Fase 6 — Puertas, ascensores, llaves, secretos, objetos, HUD y salida
+
+#### Añadido
+
+- Puertas y ascensores con ciclo completo (activar, recorrer, esperar y volver) en lógica pura con tests. Las puertas se reabren si hay alguien debajo.
+- Tecla E para usar:
+  - Puertas y ascensores a los que se apunta, o el ascensor sobre el que se está.
+  - Interruptores de salida.
+- Los ascensores llevan al jugador al subir y al bajar: la plataforma se mueve antes que el jugador y su collider se actualiza al instante.
+- Llaves roja, azul y amarilla. Las puertas con llave muestran un aviso si falta.
+- Paredes secretas (puertas ocultas con la textura de la pared) y zonas secretas que se cuentan al entrar.
+- Suelos que hacen daño (lava, ácido) a intervalos.
+- Los enemigos abren las puertas normales al perseguirte (no las secretas ni las de llave).
+- 14 objetos originales que flotan y giran: salud, blindaje, munición, armas y llaves. Reglas de recogida con tests: no se recogen si no sirven, y un arma nueva se saca al momento.
+- HUD completo en HTML/CSS:
+  - Barra con munición, salud, icono del jugador, blindaje, armas y llaves.
+  - Indicador de dirección del daño.
+  - Destellos rojo y de color al recoger objetos.
+  - Mensajes.
+- Icono del jugador original: casco de forja con visor que cambia de color con la salud, se agrieta, mira hacia el daño, sonríe al curarse y se apaga al morir.
+- Interruptor de salida y pantalla de fin de nivel (React) con tiempo y % de enemigos, objetos y secretos, y botón para jugar de nuevo.
+- Formato de nivel: cosas `pickup` y `exit`, y la opción `y` para colocar objetos sobre losas.
+- Nivel de pruebas: la puerta del patio necesita la llave roja (que está en el puente), el hueco de la terraza es una pared secreta, 16 objetos y un interruptor de salida.
+
+#### Cambiado
+
+- `Mover.setProgress` coloca el cuerpo al instante (antes lo hacía en el siguiente paso de física).
+- El indicador provisional de munición y el destello de daño se integran en el nuevo HUD.
+
 ### Fase 5 — Enemigos, animaciones, IA y navmesh
 
 #### Añadido

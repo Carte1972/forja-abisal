@@ -291,7 +291,8 @@
       "light": 0.7,
       "special": {
         "type": "door",
-        "texture": "door_metal"
+        "texture": "door_metal",
+        "key": "red"
       }
     },
     {
@@ -354,7 +355,12 @@
       },
       "walls": "brick",
       "light": 0.4,
-      "secret": true
+      "secret": true,
+      "special": {
+        "type": "door",
+        "hidden": true,
+        "waitTime": 0
+      }
     }
   ],
   "slabs": [
@@ -381,11 +387,10 @@
       "x": 8,
       "z": 13,
       "angle": 0,
-      "weapons": ["pistol", "shotgun", "riveter", "launcher"],
+      "weapons": ["pistol", "shotgun"],
       "ammo": {
-        "bullets": 200,
-        "shells": 40,
-        "charges": 20
+        "bullets": 60,
+        "shells": 12
       }
     },
     {
@@ -544,6 +549,109 @@
       "x": 20,
       "z": -4,
       "angle": 180
+    },
+    {
+      "type": "pickup",
+      "item": "health",
+      "x": 14,
+      "z": 14.5
+    },
+    {
+      "type": "pickup",
+      "item": "ammo_shells",
+      "x": 2,
+      "z": 14.5
+    },
+    {
+      "type": "pickup",
+      "item": "armor_small",
+      "x": 5,
+      "z": 6
+    },
+    {
+      "type": "pickup",
+      "item": "armor_small",
+      "x": 6,
+      "z": 6
+    },
+    {
+      "type": "pickup",
+      "item": "ammo_bullets",
+      "x": 14,
+      "z": 7
+    },
+    {
+      "type": "pickup",
+      "item": "weapon_riveter",
+      "x": 2,
+      "z": -6
+    },
+    {
+      "type": "pickup",
+      "item": "health_large",
+      "x": 14.5,
+      "z": -5
+    },
+    {
+      "type": "pickup",
+      "item": "ammo_bullets",
+      "x": 14.5,
+      "z": -13.2
+    },
+    {
+      "type": "pickup",
+      "item": "key_red",
+      "x": 7.25,
+      "z": -9.5,
+      "y": 2
+    },
+    {
+      "type": "pickup",
+      "item": "health",
+      "x": 5,
+      "z": -8
+    },
+    {
+      "type": "pickup",
+      "item": "armor",
+      "x": 29,
+      "z": 1
+    },
+    {
+      "type": "pickup",
+      "item": "ammo_shells",
+      "x": 18,
+      "z": 1
+    },
+    {
+      "type": "pickup",
+      "item": "health_small",
+      "x": 21,
+      "z": 15
+    },
+    {
+      "type": "pickup",
+      "item": "health_small",
+      "x": 22,
+      "z": 15
+    },
+    {
+      "type": "pickup",
+      "item": "weapon_launcher",
+      "x": 28,
+      "z": -7
+    },
+    {
+      "type": "pickup",
+      "item": "ammo_charges",
+      "x": 27.8,
+      "z": -6.5
+    },
+    {
+      "type": "exit",
+      "x": 29.3,
+      "z": 15.3,
+      "angle": 90
     }
   ]
 }

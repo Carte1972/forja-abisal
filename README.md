@@ -6,25 +6,25 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 
 > **Demo:** https://carte1972.github.io/forja-abisal/
 
-> 🚧 **Estado:** en desarrollo. Fase actual: **5 — Enemigos**. Ya hay cuatro tipos de enemigo con IA, navegación, ataques y peleas entre ellos. Todavía no hay recogida de objetos ni HUD completo, y las puertas y los ascensores aún no se accionan.
+> 🚧 **Estado:** en desarrollo. Fase actual: **6 — Puertas, llaves, objetos y HUD**. El nivel de pruebas ya se puede completar: llave roja, puerta, ascensor, pared secreta, objetos, lava, salida y pantalla de fin de nivel. Faltan los tres niveles de verdad, el sonido, los menús y el automapa.
 
 ## Controles
 
-| Acción              | Tecla             | Estado       |
-| ------------------- | ----------------- | ------------ |
-| Moverse             | W A S D / flechas | ✅           |
-| Mirar               | Ratón             | ✅           |
-| Saltar              | Espacio           | ✅           |
-| Agacharse           | C (o Ctrl)        | ✅           |
-| Correr              | Shift             | ✅           |
-| Pausa               | Esc               | ✅           |
-| Disparar            | Clic izquierdo    | ✅           |
-| Disparo alternativo | Clic derecho      | ✅           |
-| Cambiar de arma     | 1-5 / rueda       | ✅           |
-| Recargar            | R                 | ✅           |
-| Usar                | E                 | Próximamente |
-| Automapa            | Tab               | Próximamente |
-| Estadísticas        | F3                | ✅           |
+| Acción                                    | Tecla             | Estado       |
+| ----------------------------------------- | ----------------- | ------------ |
+| Moverse                                   | W A S D / flechas | ✅           |
+| Mirar                                     | Ratón             | ✅           |
+| Saltar                                    | Espacio           | ✅           |
+| Agacharse                                 | C (o Ctrl)        | ✅           |
+| Correr                                    | Shift             | ✅           |
+| Pausa                                     | Esc               | ✅           |
+| Disparar                                  | Clic izquierdo    | ✅           |
+| Disparo alternativo                       | Clic derecho      | ✅           |
+| Cambiar de arma                           | 1-5 / rueda       | ✅           |
+| Recargar                                  | R                 | ✅           |
+| Usar (puertas, ascensores, interruptores) | E                 | ✅           |
+| Automapa                                  | Tab               | Próximamente |
+| Estadísticas                              | F3                | ✅           |
 
 > **¿Por qué C para agacharse?** En los navegadores, Ctrl+W cierra la pestaña y una página web no puede impedirlo. Ctrl también funciona, pero C es más seguro.
 
@@ -41,6 +41,34 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 - Cada arma recarga sola al vaciar el cargador. Con R se recarga antes.
 - Sin munición, el arma hace clic en vacío y se cambia sola a otra que tenga balas (nunca al lanzacargas).
 - Las explosiones empujan: disparar el lanzacargas al suelo justo después de saltar lanza al jugador por los aires (_rocket jump_).
+
+### Objetivo y mecánicas
+
+- **Objetivo:** llegar al **interruptor de salida** de cada nivel y pulsarlo con E. Al terminar, se muestran el tiempo y el porcentaje de enemigos eliminados, objetos recogidos y secretos encontrados.
+- **Puertas:** se abren con E y se cierran solas al cabo de unos segundos. No se cierran si hay alguien debajo. Los enemigos también abren las puertas normales.
+- **Llaves:** las puertas con franja de color necesitan la **llave roja, azul o amarilla**. Si no la tienes, verás un aviso.
+- **Ascensores:** súbete y pulsa E (o empújalo con E desde abajo para que baje). Esperan unos segundos y vuelven.
+- **Secretos:** algunas paredes esconden pasadizos que se abren con E. Entrar en una zona secreta cuenta para el porcentaje final.
+- **Suelos peligrosos:** la lava y el ácido hacen daño mientras los pisas.
+- **Objetos:**
+
+| Objeto                                         | Efecto                                                          |
+| ---------------------------------------------- | --------------------------------------------------------------- |
+| Vial de suero                                  | +5 de salud (permite pasar de 100, hasta 200)                   |
+| Botiquín / Botiquín de campaña                 | +25 / +50 de salud (hasta 100)                                  |
+| Placa de blindaje                              | +5 de blindaje (hasta 200)                                      |
+| Blindaje de forja                              | Blindaje al 100                                                 |
+| Caja de munición, cartuchos, cargas explosivas | Munición para cada tipo de arma                                 |
+| Escopeta, remachadora, lanzacargas             | El arma, con algo de munición (si es nueva, se saca al momento) |
+| Llaves roja, azul y amarilla                   | Abren las puertas de su color                                   |
+
+Los objetos que no necesitas (salud llena, munición al máximo) se quedan en el suelo. El blindaje absorbe un tercio del daño.
+
+### HUD
+
+- **Barra inferior:** munición y reserva, salud, icono del jugador, blindaje, armas que llevas (1-5, la actual resaltada) y llaves.
+- **Icono del jugador:** un casco cuyo visor cambia de color con la salud y se agrieta. Mira hacia el lado del que te atacan.
+- **Avisos visuales:** un arco rojo alrededor del punto de mira indica de dónde llega el daño. La pantalla destella en rojo al recibir daño y del color del objeto al recogerlo.
 
 ### Enemigos
 
@@ -178,16 +206,26 @@ Una losa es un bloque sólido flotante: permite pasar por encima y por debajo, c
 
 ### Cosas (`things`)
 
-| Campo    | Tipo              | Descripción                                                                                                                                    |
-| -------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `type`   | texto             | `player_start` (obligatorio y único), `lamp` (lámpara), `enemy` (enemigo) o `model` (modelo glTF opcional). Los objetos llegarán en la fase 6. |
-| `x`, `z` | número            | Posición. Debe estar dentro de un sector.                                                                                                      |
-| `y`      | número (opcional) | Altura; por defecto, la del suelo del sector.                                                                                                  |
-| `angle`  | grados (opcional) | Orientación.                                                                                                                                   |
+| Campo    | Tipo              | Descripción                                                                                                                                                    |
+| -------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`   | texto             | `player_start` (obligatorio y único), `lamp` (lámpara), `enemy` (enemigo), `pickup` (objeto), `exit` (interruptor de salida) o `model` (modelo glTF opcional). |
+| `x`, `z` | número            | Posición. Debe estar dentro de un sector.                                                                                                                      |
+| `y`      | número (opcional) | Altura; por defecto, la del suelo del sector.                                                                                                                  |
+| `angle`  | grados (opcional) | Orientación.                                                                                                                                                   |
 
 El resto de campos se guardan como propiedades. Por ejemplo, un `model` usa `url` (ruta dentro de `public/`, por ejemplo `models/estatua.glb`) y `scale`.
 
 El `player_start` admite el inventario inicial: `"weapons": ["pistol", "shotgun", "riveter", "launcher"]` (el martillo va siempre) y `"ammo": { "bullets": 50, "shells": 10, "charges": 4 }`. Si no se indica, se empieza con martillo, pistola y 50 balas.
+
+#### Objetos (`"type": "pickup"`)
+
+`item` es uno de: `health_small`, `health`, `health_large`, `armor_small`, `armor`, `ammo_bullets`, `ammo_shells`, `ammo_charges`, `weapon_shotgun`, `weapon_riveter`, `weapon_launcher`, `key_red`, `key_blue` o `key_yellow`. Con `y` se puede colocar encima de una losa.
+
+Ejemplo: `{ "type": "pickup", "item": "key_red", "x": 7.25, "z": -9.5, "y": 2 }`
+
+#### Salida (`"type": "exit"`)
+
+Interruptor que termina el nivel al pulsarlo con E. `angle` indica hacia dónde mira su pantalla. Todo nivel necesita al menos uno.
 
 #### Enemigos (`"type": "enemy"`)
 
