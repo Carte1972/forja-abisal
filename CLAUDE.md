@@ -36,6 +36,7 @@ npx vitest run -t "nombre del test"                 # un único test por nombre
 npm run lint         # ESLint
 npm run format       # Prettier (la CI ejecuta format:check)
 npm run typecheck
+npm run levels       # regenera src/levels/level_0N.json desde scripts/levels/
 ```
 
 `vite.config.ts` lee `VITE_BASE` para el `base`: el workflow de Pages le pasa `/<nombre-del-repo>/`, y en local se usa `/`. Los tests de Vitest se configuran en ese mismo archivo (`src/**/*.test.ts`, entorno node).
@@ -139,11 +140,18 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - **HUD:** `src/hud/hud.ts` (DOM con escrituras solo cuando cambia algo) y `player_face.ts` (canvas, solo se redibuja al cambiar de estado).
 - **Fin de nivel:** `Game` pasa a `status: 'complete'` y llama a `callbacks.onLevelComplete(summary)`. React (`ui/level_end.tsx`) muestra la pantalla, y "Jugar de nuevo" recrea `Game` cambiando la clave del efecto en `App`.
 
+**Niveles de la campaña (fase 7).**
+
+- **Fuentes:** `scripts/levels/level_0N.ts` (con `LevelKit` de `level_kit.ts`). `npm run levels` genera `src/levels/level_0N.json`, y **nunca se editan los JSON a mano**.
+- **Node y TypeScript:** el script lo ejecuta Node directamente quitando los tipos, así que en `scripts/` solo vale TypeScript "borrable" (sin propiedades en el constructor ni enums) y los imports llevan la extensión `.ts`.
+- **Registro:** `src/levels/index.ts` (`LEVELS`), y `ui/campaign.ts` decide qué nivel cargar (también `?nivel=N` o `?nivel=prueba`). `App` guarda el `PlayerCarry` que devuelve `onLevelComplete` y se lo pasa a `Game.create` en el siguiente nivel.
+- **Verificación:** `src/levels/level_checks.ts` recorre el grafo de sectores (y de losas, con índices negativos) respetando `MAX_RISE` y `MIN_HEADROOM`. `campaign.test.ts` exige, para cada nivel de `LEVELS`, las tres llaves en orden, la salida bloqueada sin llaves, 2 o más secretos alcanzables y todos los objetos y enemigos alcanzables.
+- **Para revisar un nivel a ojo:** es útil un plano cenital en SVG (sectores coloreados por altura). En la fase 7 se hizo con un test temporal que escribía el SVG en el scratchpad; el automapa de la fase 8 lo sustituirá.
+
 **Previsto.**
 
 - **Automapa:** se generará a partir de `LevelData`.
 - **Rendimiento:** con la pantalla del Mac (2400×1896, DPR 2) el cuello de botella es el relleno de píxeles de la GPU (cielo y post-procesado), no la CPU ni las draw calls. A escala 0,75 va a 120 FPS. Revisarlo en la fase 8.
-- **Niveles:** los tres niveles de la fase 7 sustituirán a `test_level.json` como nivel que carga `Game` (ahora está fijo en el import).
 
 ## Verificación en el navegador
 

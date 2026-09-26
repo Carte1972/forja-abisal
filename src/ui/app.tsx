@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Game, type GameStatus } from '../game/game';
+import { Game, type GameStatus, type PlayerCarry } from '../game/game';
 import type { LevelSummary } from '../game/rules/level_stats';
+import { initialLevelIndex, levelAt, nextLevelIndex } from './campaign';
 import { LevelEnd } from './level_end';
 
 declare global {
@@ -12,15 +13,33 @@ declare global {
 
 type AppStatus = GameStatus | 'loading';
 
+interface RunState {
+  levelIndex: number;
+  /** Estado con el que se empieza el nivel (el del final del anterior). */
+  carry: PlayerCarry | undefined;
+  /** Contador para recrear el juego aunque se repita el mismo nivel. */
+  attempt: number;
+}
+
+interface Completion {
+  summary: LevelSummary;
+  carry: PlayerCarry;
+}
+
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [status, setStatus] = useState<AppStatus>('loading');
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [summary, setSummary] = useState<LevelSummary | null>(null);
-  // Cambiar la clave vuelve a crear el juego desde cero (jugar de nuevo).
-  const [run, setRun] = useState(0);
+  const [completion, setCompletion] = useState<Completion | null>(null);
+  const [run, setRun] = useState<RunState>(() => ({
+    levelIndex: initialLevelIndex(window.location.search),
+    carry: undefined,
+    attempt: 0,
+  }));
+  const level = levelAt(run.levelIndex);
+  const next = nextLevelIndex(run.levelIndex);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -28,7 +47,14 @@ export function App() {
     let cancelled = false;
     let game: Game | null = null;
 
-    Game.create(container, { onStatusChange: setStatus, onLevelComplete: setSummary })
+    Game.create(
+      container,
+      {
+        onStatusChange: setStatus,
+        onLevelComplete: (summary, carry) => setCompletion({ summary, carry }),
+      },
+      { level: levelAt(run.levelIndex).data, carry: run.carry },
+    )
       .then((created) => {
         if (cancelled) {
           created.dispose();
@@ -51,10 +77,10 @@ export function App() {
     };
   }, [run]);
 
-  const restart = () => {
-    setSummary(null);
+  const startLevel = (levelIndex: number, carry: PlayerCarry | undefined) => {
+    setCompletion(null);
     setStatus('loading');
-    setRun((value) => value + 1);
+    setRun((previous) => ({ levelIndex, carry, attempt: previous.attempt + 1 }));
   };
 
   const play = () => {
@@ -68,10 +94,25 @@ export function App() {
   return (
     <div className="game-root">
       <div ref={containerRef} className="game-container" />
-      {status === 'complete' && summary && <LevelEnd summary={summary} onRestart={restart} />}
+      {status === 'complete' && completion && (
+        <LevelEnd
+          levelName={level.name}
+          summary={completion.summary}
+          nextName={next === null ? null : levelAt(next).name}
+          onNext={() => next !== null && startLevel(next, completion.carry)}
+          // Repetir empieza el nivel con lo que se tenía al entrar; volver a empezar, desde cero.
+          onRestart={() =>
+            next === null ? startLevel(0, undefined) : startLevel(run.levelIndex, run.carry)
+          }
+        />
+      )}
       {status !== 'playing' && status !== 'complete' && (
         <div className="overlay" onClick={status === 'loading' ? undefined : play}>
           <h1>Forja Abisal</h1>
+          <p className="overlay-level">
+            {run.levelIndex >= 0 ? `Nivel ${run.levelIndex + 1} · ` : ''}
+            {level.name}
+          </p>
           {error ? (
             <p className="overlay-error">No se pudo iniciar el juego: {error}</p>
           ) : status === 'loading' ? (

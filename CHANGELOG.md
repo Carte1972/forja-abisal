@@ -5,6 +5,26 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Fase 7 — Los tres niveles
+
+#### Añadido
+
+- Tres niveles originales de dificultad creciente, cada uno con puertas y llaves roja, azul y amarilla y dos secretos:
+  - **Fundición Cero:** canal de lava con puente, sótano con ascensor, galería elevada, patio exterior con plataforma. 13 enemigos.
+  - **Pozos de Ceniza:** sima a cielo abierto con tres alturas, rampa, pozo de ácido con ascensor, puente-losa sobre el vacío, crematorio con entreplanta y galerías elevadas. 21 enemigos.
+  - **Núcleo Abisal:** caverna con lago de lava, pasarelas-losa, isla con torre y ascensor, armería, sala fría con canal de ácido y emboscada final. 34 enemigos.
+- Kit de autoría de niveles (`scripts/levels/level_kit.ts`): salas, escaleras, losas y cosas con coordenadas. Deduplica vértices y parte uniones en T automáticamente. El script `npm run levels` genera los JSON y lo ejecuta Node directamente, sin compilar.
+- Verificador de jugabilidad (`src/levels/level_checks.ts`) sobre el grafo de sectores y losas: alturas de paso y salto, hueco bajo el techo, los dos niveles de los ascensores y puertas con llave. Con tests que exigen, para cada nivel:
+  - Que se consigan las tres llaves y que la salida sea alcanzable con ellas pero no sin ellas.
+  - Que haya al menos dos secretos, todos alcanzables.
+  - Que todos los objetos y enemigos estén en zonas alcanzables.
+- Campaña: los niveles se encadenan, y armas, munición, salud y blindaje pasan al siguiente. La pantalla de fin de nivel ofrece seguir o repetir, y al terminar el último, volver a empezar.
+- Parámetro `?nivel=N` para empezar en un nivel concreto y `?nivel=prueba` para el nivel de pruebas.
+
+#### Cambiado
+
+- `Game.create` recibe el nivel que hay que cargar y, opcionalmente, el estado del jugador al terminar el anterior.
+
 ### Fase 6 — Puertas, ascensores, llaves, secretos, objetos, HUD y salida
 
 #### Añadido

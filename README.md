@@ -6,7 +6,7 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 
 > **Demo:** https://carte1972.github.io/forja-abisal/
 
-> 🚧 **Estado:** en desarrollo. Fase actual: **6 — Puertas, llaves, objetos y HUD**. El nivel de pruebas ya se puede completar: llave roja, puerta, ascensor, pared secreta, objetos, lava, salida y pantalla de fin de nivel. Faltan los tres niveles de verdad, el sonido, los menús y el automapa.
+> 🚧 **Estado:** en desarrollo. Fase actual: **7 — Los tres niveles**. La campaña completa se puede jugar de principio a fin. Faltan el sonido, los menús, las opciones y el automapa.
 
 ## Controles
 
@@ -41,6 +41,20 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 - Cada arma recarga sola al vaciar el cargador. Con R se recarga antes.
 - Sin munición, el arma hace clic en vacío y se cambia sola a otra que tenga balas (nunca al lanzacargas).
 - Las explosiones empujan: disparar el lanzacargas al suelo justo después de saltar lanza al jugador por los aires (_rocket jump_).
+
+### La campaña
+
+Tres niveles originales, de dificultad creciente y cada vez más verticales. En cada uno hay que conseguir las **tres llaves** (roja, azul y amarilla) para llegar a la salida, y cada uno esconde al menos **dos secretos**.
+
+| Nivel | Nombre          | Qué te espera                                                                                                                                                                |
+| ----- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Fundición Cero  | Una fundición con un canal de lava, un sótano al que se baja en ascensor, una galería elevada y un patio exterior. 13 enemigos.                                              |
+| 2     | Pozos de Ceniza | Una sima a cielo abierto con tres alturas, un pozo de ácido del que solo se sale en ascensor, un puente sobre el vacío, un crematorio y unas galerías elevadas. 21 enemigos. |
+| 3     | Núcleo Abisal   | Una caverna con un lago de lava cruzado por pasarelas, una torre en una isla, una armería, una sala fría con un canal de ácido y una emboscada final. 34 enemigos.           |
+
+Las armas, la munición, la salud y el blindaje pasan de un nivel al siguiente. Al terminar un nivel puedes seguir o repetirlo (con lo que tenías al entrar).
+
+Para empezar directamente en un nivel, añade `?nivel=2` (o `3`) a la dirección del juego. Con `?nivel=prueba` se carga el nivel de pruebas.
 
 ### Objetivo y mecánicas
 
@@ -113,6 +127,18 @@ npm run preview   # sirve dist/ en local
 ## Cómo crear niveles nuevos
 
 Cada nivel es un archivo JSON en `src/levels/`. Está formado por **sectores**: polígonos 2D con altura de suelo y de techo. El juego extruye las paredes entre sectores, crea los escalones cuando las alturas son distintas, triangula suelos y techos y genera las colisiones.
+
+Los tres niveles de la campaña no se escriben a mano: se generan con un pequeño **kit de autoría** en `scripts/levels/`. Permite describir salas, escaleras y puertas con coordenadas, y reparte solo los vértices compartidos y parte las uniones en T. Tras editar un nivel, ejecuta:
+
+```bash
+npm run levels
+```
+
+Esto regenera `src/levels/level_0N.json`. Los tests comprueban con un recorrido del grafo de sectores que cada nivel se puede completar:
+
+- Las llaves se consiguen en orden.
+- La salida exige las tres llaves.
+- Los secretos, los objetos y los enemigos están en zonas alcanzables.
 
 ### Coordenadas
 
@@ -285,16 +311,17 @@ Al cargar, el nivel se valida y los errores se muestran todos juntos, con la rut
 
 ## Desarrollo
 
-| Script               | Qué hace                                       |
-| -------------------- | ---------------------------------------------- |
-| `npm run dev`        | Servidor de desarrollo con recarga en caliente |
-| `npm run build`      | Typecheck + build de producción en `dist/`     |
-| `npm run preview`    | Sirve el build de producción                   |
-| `npm test`           | Ejecuta los tests (Vitest)                     |
-| `npm run test:watch` | Tests en modo observación                      |
-| `npm run lint`       | ESLint                                         |
-| `npm run format`     | Formatea el código con Prettier                |
-| `npm run typecheck`  | Comprobación de tipos de TypeScript            |
+| Script               | Qué hace                                          |
+| -------------------- | ------------------------------------------------- |
+| `npm run dev`        | Servidor de desarrollo con recarga en caliente    |
+| `npm run build`      | Typecheck + build de producción en `dist/`        |
+| `npm run preview`    | Sirve el build de producción                      |
+| `npm test`           | Ejecuta los tests (Vitest)                        |
+| `npm run test:watch` | Tests en modo observación                         |
+| `npm run lint`       | ESLint                                            |
+| `npm run format`     | Formatea el código con Prettier                   |
+| `npm run typecheck`  | Comprobación de tipos de TypeScript               |
+| `npm run levels`     | Regenera los niveles JSON desde `scripts/levels/` |
 
 - Los commits siguen [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/) (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`).
 - La CI ejecuta lint, formato, typecheck y tests en cada push y pull request. Cada push a `main` se despliega en GitHub Pages.

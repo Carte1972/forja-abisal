@@ -17,7 +17,6 @@ import { ProceduralMaterials } from '../engine/textures/texture_library';
 import { Crosshair } from '../hud/crosshair';
 import { Hud } from '../hud/hud';
 import { StatsPanel } from '../hud/stats_panel';
-import testLevel from '../levels/test_level.json';
 import { EnemySystem } from './enemies/enemy_system';
 import { yawTowards } from './enemies/perception';
 import type { GameEvents } from './game_events';
@@ -41,7 +40,23 @@ export type GameStatus = 'ready' | 'playing' | 'paused' | 'complete';
 
 export interface GameCallbacks {
   onStatusChange(status: GameStatus): void;
-  onLevelComplete?(summary: LevelSummary): void;
+  onLevelComplete?(summary: LevelSummary, carry: PlayerCarry): void;
+}
+
+/** Lo que el jugador se lleva de un nivel al siguiente. */
+export interface PlayerCarry {
+  health: number;
+  armor: number;
+  weapons: WeaponId[];
+  /** Munición total por tipo (reserva más cargadores). */
+  ammo: Partial<Record<AmmoType, number>>;
+}
+
+export interface GameSetup {
+  /** Nivel en el formato JSON (se valida al cargar). */
+  level: unknown;
+  /** Estado del jugador al terminar el nivel anterior; sin él, se usa el inicio del nivel. */
+  carry?: PlayerCarry;
 }
 
 export interface GameplayOptions {
@@ -108,21 +123,26 @@ export class Game {
   private time = 0;
   private readonly unsubscribeLock: () => void;
 
-  static async create(container: HTMLElement, callbacks: GameCallbacks): Promise<Game> {
+  static async create(
+    container: HTMLElement,
+    callbacks: GameCallbacks,
+    setup: GameSetup,
+  ): Promise<Game> {
     await Promise.all([initPhysics(), initNavigation()]);
-    return new Game(container, callbacks);
+    return new Game(container, callbacks, setup);
   }
 
   private constructor(
     container: HTMLElement,
     private readonly callbacks: GameCallbacks,
+    setup: GameSetup,
   ) {
     this.renderer = new Renderer(container);
     this.physics = new PhysicsWorld(FIXED_STEP);
     this.input = new InputSystem(this.renderer.canvas);
     this.materials = new ProceduralMaterials(Math.min(this.renderer.maxAnisotropy, 8));
     this.level = buildLevel(
-      parseLevel(testLevel),
+      parseLevel(setup.level),
       this.renderer.scene,
       this.physics,
       this.materials,
@@ -158,8 +178,14 @@ export class Game {
         rng: this.rng,
         onShot: (def) => this.crosshair.pulse(def.recoil * 8),
       },
-      loadoutFrom(this.level.data),
+      setup.carry
+        ? { weapons: setup.carry.weapons.filter((id) => id !== 'hammer'), ammo: setup.carry.ammo }
+        : loadoutFrom(this.level.data),
     );
+    if (setup.carry) {
+      this.playerCombatant.health.health = setup.carry.health;
+      this.playerCombatant.health.armor = setup.carry.armor;
+    }
 
     // El mundo se crea antes que los enemigos para que estos puedan abrir puertas.
     const enemyFeet = () => this.enemies.enemies.filter((e) => e.alive).map((e) => e.feet);
@@ -430,7 +456,24 @@ export class Game {
     if (this.status === 'complete') return;
     this.setStatus('complete');
     this.input.exitPointerLock();
-    this.callbacks.onLevelComplete?.(this.stats.summary());
+    this.callbacks.onLevelComplete?.(this.stats.summary(), this.carry());
+  }
+
+  /** Estado del jugador para empezar el siguiente nivel. */
+  private carry(): PlayerCarry {
+    const state = this.weapons.state;
+    const ammo: Partial<Record<AmmoType, number>> = { ...state.ammo };
+    for (const id of state.owned) {
+      const type = WEAPONS[id].ammo;
+      if (type) ammo[type] = (ammo[type] ?? 0) + state.magazines[id];
+    }
+    const health = this.playerCombatant.health;
+    return {
+      health: Math.max(1, health.health),
+      armor: health.armor,
+      weapons: [...state.owned],
+      ammo,
+    };
   }
 
   private buildNavigation(): Navigation | null {

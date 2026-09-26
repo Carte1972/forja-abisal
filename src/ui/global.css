@@ -399,3 +399,22 @@ body,
 .overlay-button:hover {
   background: #ffa060;
 }
+
+.overlay-level,
+.level-end-name {
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c0a080;
+}
+
+.overlay-button-secondary {
+  margin-top: 0.25rem;
+  color: #ffd9b0;
+  background: transparent;
+  border: 1px solid #6a5040;
+}
+
+.overlay-button-secondary:hover {
+  background: rgb(255 138 58 / 15%);
+}
