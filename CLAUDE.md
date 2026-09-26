@@ -39,17 +39,46 @@ npm run typecheck
 
 `vite.config.ts` lee `VITE_BASE` para el `base`: el workflow de Pages le pasa `/<nombre-del-repo>/`, y en local se usa `/`. Los tests de Vitest se configuran en ese mismo archivo (`src/**/*.test.ts`, entorno node).
 
-## Arquitectura (prevista; actualizar según avancen las fases)
+## Arquitectura
+
+**Carpetas.**
 
 - `src/engine/`: render, física, audio, input y niveles. No depende de `src/game/`.
 - `src/game/`: jugador, armas, enemigos, mundo y reglas.
 - `src/hud/`: overlay HTML/CSS.
 - `src/ui/`: React, solo para los menús.
 - `src/levels/`: niveles en JSON, importados por Vite.
-- La lógica pura (sector_geometry, level_parser, weapon_logic, ai_state_machine, pickup_rules) no importa Three.js ni el DOM, para poder testearla en Node.
-- **Game loop:** física y lógica a paso fijo de 60 Hz con acumulador; render en cada frame. Los sistemas se comunican por un bus de eventos tipado.
+
+La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existe `player_movement` y `fixed_step`; están previstos sector_geometry, level_parser, weapon_logic, ai_state_machine y pickup_rules.
+
+**Qué hay (fase 1).**
+
+- `game/game.ts` (`Game`) crea los sistemas y ejecuta `GameLoop`: `fixedUpdate` a 60 Hz (jugador → `world.step()`) y `render` en cada frame.
+- La vista del ratón se aplica en el render, no a paso fijo, para que responda al instante. La posición de la cámara se interpola entre los dos últimos pasos.
+- **Estados:** `ready` → `playing` ⇄ `paused`, ligados al pointer lock (Esc lo suelta). React (`ui/app.tsx`) solo pinta el overlay según el estado.
+- **`InputSystem`:**
+  - Solo registra input con el ratón capturado.
+  - Las pulsaciones se guardan hasta que alguien las consume con `consumePressed`, así no se pierden en frames sin paso de simulación.
+  - Suelta todas las teclas al perder el foco o el pointer lock.
+- **`CharacterBody`** (engine/physics):
+  - Cuerpo cinemático en los pies, con la cápsula desplazada hacia arriba. Al agacharse cambia la forma y el offset, y fija ya la pose del collider (Rapier solo la recalcula en `step`).
+  - Para levantarse comprueba antes el hueco con `intersectionWithShape`.
+  - La gravedad y el salto del jugador los aplica `player_movement`, no el mundo de Rapier.
+
+**Previsto.**
+
 - **Niveles:** una lista global de vértices y sectores que apuntan a ellos; la contigüidad sale de las aristas compartidas. El generador extruye paredes y escalones, triangula suelos y techos, crea colliders trimesh y fusiona lo estático por material. Puertas, ascensores y paredes secretas son mallas aparte con cuerpos cinemáticos. El automapa y el navmesh se generan a partir de los mismos datos.
 - **Rendimiento:** la luz de cada sector se hornea en colores de vértice y hay un pool fijo de luces puntuales (siempre el mismo número, para no recompilar shaders). El arma se renderiza en una segunda pasada con la profundidad limpia.
+
+## Verificación en el navegador
+
+- El navegador de Playwright **no concede pointer lock** (`WrongDocumentError`).
+- En desarrollo, `window.__forja` expone el `Game`:
+  - `debugSetPlaying(true)` entra en modo juego sin capturar el ratón.
+  - `debugState()` devuelve la posición y la velocidad.
+  - Se accede a los campos internos con `__forja.player`, por ejemplo `player.body.teleport(...)` o `player.yaw`.
+- Para simular teclas mantenidas, usa `page.keyboard.down/up` en `browser_run_code_unsafe`.
+- WebGL funciona en ese navegador, así que las capturas son fiables.
 
 ## Flujo de trabajo por fases
 
@@ -61,4 +90,10 @@ npm run typecheck
   4. Hacer el commit. Solo si el juego arranca y los tests pasan.
   5. Dar un resumen corto, el mensaje del commit y cómo probarlo.
 - Commits en Conventional Commits en español (p. ej. `feat: fase 2 - generador de niveles por sectores`), con commits intermedios si hay cambios grandes e independientes.
-- Los lanzadores `jugar.command` y `jugar.sh` deben guardar el bit de ejecución en git (`git update-index --chmod=+x`). Su lógica común irá en `scripts/launcher.mjs`. El de macOS se prueba en este equipo.
+- Los lanzadores `jugar.command` y `jugar.sh` deben guardar el bit de ejecución en git (`git update-index --chmod=+x`). Son envoltorios finos: comprueban Node (≥ 22.12, la misma versión en `engines`) y llaman a `scripts/launcher.mjs`, que tiene toda la lógica.
+- **`launcher.mjs`:**
+  - Reinstala solo si `package-lock.json` es más nuevo que `node_modules/.forja_install_stamp`.
+  - Recompila solo si cambia el hash de las entradas del build (guardado en `dist/.forja_build_hash`).
+  - Sirve `dist/` con `vite preview` desde el puerto 4173 en adelante.
+  - Acepta `--no-open` (o `FORJA_NO_OPEN=1`) para probarlo sin abrir el navegador.
+- Para probar el doble clic de verdad: `open jugar.command` (abre Terminal.app como Finder).

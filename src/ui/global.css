@@ -14,17 +14,62 @@ body,
   overflow: hidden;
 }
 
-.splash {
-  display: grid;
-  place-content: center;
+.game-root,
+.game-container {
+  position: relative;
+  width: 100%;
   height: 100%;
-  text-align: center;
 }
 
-.splash h1 {
+.game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  background: rgb(8 5 4 / 72%);
+  cursor: pointer;
+  user-select: none;
+}
+
+.overlay h1 {
   margin: 0;
-  font-size: 3rem;
+  font-size: clamp(2rem, 6vw, 3.5rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #ff6a1f;
+  text-shadow: 0 0 24px rgb(255 106 31 / 45%);
+}
+
+.overlay p {
+  margin: 0;
+}
+
+.overlay-action {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.overlay-help {
+  max-width: 40rem;
+  opacity: 0.75;
+  font-size: 0.9rem;
+}
+
+.overlay-notice {
+  color: #ffc24a;
+}
+
+.overlay-error {
+  color: #ff7a6a;
 }
