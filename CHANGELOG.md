@@ -5,6 +5,10 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+## [1.0.0] - 2026-09-26
+
+Primera versión completa: tres niveles jugables de principio a fin, cinco armas, cuatro tipos de enemigos, sonido, menús, opciones y automapa. Se juega en el navegador (demo en GitHub Pages) o en local con los lanzadores de macOS, Windows y Linux. Las secciones siguientes recogen los cambios de cada fase del desarrollo.
+
 ### Fase 9 — Cierre: lanzadores, documentación y verificación final
 
 #### Añadido
@@ -240,3 +244,6 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 - Workflow de CI (lint, formato, typecheck y tests en cada push y pull request).
 - Workflow de despliegue en GitHub Pages con el `base` de Vite ligado al nombre del repositorio.
 - `README.md` inicial, `CLAUDE.md`, `LICENSE` (MIT) y este `CHANGELOG.md`.
+
+[Sin publicar]: https://github.com/Carte1972/forja-abisal/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Carte1972/forja-abisal/releases/tag/v1.0.0

@@ -1,7 +1,7 @@
 {
   "name": "forja-abisal",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "FPS 3D retro para el navegador con Three.js y Rapier. Todo el contenido es original.",
   "license": "MIT",
   "type": "module",
