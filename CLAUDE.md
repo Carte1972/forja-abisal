@@ -21,7 +21,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Texturas generadas en canvas al arrancar y sonidos sintetizados con Web Audio; no se añaden archivos de assets externos.
 - No instalar nada fuera de las dependencias npm del proyecto sin pedir permiso.
 - Nombres de archivo en **snake_case**. Tests junto al código como `*.test.ts`.
-- No hacer push ni crear el remoto sin que el usuario lo pida; cuando lo pida, comprobar antes que `gh` está instalado y autenticado.
+- **Repositorio:** https://github.com/Carte1972/forja-abisal (público, remoto `origin`). El usuario ha pedido ir guardando en GitHub: hacer `git push` a `main` después de los commits de cada fase. No cambiar la visibilidad ni la configuración del repositorio sin pedirlo.
+- **Demo:** https://carte1972.github.io/forja-abisal/. Pages está en modo "GitHub Actions" y cada push a `main` la redespliega. Tras hacer push, comprueba con `gh run list` que CI y Deploy terminan en verde.
 
 ## Comandos
 
