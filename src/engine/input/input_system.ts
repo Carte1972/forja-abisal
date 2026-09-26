@@ -77,6 +77,15 @@ export class InputSystem {
     this.setLocked(locked);
   }
 
+  /**
+   * Pulsa o suelta una acción sin teclado ni ratón (pruebas automatizadas y modo de grabación de
+   * vídeo). Se comporta como una tecla más, con su propia fuente.
+   */
+  simulateAction(action: Action, down: boolean): void {
+    if (down) this.press(action, 'simulated', false);
+    else this.release(action, 'simulated');
+  }
+
   exitPointerLock(): void {
     if (document.pointerLockElement === this.target) {
       document.exitPointerLock();

@@ -659,3 +659,14 @@ body,
   font-size: 0.8rem;
   color: #6a5848;
 }
+
+/* ---------- Modo de grabación del vídeo (solo desarrollo) ---------- */
+
+body.recording,
+body.recording * {
+  cursor: none !important;
+}
+
+body.recording-no-hud .hud-root {
+  display: none;
+}

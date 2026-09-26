@@ -10,6 +10,8 @@ import type { Player } from './player';
 export class PlayerCombatant implements Combatant {
   readonly health = new PlayerHealth();
   readonly bloodColor = 0x000000;
+  /** No recibe daño (solo lo usa el modo de grabación de vídeo). */
+  invulnerable = false;
 
   constructor(
     private readonly player: Player,
@@ -29,7 +31,7 @@ export class PlayerCombatant implements Combatant {
   }
 
   applyDamage(info: DamageInfo): void {
-    if (!this.alive) return;
+    if (!this.alive || this.invulnerable) return;
     const lost = this.health.takeDamage(info.amount);
     if (info.knockback > 0) {
       this.player.applyImpulse({

@@ -60,6 +60,30 @@ export interface GameSetup {
   level: unknown;
   /** Estado del jugador al terminar el nivel anterior; sin él, se usa el inicio del nivel. */
   carry?: PlayerCarry;
+  /** Solo para el modo de grabación de vídeo (`src/recording/`). */
+  recording?: RecordingSetup;
+}
+
+/**
+ * Juego controlado por el modo de grabación: sin bucle propio (lo avanza `recordingStep`), sin
+ * sonido y con el jugador invulnerable.
+ */
+export interface RecordingSetup {
+  /** Si se crean los enemigos del nivel (si no, el clip pone los suyos). */
+  levelEnemies: boolean;
+}
+
+/** Sistemas internos que el modo de grabación necesita manejar. */
+export interface RecordingAccess {
+  renderer: Renderer;
+  input: InputSystem;
+  player: Player;
+  weapons: WeaponSystem;
+  enemies: EnemySystem;
+  world: WorldSystem;
+  level: LoadedLevel;
+  keys: Set<KeyColor>;
+  hudRoot: HTMLElement;
 }
 
 /** Ajustes que el juego aplica en caliente (los guarda la interfaz). */
@@ -140,6 +164,8 @@ export class Game {
   private status: GameStatus = 'ready';
   private time = 0;
   private readonly unsubscribeLock: () => void;
+  /** Modo de grabación: coloca la cámara en lugar del jugador (cámara libre). */
+  cameraOverride: ((camera: THREE.PerspectiveCamera) => void) | null = null;
 
   static async create(
     container: HTMLElement,
@@ -177,11 +203,12 @@ export class Game {
     this.statsPanel = new StatsPanel(this.hudRoot);
     this.automap = new Automap(this.hudRoot, this.level.data);
     this.audio = new AudioSystem(this.renderer.camera, this.renderer.scene);
-    this.audio.startAmbient();
+    if (!setup.recording) this.audio.startAmbient();
 
     this.navigation = this.buildNavigation();
     this.player = new Player(this.physics, this.level.spawn, this.options);
     this.playerCombatant = new PlayerCombatant(this.player, this.bus);
+    this.playerCombatant.invulnerable = setup.recording !== undefined;
     this.damage.registerPlayer(this.playerCombatant.colliderHandle, this.playerCombatant);
     this.weapons = new WeaponSystem(
       {
@@ -234,7 +261,7 @@ export class Game {
       player: this.playerCombatant,
       openDoorAt: (point) => this.world.openDoorForEnemy(point),
     });
-    this.enemies.spawnFromLevel();
+    if (setup.recording?.levelEnemies !== false) this.enemies.spawnFromLevel();
     this.stats = new LevelStats(
       this.enemies.enemies.length,
       this.world.totalItems,
@@ -278,7 +305,7 @@ export class Game {
       },
       FIXED_STEP,
     );
-    this.loop.start();
+    if (!setup.recording) this.loop.start();
     callbacks.onStatusChange(this.status);
   }
 
@@ -315,6 +342,29 @@ export class Game {
       shadows: settings.shadows,
       resolutionScale: settings.resolutionScale,
     });
+  }
+
+  /**
+   * Modo de grabación: avanza un paso de simulación (si `simulate`) y dibuja un fotograma, como
+   * haría el bucle normal a 60 fps pero sin depender del reloj.
+   */
+  recordingStep(simulate: boolean): void {
+    if (simulate) this.fixedUpdate(FIXED_STEP);
+    this.render(1, FIXED_STEP);
+  }
+
+  recordingAccess(): RecordingAccess {
+    return {
+      renderer: this.renderer,
+      input: this.input,
+      player: this.player,
+      weapons: this.weapons,
+      enemies: this.enemies,
+      world: this.world,
+      level: this.level,
+      keys: this.keys,
+      hudRoot: this.hudRoot,
+    };
   }
 
   /** Entra o sale del modo juego sin pointer lock real (solo para pruebas automatizadas). */
@@ -456,6 +506,7 @@ export class Game {
     this.time += dt;
     const camera = this.renderer.camera;
     this.player.updateCamera(camera, this.status === 'playing' ? alpha : 1);
+    this.cameraOverride?.(camera);
     this.materials.update(this.time);
     this.lights.update(this.time, camera.position);
     this.sky?.update(this.time, camera);

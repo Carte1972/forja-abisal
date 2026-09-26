@@ -5,7 +5,17 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', '.forja_node', 'playwright_screenshots', '.playwright-mcp'] },
+  {
+    ignores: [
+      'dist',
+      'node_modules',
+      '.forja_node',
+      'video/out',
+      'video/public',
+      'playwright_screenshots',
+      '.playwright-mcp',
+    ],
+  },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],

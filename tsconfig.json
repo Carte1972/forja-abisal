@@ -23,5 +23,5 @@
       "@kninnug/constrainautor": ["./src/types/constrainautor.d.ts"]
     }
   },
-  "include": ["src", "scripts", "vite.config.ts", "eslint.config.js"]
+  "include": ["src", "scripts", "video/clips", "vite.config.ts", "eslint.config.js"]
 }

@@ -19,7 +19,9 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "levels": "node scripts/build_levels.ts && prettier --write src/levels/level_*.json",
-    "planos": "node scripts/build_plans.ts"
+    "planos": "node scripts/build_plans.ts",
+    "video:clips": "npm --prefix video run clips --",
+    "video:typecheck": "npm --prefix video run typecheck"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",

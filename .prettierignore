@@ -1,4 +1,6 @@
 dist
+video/out
+video/public
 node_modules
 .forja_node
 package-lock.json
