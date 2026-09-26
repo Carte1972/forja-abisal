@@ -5,6 +5,8 @@ export type GameEvents = {
   /** Ruido que alerta a los enemigos cercanos (disparos, explosiones). */
   noise: { position: Vec3; radius: number; source: 'player' | 'enemy' };
   explosion: { position: Vec3; radius: number };
-  /** Daño recibido por el jugador (la salud llega en la fase 6). */
+  /** Daño recibido por el jugador. */
   playerDamaged: { amount: number; from: Vec3 };
+  playerDied: Record<string, never>;
+  enemyKilled: { kind: string; position: Vec3 };
 };

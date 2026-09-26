@@ -26,6 +26,17 @@ describe('DamageRegistry', () => {
   });
 });
 
+describe('DamageRegistry con jugador', () => {
+  it('lookup encuentra al jugador por su collider, pero within no lo incluye', () => {
+    const registry = new DamageRegistry();
+    const player = target(0);
+    registry.registerPlayer(7, player);
+    expect(registry.lookup(7)).toBe(player);
+    expect(registry.playerTarget).toBe(player);
+    expect(registry.within({ x: 0, y: 0, z: 0 }, 5)).toEqual([]);
+  });
+});
+
 describe('explosionFalloff', () => {
   it('es 1 en el centro, 0 en el borde y decrece', () => {
     expect(explosionFalloff(0, 4)).toBe(1);

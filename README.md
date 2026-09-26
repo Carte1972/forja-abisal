@@ -6,7 +6,7 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 
 > **Demo:** https://carte1972.github.io/forja-abisal/
 
-> 🚧 **Estado:** en desarrollo. Fase actual: **4 — Armas**. Ya hay cinco armas con disparo, recarga, proyectiles explosivos (con rocket jump), impactos, partículas y marcas en las paredes. Todavía no hay enemigos, y las puertas y los ascensores aún no se accionan.
+> 🚧 **Estado:** en desarrollo. Fase actual: **5 — Enemigos**. Ya hay cuatro tipos de enemigo con IA, navegación, ataques y peleas entre ellos. Todavía no hay recogida de objetos ni HUD completo, y las puertas y los ascensores aún no se accionan.
 
 ## Controles
 
@@ -41,6 +41,20 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 - Cada arma recarga sola al vaciar el cargador. Con R se recarga antes.
 - Sin munición, el arma hace clic en vacío y se cambia sola a otra que tenga balas (nunca al lanzacargas).
 - Las explosiones empujan: disparar el lanzacargas al suelo justo después de saltar lanza al jugador por los aires (_rocket jump_).
+
+### Enemigos
+
+| Enemigo   | Aspecto                                         | Ataque                               | Salud |
+| --------- | ----------------------------------------------- | ------------------------------------ | ----- |
+| Centinela | Soldado acorazado con visor rojo                | Ráfagas de tres disparos a distancia | 60    |
+| Rastrero  | Criatura encorvada de brazos largos, muy rápida | Zarpazos cuerpo a cuerpo             | 45    |
+| Escupidor | Mole con sacos de ácido brillantes              | Bolas de ácido que caen en parábola  | 130   |
+| Vigía     | Orbe volador con un ojo y aletas giratorias     | Descargas de energía                 | 55    |
+
+- **Percepción:** los enemigos te ven dentro de su cono de visión si nada se interpone, y oyen los disparos (el ruido viaja por los pasillos, no a través de las paredes).
+- **Tras descubrirte:** te persiguen por la malla de navegación: suben escaleras, rodean columnas y siguen tu última posición conocida.
+- **Si uno hiere a otro, se pelean entre ellos** hasta que uno muere.
+- **Al recibir daño** a veces se encogen de dolor, lo que interrumpe su ataque.
 
 ## Instalación y ejecución
 
@@ -164,16 +178,26 @@ Una losa es un bloque sólido flotante: permite pasar por encima y por debajo, c
 
 ### Cosas (`things`)
 
-| Campo    | Tipo              | Descripción                                                                                                                                     |
-| -------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `type`   | texto             | `player_start` (obligatorio y único), `lamp` (lámpara) o `model` (modelo glTF opcional). Los enemigos y objetos llegarán en las próximas fases. |
-| `x`, `z` | número            | Posición. Debe estar dentro de un sector.                                                                                                       |
-| `y`      | número (opcional) | Altura; por defecto, la del suelo del sector.                                                                                                   |
-| `angle`  | grados (opcional) | Orientación.                                                                                                                                    |
+| Campo    | Tipo              | Descripción                                                                                                                                    |
+| -------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`   | texto             | `player_start` (obligatorio y único), `lamp` (lámpara), `enemy` (enemigo) o `model` (modelo glTF opcional). Los objetos llegarán en la fase 6. |
+| `x`, `z` | número            | Posición. Debe estar dentro de un sector.                                                                                                      |
+| `y`      | número (opcional) | Altura; por defecto, la del suelo del sector.                                                                                                  |
+| `angle`  | grados (opcional) | Orientación.                                                                                                                                   |
 
 El resto de campos se guardan como propiedades. Por ejemplo, un `model` usa `url` (ruta dentro de `public/`, por ejemplo `models/estatua.glb`) y `scale`.
 
 El `player_start` admite el inventario inicial: `"weapons": ["pistol", "shotgun", "riveter", "launcher"]` (el martillo va siempre) y `"ammo": { "bullets": 50, "shells": 10, "charges": 4 }`. Si no se indica, se empieza con martillo, pistola y 50 balas.
+
+#### Enemigos (`"type": "enemy"`)
+
+| Campo    | Tipo                         | Descripción                                                                                                      |
+| -------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `kind`   | texto                        | `sentinel` (centinela), `crawler` (rastrero), `spitter` (escupidor) o `watcher` (vigía, volador).                |
+| `angle`  | grados                       | Hacia dónde mira al empezar (solo ve dentro de su cono de visión).                                               |
+| `patrol` | lista de `[x, z]` (opcional) | Puntos de patrulla: el enemigo va y viene entre su posición inicial y estos puntos. Sin patrulla, espera quieto. |
+
+Ejemplo: `{ "type": "enemy", "kind": "sentinel", "x": 3, "z": 1.5, "angle": 180, "patrol": [[13, 1.5]] }`
 
 #### Lámparas (`"type": "lamp"`)
 

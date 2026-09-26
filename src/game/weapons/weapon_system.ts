@@ -155,6 +155,10 @@ export class WeaponSystem {
     this.muzzleLight.position.copy(this.animator.muzzle.getWorldPosition(this.muzzleWorld));
   }
 
+  setVisible(visible: boolean): void {
+    this.animator.setVisible(visible);
+  }
+
   handleCollision(handle1: number, handle2: number): void {
     this.projectiles.handleCollision(handle1, handle2);
   }
@@ -384,7 +388,15 @@ export class WeaponSystem {
         y: (dir.y * 0.6 + 0.4) * EXPLOSION_PUSH * falloff,
         z: dir.z * EXPLOSION_PUSH * falloff,
       });
-      bus.emit('playerDamaged', { amount: request.damage * 0.4 * falloff, from: position });
+      // El empuje ya se ha aplicado arriba; aquí solo el daño (el propio disparo hiere menos).
+      damage.playerTarget?.applyDamage({
+        amount: request.damage * 0.4 * falloff,
+        point: center,
+        direction: dir,
+        knockback: 0,
+        source: 'player',
+        attacker: player,
+      });
     }
     const shake = Math.max(0, 1 - distance / (radius * 4));
     player.addShake(shake * 0.8);

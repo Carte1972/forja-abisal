@@ -50,7 +50,7 @@ npm run typecheck
 - `src/ui/`: React, solo para los menús.
 - `src/levels/`: niveles en JSON, importados por Vite.
 
-La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `event_bus`, `polygon_utils`, `level_parser`, `sector_geometry`, `surface_triangulation`, `noise`, `normal_map`, `texture_catalog`, `decal_textures`, `light_effects`, `weapon_logic` y `damage`; están previstos ai_state_machine y pickup_rules.
+La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `event_bus`, `polygon_utils`, `level_parser`, `sector_geometry`, `surface_triangulation`, `noise`, `normal_map`, `texture_catalog`, `decal_textures`, `light_effects`, `weapon_logic` y `damage`; `ai_state_machine`, `perception`, `enemy_defs`, `player_health` y `navmesh` (con WASM); está previsto pickup_rules.
 
 **Qué hay (fase 1).**
 
@@ -111,9 +111,21 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - **Normales:** `MeshWriter.addPolygon` calcula la normal a partir de los triángulos (`planeNormal`), porque los puntos pueden llegar en cualquier orden.
 - **Cómo detectar huecos:** pon en la escena `overrideMaterial` blanco, quita la niebla y el cielo, pon el fondo magenta y cuenta los píxeles magenta con `gl.readPixels` justo después de `renderer.render()`. Hay que renderizar a mano: tras un frame normal el búfer ya está limpio y la cuenta sale 0.
 
+**Enemigos (fase 5).**
+
+- **Lógica pura (con tests):** `game/enemies/ai_state_machine.ts` (`stepAi`: recibe `AiPerception` y devuelve un `AiCommand` con `move`, `face`, `strike` y `entered`), `perception.ts` (cono de visión y giros) y `enemy_defs.ts` (datos de los 4 tipos).
+- **`EnemySystem`** (`enemy_system.ts`) lo une todo:
+  - Percepción: la vista se comprueba cada 0,15–0,25 s con un raycast contra `STATIC | MOVER`. El ruido llega por el `EventBus` y se oye si la longitud del camino por el navmesh cabe en el radio.
+  - Movimiento: con `Navigation.findPath` (repathing cada 0,5 s), o directo si el objetivo está cerca y a la vista, o si vuela.
+  - Ataques y muerte. La animación va en `render()`, interpolada entre pasos.
+- **Objetivos:** el jugador (`PlayerCombatant`) y los enemigos implementan `Combatant`, así que un enemigo puede apuntar a otro. El jugador se registra con `DamageRegistry.registerPlayer`: `lookup` lo encuentra, pero `within` (explosiones) no lo incluye, porque su empuje se aplica aparte.
+- **Navmesh:** `engine/ai/navmesh.ts`, con recast-navigation (WASM embebido, así que se inicializa con `initNavigation()`, también en los tests de Node) sobre `LoadedLevel.collision`. Las puertas no forman parte de la malla estática, así que el camino las atraviesa: los enemigos se quedan empujando contra una puerta cerrada hasta que en la fase 6 sepan abrirlas.
+- **Modelos:** `enemy_models.ts` construye el rig por articulaciones y luego fusiona las piezas de cada articulación por material (`mergeJoints`). Para animar, se rota la articulación, nunca las piezas.
+
 **Previsto.**
 
-- **Navmesh (recast) y automapa:** se generarán a partir de `LevelData` y de la malla de colisión.
+- **Automapa:** se generará a partir de `LevelData`.
+- **Rendimiento:** con la pantalla del Mac (2400×1896, DPR 2) el cuello de botella es el relleno de píxeles de la GPU (cielo y post-procesado), no la CPU ni las draw calls. A escala 0,75 va a 120 FPS. Revisarlo en la fase 8.
 
 ## Verificación en el navegador
 
@@ -124,6 +136,8 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
   - Se accede a los campos internos con `__forja.player`, por ejemplo `player.body.teleport(...)` o `player.yaw`.
 - Para simular teclas mantenidas, usa `page.keyboard.down/up` en `browser_run_code_unsafe`.
 - Para disparar sin mover el ratón (lo que giraría la vista), usa `__forja.input.press('fire', 'test', false)` y luego `release('fire', 'test')`. Tras cambiar `player.yaw`, espera al menos un frame antes de disparar: la puntería usa la cámara del último render.
+- **Galerías sin que se muevan:** si no se entra en modo juego, los enemigos no se mueven. Para fotografiarlos, oculta el overlay con `page.addStyleTag({ content: '.overlay{display:none!important}' })`.
+- **Leer el búfer HDR:** `renderer.composer.inputBuffer` con `readRenderTargetPixels` (HalfFloat, se decodifica con `THREE.DataUtils.fromHalfFloat`). `gl.readPixels` sobre el canvas no sirve con el composer activo.
 - **Cuidado:** no lances en paralelo una edición de código y una recarga de la página. La recarga puede llegar antes del cambio (pasó en la fase 3 y el resultado confundió).
 - WebGL funciona en ese navegador, así que las capturas son fiables.
 

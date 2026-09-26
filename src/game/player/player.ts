@@ -41,6 +41,9 @@ export class Player {
   private readonly headBob = new HeadBob();
   private readonly landingDip = new LandingDip();
   private readonly kick = new CameraKick();
+  /** Muerto: no responde a los controles y la cámara cae al suelo. */
+  dead = false;
+  private deathTime = 0;
   private readonly shake = new CameraShake();
 
   constructor(
@@ -94,6 +97,10 @@ export class Player {
     this.prevEye.copy(this.currEye);
     this.kick.update(dt);
     this.shake.update(dt);
+    if (this.dead) {
+      this.deathTime += dt;
+      return;
+    }
 
     const crouched = this.body.setCrouched(input.isDown('crouch'));
 
@@ -171,6 +178,14 @@ export class Player {
       lerp(this.prevEye.z, this.currEye.z, alpha),
     );
     const shake = this.shake.offset();
+    if (this.dead) {
+      // La cámara cae al suelo y se ladea.
+      const t = Math.min(this.deathTime / 0.8, 1);
+      const ease = t * t * (3 - 2 * t);
+      camera.position.y -= (this.eyeHeight - 0.25) * ease;
+      camera.rotation.set(this.pitch * (1 - ease) + 0.25 * ease, this.yaw, 0.9 * ease);
+      return;
+    }
     camera.rotation.set(
       clamp(this.pitch + this.kick.pitch + shake.pitch, -MAX_PITCH, MAX_PITCH),
       this.yaw + this.kick.yaw + shake.yaw,
@@ -183,7 +198,14 @@ export class Player {
     }
   }
 
+  die(): void {
+    this.dead = true;
+    this.deathTime = 0;
+    this.movement.velocity = { x: 0, y: 0, z: 0 };
+  }
+
   respawn(): void {
+    this.dead = false;
     this.body.teleport(this.spawn.position);
     this.movement.velocity = { x: 0, y: 0, z: 0 };
     this.yaw = this.spawn.yaw;

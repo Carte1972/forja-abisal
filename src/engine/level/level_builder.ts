@@ -8,7 +8,7 @@ import type { MaterialLibrary } from '../textures/texture_library';
 import { loadGltfModel } from './gltf_loader';
 import { findSectorAt, surfaceHeightAt } from './level_queries';
 import type { LevelData, ThingData } from './level_types';
-import { buildLevelGeometry, type GeometryBatch } from './sector_geometry';
+import { buildLevelGeometry, type CollisionMesh, type GeometryBatch } from './sector_geometry';
 
 export interface LevelSpawn {
   position: { x: number; y: number; z: number };
@@ -48,6 +48,8 @@ export interface LoadedLevel {
   spawn: LevelSpawn;
   lamps: Lamp[];
   bounds: Bounds;
+  /** Malla de colisión estática (para generar la malla de navegación). */
+  collision: CollisionMesh;
   /** Handle del collider de la geometría estática (para distinguirla de puertas y enemigos). */
   staticColliderHandle: number;
   /** Estadísticas de la geometría generada (para el panel F3). */
@@ -137,7 +139,8 @@ function collisionBounds(positions: number[]): Bounds {
   return { min, max };
 }
 
-function thingHeight(level: LevelData, thing: ThingData): number {
+/** Altura de una cosa: la indicada en el nivel o la del suelo del sector en el que está. */
+export function thingHeight(level: LevelData, thing: ThingData): number {
   if (thing.y !== undefined) return thing.y;
   const [x, z] = thing.position;
   const sector = findSectorAt(level, x, z);
@@ -219,6 +222,7 @@ export function buildLevel(
     movers,
     spawn,
     lamps: extractLamps(data),
+    collision: geometry.collision,
     staticColliderHandle: staticCollider.handle,
     bounds: collisionBounds(geometry.collision.positions),
     stats: { meshes, triangles },

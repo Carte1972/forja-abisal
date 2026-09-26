@@ -22,9 +22,17 @@ export interface Damageable {
   applyDamage(info: DamageInfo): void;
 }
 
-/** Relaciona colliders de Rapier con entidades que reciben daño. */
+/**
+ * Relaciona colliders de Rapier con entidades que reciben daño. El jugador se registra aparte:
+ * los rayos y proyectiles lo encuentran, pero las explosiones lo tratan por separado (empuje).
+ */
 export class DamageRegistry {
   private readonly byCollider = new Map<number, Damageable>();
+  private player: { handle: number; target: Damageable } | null = null;
+
+  registerPlayer(colliderHandle: number, target: Damageable): void {
+    this.player = { handle: colliderHandle, target };
+  }
 
   register(colliderHandle: number, target: Damageable): void {
     this.byCollider.set(colliderHandle, target);
@@ -35,10 +43,15 @@ export class DamageRegistry {
   }
 
   lookup(colliderHandle: number): Damageable | undefined {
+    if (this.player?.handle === colliderHandle) return this.player.target;
     return this.byCollider.get(colliderHandle);
   }
 
-  /** Objetivos vivos dentro de un radio (para las explosiones). */
+  get playerTarget(): Damageable | null {
+    return this.player?.target ?? null;
+  }
+
+  /** Objetivos vivos dentro de un radio (para las explosiones), sin incluir al jugador. */
   within(center: Vec3, radius: number): Damageable[] {
     const seen = new Set<Damageable>();
     for (const target of this.byCollider.values()) {

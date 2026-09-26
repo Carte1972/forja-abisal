@@ -5,6 +5,33 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Fase 5 — Enemigos, animaciones, IA y navmesh
+
+#### Añadido
+
+- Cuatro enemigos originales construidos con primitivas en jerarquías (cadera, torso, cabeza, brazos y piernas):
+  - Centinela: soldado con disparo instantáneo.
+  - Rastrero: criatura rápida cuerpo a cuerpo.
+  - Escupidor: lanza bolas de ácido.
+  - Vigía: orbe volador que dispara descargas.
+- Animaciones procedurales: caminar, atacar (disparo, zarpazo, escupitajo), dolor, destello al recibir daño y muerte con caída animada (el volador cae al suelo).
+- IA con máquina de estados pura y testeada: reposo, patrulla, alerta, persecución, ataque, dolor y muerte.
+- Percepción:
+  - Cono de visión con raycast; una vez alerta, visión en todas direcciones.
+  - Ruido de disparos y explosiones propagado por la malla de navegación: se oye por los pasillos, no a través de los muros.
+- Peleas entre enemigos: si uno hiere a otro, se pelean hasta que uno muere y luego vuelven a por el jugador.
+- Malla de navegación generada con recast-navigation-js a partir de la geometría del nivel, con repathing y detección de atascos. El volador se guía sin malla, manteniendo la altura.
+- Ataques de los enemigos: disparos con dispersión (que también hieren a otros enemigos), golpes cuerpo a cuerpo y proyectiles propios con trazado por rayos para no atravesar paredes.
+- Salud y armadura del jugador. Destello rojo al recibir daño, empuje y temblor de cámara.
+- Muerte provisional del jugador: la cámara cae al suelo y reaparece al inicio a los 2,5 s. La pantalla de muerte llega en la fase 8.
+- Cosas `enemy` en el formato de nivel, con puntos de patrulla. El nivel de pruebas tiene 9 enemigos.
+- Enemigos vivos en el panel F3.
+
+#### Cambiado
+
+- `CharacterBody` admite grupos de colisión y un modo volador, y lo usan tanto el jugador como los enemigos.
+- Las piezas de cada articulación de los enemigos se fusionan por material, y solo proyectan sombra las grandes: la mitad de draw calls.
+
 ### Fase 4 — Armas, disparos, proyectiles, impactos y partículas
 
 #### Añadido

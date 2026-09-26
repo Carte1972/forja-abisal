@@ -19,10 +19,32 @@ export interface MoveResult {
 const WALL_NORMAL_MAX_Y = 0.3;
 
 const IDENTITY_ROTATION = { x: 0, y: 0, z: 0, w: 1 };
-/** El personaje choca con el nivel y los enemigos (no con proyectiles) y recibe disparos. */
-const CHARACTER_GROUPS = interactionGroups(GROUP.PLAYER, SOLID_WORLD | GROUP.HITSCAN);
-/** Las consultas del controlador solo ven lo que bloquea al personaje. */
-const CHARACTER_QUERY = interactionGroups(GROUP.PLAYER, SOLID_WORLD);
+
+export interface CharacterOptions {
+  /** Grupos del collider (qué es y con qué interactúa). */
+  groups: number;
+  /** Grupos de las consultas del controlador (qué le bloquea al moverse). */
+  query: number;
+  /** Sin ajuste al suelo ni subida de escalones (enemigos voladores). */
+  flying: boolean;
+}
+
+/** El jugador choca con el nivel y los enemigos (no con proyectiles) y recibe disparos. */
+export const PLAYER_CHARACTER: CharacterOptions = {
+  groups: interactionGroups(GROUP.PLAYER, SOLID_WORLD | GROUP.HITSCAN),
+  query: interactionGroups(GROUP.PLAYER, SOLID_WORLD),
+  flying: false,
+};
+
+/** Los enemigos chocan con el nivel, entre sí y con el jugador; reciben disparos y proyectiles. */
+export const ENEMY_CHARACTER: CharacterOptions = {
+  groups: interactionGroups(
+    GROUP.ENEMY,
+    SOLID_WORLD | GROUP.PLAYER | GROUP.HITSCAN | GROUP.PROJECTILE,
+  ),
+  query: interactionGroups(GROUP.ENEMY, SOLID_WORLD | GROUP.PLAYER),
+  flying: false,
+};
 
 /**
  * Cápsula cinemática movida por el KinematicCharacterController de Rapier.
@@ -35,12 +57,15 @@ export class CharacterBody {
   private readonly controller: RAPIER.KinematicCharacterController;
   private readonly feet: Vec3;
   private crouchedState = false;
+  private readonly queryGroups: number;
 
   constructor(
     private readonly physics: PhysicsWorld,
     spawnFeet: Vec3,
     private readonly dims: CapsuleDimensions,
+    options: CharacterOptions = PLAYER_CHARACTER,
   ) {
+    this.queryGroups = options.query;
     const { world } = physics;
     this.feet = { ...spawnFeet };
     this.body = world.createRigidBody(
@@ -54,15 +79,17 @@ export class CharacterBody {
     this.collider = world.createCollider(
       RAPIER.ColliderDesc.capsule(this.halfHeight(dims.standHeight), dims.radius)
         .setTranslation(0, offsetY, 0)
-        .setCollisionGroups(CHARACTER_GROUPS),
+        .setCollisionGroups(options.groups),
       this.body,
     );
 
     this.controller = world.createCharacterController(0.02);
     this.controller.setUp({ x: 0, y: 1, z: 0 });
     this.controller.setSlideEnabled(true);
-    this.controller.enableAutostep(0.45, 0.15, false);
-    this.controller.enableSnapToGround(0.4);
+    if (!options.flying) {
+      this.controller.enableAutostep(0.45, 0.15, false);
+      this.controller.enableSnapToGround(0.4);
+    }
     this.controller.setMaxSlopeClimbAngle((46 * Math.PI) / 180);
     this.controller.setMinSlopeSlideAngle((50 * Math.PI) / 180);
     this.controller.setApplyImpulsesToDynamicBodies(true);
@@ -86,7 +113,7 @@ export class CharacterBody {
       this.collider,
       desired,
       RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
-      CHARACTER_QUERY,
+      this.queryGroups,
     );
     const m = this.controller.computedMovement();
     this.feet.x += m.x;
@@ -144,7 +171,7 @@ export class CharacterBody {
       IDENTITY_ROTATION,
       shape,
       RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
-      CHARACTER_QUERY,
+      this.queryGroups,
       this.collider,
     );
     return hit === null;
