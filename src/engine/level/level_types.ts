@@ -95,9 +95,24 @@ export interface ThingData {
   properties: Record<string, unknown>;
 }
 
+export interface EnvironmentData {
+  /** Niebla lineal por distancia (colores como 0xRRGGBB). */
+  fog: { color: number; near: number; far: number };
+  /** Cielo procedural: degradado de cenit a horizonte y suelo, con nubes (0 = despejado, 1 = cubierto). */
+  sky: { top: number; horizon: number; bottom: number; clouds: number };
+  /** Luz ambiental base (se multiplica por la luz de cada sector). */
+  ambient: { color: number; intensity: number };
+  /**
+   * Sol: luz direccional con sombras que ilumina las zonas con cielo (solo se crea si el nivel
+   * tiene sectores con cielo). `null` = sin sol. `direction` apunta hacia donde viaja la luz.
+   */
+  sun: { color: number; intensity: number; direction: [number, number, number] } | null;
+}
+
 export interface LevelData {
   version: 1;
   name: string;
+  environment: EnvironmentData;
   vertices: Point2[];
   sectors: SectorData[];
   slabs: SlabData[];

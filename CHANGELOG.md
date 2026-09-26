@@ -5,6 +5,36 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Fase 3 — Texturas, iluminación, niebla y post-procesado
+
+#### Añadido
+
+- 16 texturas procedurales originales generadas en canvas al arrancar, que se repiten sin costuras:
+  - Superficies: ladrillo, losas, peldaño, chapa antideslizante, paneles de techo y rejilla.
+  - Paredes tecnológicas con tiras luminosas y paneles de circuitos.
+  - Puerta, marco y ascensor.
+  - Terreno y fluidos: roca, tierra, lava y ácido.
+- Filtrado `NearestFilter` (con mipmaps para la distancia) y normal maps derivados de la luminancia de cada textura.
+- Emisivos con bloom (tiras de luz, pilotos, lava). La lava y el ácido fluyen y laten.
+- Sistema de luces con un número fijo de luces para no recompilar shaders:
+  - 6 luces puntuales asignadas a las lámparas más cercanas; una con sombra.
+  - 3 luces para destellos (fogonazos y explosiones), listas para las armas.
+  - Modos de parpadeo: `steady`, `flicker`, `pulse`, `strobe` y `broken`.
+- Pantallas de lámpara emisivas en una sola malla instanciada, y farolas con poste en exteriores.
+- Sol direccional con sombras en los niveles con cielo. Sin sombras se apaga y se compensa con luz ambiental.
+- Cielo procedural con shader: degradado, resplandor de brasas en el horizonte, nubes en movimiento y estrellas.
+- Niebla lineal por distancia.
+- Post-procesado con la librería `postprocessing`: bloom, viñeta, tone mapping ACES, MSAA y filtro de pixelado opcional. Opciones de calidad por código: sombras, post-procesado y escala de resolución.
+- Panel de estadísticas con F3: FPS, tiempo de frame, draw calls y triángulos.
+- Bloque `environment` y cosas `lamp` en el formato de nivel, documentados en el README.
+- 56 tests nuevos: RNG, ruido periódico, normal maps, catálogo de texturas (tamaño, determinismo, costuras), parpadeos, selección de lámparas y entorno.
+
+#### Cambiado
+
+- La geometría visible de puertas y ascensores se mete 2 cm hacia dentro para no parpadear contra las paredes estáticas. La textura de las puertas visibles se ajusta a la hoja.
+- El nivel de pruebas tiene 11 lámparas y el cielo a 9 m.
+- Se eliminan los materiales de color plano y la iluminación provisional.
+
 ### Fase 2 — Generador de niveles por sectores
 
 #### Añadido

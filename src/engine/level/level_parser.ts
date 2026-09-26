@@ -1,5 +1,7 @@
+import { FLICKER_MODES, type FlickerMode } from '../render/light_effects';
 import {
   KEY_COLORS,
+  type EnvironmentData,
   type KeyColor,
   type LevelData,
   type Point2,
@@ -20,6 +22,13 @@ export class LevelValidationError extends Error {
     this.name = 'LevelValidationError';
   }
 }
+
+export const DEFAULT_ENVIRONMENT: EnvironmentData = {
+  fog: { color: 0x1b1512, near: 14, far: 75 },
+  sky: { top: 0x120c1c, horizon: 0x5a2618, bottom: 0x1b1512, clouds: 0.55 },
+  ambient: { color: 0xc8b8ac, intensity: 0.9 },
+  sun: { color: 0xffb488, intensity: 2.2, direction: [0.45, -0.75, 0.4] },
+};
 
 const DEFAULTS = {
   light: 0.8,
@@ -67,6 +76,16 @@ class Reader {
     if (typeof value === 'string' && value.length > 0) return value;
     this.error(path, 'debe ser un texto no vacío');
     return undefined;
+  }
+
+  /** Color en formato "#rrggbb" convertido a 0xRRGGBB. */
+  color(value: unknown, path: string, fallback: number): number {
+    if (value === undefined) return fallback;
+    if (typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)) {
+      return Number.parseInt(value.slice(1), 16);
+    }
+    this.error(path, 'debe ser un color "#rrggbb"');
+    return fallback;
   }
 
   point(value: unknown, path: string): Point2 | undefined {
@@ -220,6 +239,8 @@ export function parseLevel(json: unknown): LevelData {
     }
   };
 
+  const environment = readEnvironment(r, root.environment);
+
   const sectors: SectorData[] = [];
   (r.array(root.sectors, 'sectors') ?? []).forEach((value, i) => {
     const path = `sectors[${i}]`;
@@ -297,15 +318,111 @@ export function parseLevel(json: unknown): LevelData {
       properties,
     };
     if (y !== undefined) thing.y = r.number(y, `${path}.y`) ?? 0;
+    if (type === 'lamp') thing.properties = readLampProperties(r, properties, path);
     things.push(thing);
   });
 
   if (r.issues.length > 0) throw new LevelValidationError(r.issues);
 
-  const level: LevelData = { version: 1, name, vertices, sectors, slabs, things };
+  const level: LevelData = { version: 1, name, environment, vertices, sectors, slabs, things };
   validateTopology(level, r);
   if (r.issues.length > 0) throw new LevelValidationError(r.issues);
   return level;
+}
+
+function readEnvironment(r: Reader, value: unknown): EnvironmentData {
+  const d = DEFAULT_ENVIRONMENT;
+  if (value === undefined) return structuredClone(d);
+  const env = r.object(value, 'environment') ?? {};
+  const fog = env.fog === undefined ? {} : (r.object(env.fog, 'environment.fog') ?? {});
+  const sky = env.sky === undefined ? {} : (r.object(env.sky, 'environment.sky') ?? {});
+  const ambient =
+    env.ambient === undefined ? {} : (r.object(env.ambient, 'environment.ambient') ?? {});
+  const result: EnvironmentData = {
+    fog: {
+      color: r.color(fog.color, 'environment.fog.color', d.fog.color),
+      near: r.optionalNumber(fog.near, 'environment.fog.near', d.fog.near),
+      far: r.optionalNumber(fog.far, 'environment.fog.far', d.fog.far),
+    },
+    sky: {
+      top: r.color(sky.top, 'environment.sky.top', d.sky.top),
+      horizon: r.color(sky.horizon, 'environment.sky.horizon', d.sky.horizon),
+      bottom: r.color(sky.bottom, 'environment.sky.bottom', d.sky.bottom),
+      clouds: r.optionalNumber(sky.clouds, 'environment.sky.clouds', d.sky.clouds),
+    },
+    sun: d.sun ? { ...d.sun, direction: [...d.sun.direction] } : null,
+    ambient: {
+      color: r.color(ambient.color, 'environment.ambient.color', d.ambient.color),
+      intensity: r.optionalNumber(
+        ambient.intensity,
+        'environment.ambient.intensity',
+        d.ambient.intensity,
+      ),
+    },
+  };
+  if (env.sun === null) {
+    result.sun = null;
+  } else if (env.sun !== undefined) {
+    const sun = r.object(env.sun, 'environment.sun') ?? {};
+    const fallback = d.sun!;
+    let direction = fallback.direction;
+    if (sun.direction !== undefined) {
+      const list = r.array(sun.direction, 'environment.sun.direction');
+      if (
+        list?.length === 3 &&
+        list.every((n) => typeof n === 'number') &&
+        (list[1] as number) < 0
+      ) {
+        direction = list as [number, number, number];
+      } else {
+        r.error('environment.sun.direction', 'debe ser [x, y, z] con y negativa (de arriba abajo)');
+      }
+    }
+    result.sun = {
+      color: r.color(sun.color, 'environment.sun.color', fallback.color),
+      intensity: r.optionalNumber(sun.intensity, 'environment.sun.intensity', fallback.intensity),
+      direction,
+    };
+  }
+  if (result.fog.far <= result.fog.near)
+    r.error('environment.fog', '"far" debe ser mayor que "near"');
+  if (result.sky.clouds < 0 || result.sky.clouds > 1) {
+    r.error('environment.sky.clouds', 'debe estar entre 0 y 1');
+  }
+  return result;
+}
+
+export interface LampProperties {
+  color: number;
+  intensity: number;
+  radius: number;
+  flicker: FlickerMode;
+  shadows: boolean;
+}
+
+/** Valida las propiedades de una lámpara y rellena sus valores por defecto. */
+function readLampProperties(
+  r: Reader,
+  props: Record<string, unknown>,
+  path: string,
+): Record<string, unknown> & LampProperties {
+  const lamp: LampProperties = {
+    color: r.color(props.color, `${path}.color`, 0xffd8a8),
+    intensity: r.optionalNumber(props.intensity, `${path}.intensity`, 1),
+    radius: r.optionalNumber(props.radius, `${path}.radius`, 10),
+    flicker: 'steady',
+    shadows: props.shadows === true,
+  };
+  if (props.flicker !== undefined) {
+    if (FLICKER_MODES.includes(props.flicker as FlickerMode)) {
+      lamp.flicker = props.flicker as FlickerMode;
+    } else {
+      r.error(`${path}.flicker`, `debe ser uno de: ${FLICKER_MODES.join(', ')}`);
+    }
+  }
+  if (lamp.radius <= 0) r.error(`${path}.radius`, 'debe ser mayor que 0');
+  if (lamp.intensity < 0) r.error(`${path}.intensity`, 'no puede ser negativa');
+  return { ...props, ...lamp };
 }
 
 function validateTopology(level: LevelData, r: Reader): void {

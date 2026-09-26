@@ -11,6 +11,11 @@ import type { LevelData, Point2, SectorData, SlabData, SurfaceData } from './lev
 /** Repeticiones de textura por metro (una textura cubre 2 m). */
 export const TEXTURE_SCALE = 0.5;
 const EPS = 1e-6;
+/**
+ * Cuánto se mete hacia dentro la geometría visible de puertas y ascensores. Sin este margen,
+ * al moverse, sus caras quedarían en el mismo plano que las paredes estáticas y parpadearían.
+ */
+export const MOVER_INSET = 0.02;
 
 export interface GeometryBatch {
   positions: number[];
@@ -196,6 +201,7 @@ function addWall(
   normal2: Point2,
   light: number,
   collide = true,
+  customUv?: UvFn,
 ): void {
   const points: P3[] = [
     [a[0], bottom[0], a[1]],
@@ -204,10 +210,9 @@ function addWall(
   if (top[1] - bottom[1] > EPS) points.push([b[0], top[1], b[1]]);
   if (top[0] - bottom[0] > EPS) points.push([a[0], top[0], a[1]]);
   if (points.length < 3) return;
-  const uv: UvFn = (p) => [
-    Math.hypot(p[0] - a[0], p[2] - a[1]) * TEXTURE_SCALE,
-    p[1] * TEXTURE_SCALE,
-  ];
+  const uv: UvFn =
+    customUv ??
+    ((p) => [Math.hypot(p[0] - a[0], p[2] - a[1]) * TEXTURE_SCALE, p[1] * TEXTURE_SCALE]);
   writer.addPolygon(
     texture,
     points,
@@ -400,6 +405,22 @@ function addSlab(writer: MeshWriter, level: LevelData, slab: SlabData): void {
   });
 }
 
+/** Desplaza cada arista de un polígono convexo antihorario `distance` metros hacia dentro. */
+function insetConvex(points: Point2[], distance: number): Point2[] {
+  const n = points.length;
+  return points.map((p, i) => {
+    const prev = points[(i - 1 + n) % n]!;
+    const next = points[(i + 1) % n]!;
+    const n1 = interiorNormal(prev, p);
+    const n2 = interiorNormal(p, next);
+    // Bisectriz de las dos normales, escalada para que ambas aristas se muevan `distance`.
+    const bx = n1[0] + n2[0];
+    const bz = n1[1] + n2[1];
+    const scale = distance / Math.max(1 + n1[0] * n2[0] + n1[1] * n2[1], 1e-3);
+    return [p[0] + bx * scale, p[1] + bz * scale];
+  });
+}
+
 /** Luz del sector que contiene el primer triángulo de un polígono (un punto seguro en su interior). */
 function lightInside(level: LevelData, flat: Point2[], triangles: number[]): number {
   const [i, j, k] = triangles;
@@ -425,7 +446,8 @@ function buildMover(
     throw new Error(`El sector ${sector.index} no es una puerta ni un ascensor`);
   }
   const writer = new MeshWriter(null);
-  const points = ringPoints(level, sector.outer);
+  const exact = ringPoints(level, sector.outer);
+  const points = insetConvex(exact, MOVER_INSET);
   const isDoor = special.type === 'door';
   const bottomY = isDoor ? sector.floor.height : special.lowHeight;
   const topY = isDoor ? sector.ceiling.height : sector.floor.height;
@@ -445,11 +467,21 @@ function buildMover(
     const key = ia < ib ? `${ia}:${ib}` : `${ib}:${ia}`;
     const neighbour = edgeSides.get(key)?.find((side) => side.sector !== sector)?.sector;
     if (!neighbour) return;
-    const a = level.vertices[ia]!;
-    const b = level.vertices[ib]!;
+    const a = points[i]!;
+    const b = points[(i + 1) % points.length]!;
     const inward = interiorNormal(a, b);
-    const texture =
-      special.type === 'door' && special.hidden ? neighbour.walls.middle : special.texture;
+    const hidden = special.type === 'door' && special.hidden;
+    const texture = hidden ? neighbour.walls.middle : special.texture;
+    // Las puertas visibles llevan la textura ajustada a la hoja (franja de peligro abajo);
+    // las secretas usan coordenadas del mundo para confundirse con la pared de alrededor.
+    const edgeLength = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const fitted: UvFn | undefined =
+      isDoor && !hidden
+        ? (p) => [
+            Math.hypot(p[0] - a[0], p[2] - a[1]) / edgeLength,
+            (p[1] - bottomY) / (topY - bottomY),
+          ]
+        : undefined;
     addWall(
       writer,
       texture,
@@ -460,11 +492,13 @@ function buildMover(
       [-inward[0], -inward[1]],
       neighbour.light,
       false,
+      fitted,
     );
   });
 
+  // El collider usa el contorno exacto: la puerta cerrada no deja rendijas.
   const hullPoints: number[] = [];
-  for (const [x, z] of points) hullPoints.push(x, bottomY, z, x, topY, z);
+  for (const [x, z] of exact) hullPoints.push(x, bottomY, z, x, topY, z);
 
   return {
     sectorIndex: sector.index,

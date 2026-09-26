@@ -49,7 +49,7 @@ npm run typecheck
 - `src/ui/`: React, solo para los menús.
 - `src/levels/`: niveles en JSON, importados por Vite.
 
-La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `polygon_utils`, `level_parser` y `sector_geometry`; están previstos weapon_logic, ai_state_machine y pickup_rules.
+La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `polygon_utils`, `level_parser`, `sector_geometry`, `noise`, `normal_map`, `texture_catalog` y `light_effects`; están previstos weapon_logic, ai_state_machine y pickup_rules.
 
 **Qué hay (fase 1).**
 
@@ -78,13 +78,27 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - **Puertas y ascensores:**
   - Son prismas aparte con un cuerpo cinemático convexo. Se mueven con `Mover.setProgress(0..1)`, sin lógica todavía (llega en la fase 6).
   - La geometría estática trata la puerta como abierta (no genera su techo) y el ascensor como bajado (suelo en `lowHeight`, sin su tapa). El prisma tapa el resto.
-- **Materiales:** `engine/render/placeholder_materials.ts` da colores planos por nombre de textura (con `vertexColors` para la luz horneada). Se sustituirá por texturas procedurales en la fase 3 detrás de la misma interfaz `MaterialLibrary`.
 - **Jugador contra paredes:** solo se recorta la velocidad contra las normales de las paredes (`MoveResult.wallNormals`) cuando el avance ha quedado bloqueado. Si se recortara con el movimiento real, se frenaría en rampas y escaleras.
 - **Nivel de pruebas:** `src/levels/test_level.json` se generó con un script auxiliar y ahora se edita a mano. Test de humo en `src/levels/levels.test.ts`.
 
+**Render (fase 3).**
+
+- **Texturas:** `engine/textures/texture_catalog.ts` tiene los generadores puros (sobre `PixelBuffer`) y se testea en Node. `texture_library.ts` (`ProceduralMaterials`, que implementa `MaterialLibrary`) los vuelca a canvas, deriva los normal maps y crea los `MeshStandardMaterial` con `vertexColors` para la luz del sector.
+  - Todo ruido debe ser periódico (`fbm`, `fbmAniso`, `voronoi` de `noise.ts`). No escales las coordenadas de entrada: rompe la periodicidad. Hay un test que detecta costuras.
+  - **Nueva textura:** añade su generador y su entrada en `TEXTURE_CATALOG`, y su nombre en la lista del README.
+- **Luces:** `engine/render/light_system.ts` usa un número **fijo** de luces (6 de lámpara, 1 con sombra, y 3 de destello con `flash()` para fogonazos y explosiones).
+  - Nunca cambies `castShadow` ni el número de luces en ejecución: recompila todos los shaders.
+  - La selección de lámparas (`selectLamps`) y los parpadeos (`flickerFactor`) son puros, en `light_effects.ts`.
+- **Sol:** solo en niveles con cielo. Depende de las sombras para no iluminar interiores: si se desactivan, se apaga y se sube la luz ambiental (`LightSystem.setShadowsEnabled`).
+- **Calidad:** usa `Game.setQuality()`, que cambia el renderer y las luces a la vez.
+- **Post-procesado:** `engine/render/renderer.ts`, con EffectComposer en HalfFloat, bloom, viñeta, tone mapping y pixelado en un pase aparte. Con post-procesado, `renderer.toneMapping` es `NoToneMapping`.
+  - El bloom se activa con luminancia > ~1. Los emisivos usan `emissiveIntensity` > 1 y las pantallas de lámpara llevan color HDR en `instanceColor`.
+- **Cielo:** `sky_dome.ts`, una esfera que sigue a la cámara, en el plano lejano y sin escribir profundidad.
+- **Puertas y ascensores:** la geometría visible va `MOVER_INSET` hacia dentro para evitar z-fighting con paredes coplanares. El collider no.
+
 **Previsto.**
 
-- **Rendimiento:** pool fijo de luces puntuales (siempre el mismo número, para no recompilar shaders). El arma se renderiza en una segunda pasada con la profundidad limpia.
+- **Armas:** el arma se renderizará en una segunda pasada con la profundidad limpia (habrá que añadir un `RenderPass` sin limpiar color al composer). Los fogonazos usan `LightSystem.flash()`.
 - **Navmesh (recast) y automapa:** se generarán a partir de `LevelData` y de la malla de colisión.
 
 ## Verificación en el navegador
@@ -95,6 +109,7 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
   - `debugState()` devuelve la posición y la velocidad.
   - Se accede a los campos internos con `__forja.player`, por ejemplo `player.body.teleport(...)` o `player.yaw`.
 - Para simular teclas mantenidas, usa `page.keyboard.down/up` en `browser_run_code_unsafe`.
+- **Cuidado:** no lances en paralelo una edición de código y una recarga de la página. La recarga puede llegar antes del cambio (pasó en la fase 3 y el resultado confundió).
 - WebGL funciona en ese navegador, así que las capturas son fiables.
 
 ## Flujo de trabajo por fases

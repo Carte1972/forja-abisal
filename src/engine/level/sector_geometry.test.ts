@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { parseLevel } from './level_parser';
-import { buildLevelGeometry, type GeometryBatch, type LevelGeometry } from './sector_geometry';
+import {
+  buildLevelGeometry,
+  MOVER_INSET,
+  type GeometryBatch,
+  type LevelGeometry,
+} from './sector_geometry';
 import { rawLevel, rawSector, TWO_ROOMS_VERTICES, type RawSector } from './test_helpers';
 
 type V3 = [number, number, number];
@@ -238,11 +243,16 @@ describe('buildLevelGeometry', () => {
     expect(door.hullPoints).toHaveLength(4 * 2 * 3);
     const doorTris = trianglesOf(door.batches);
     expectConsistentWinding(doorTris);
-    // Cara inferior + una única cara lateral hacia el vecino (x=4, mirando a -X).
-    expect(sumArea(doorTris.filter(isDown))).toBeCloseTo(16);
+    // Cara inferior + una única cara lateral hacia el vecino (x≈4, mirando a -X), metidas
+    // MOVER_INSET hacia dentro para no coincidir con las paredes estáticas.
+    const inner = 4 - 2 * MOVER_INSET;
+    expect(sumArea(doorTris.filter(isDown))).toBeCloseTo(inner * inner);
     const sides = doorTris.filter(isWall);
-    expect(sumArea(sides)).toBeCloseTo(4 * 3);
+    expect(sumArea(sides)).toBeCloseTo(inner * 3);
     expect(sides.every((t) => t.normal[0] < -0.99 && t.texture === 'door_panel')).toBe(true);
+    expect(
+      sides.every((t) => t.points.every((p) => Math.abs(p[0] - (4 + MOVER_INSET)) < 1e-9)),
+    ).toBe(true);
   });
 
   it('un ascensor genera un prisma que baja y paredes estáticas desde su altura baja', () => {
@@ -268,7 +278,7 @@ describe('buildLevelGeometry', () => {
     expect(lift.kind).toBe('lift');
     expect(lift.travel).toBeCloseTo(-2);
     const top = trianglesOf(lift.batches).filter(isUp);
-    expect(sumArea(top)).toBeCloseTo(16);
+    expect(sumArea(top)).toBeCloseTo((4 - 2 * MOVER_INSET) ** 2);
     expect(top.every((t) => t.points.every((p) => Math.abs(p[1] - 2) < 1e-9))).toBe(true);
   });
 

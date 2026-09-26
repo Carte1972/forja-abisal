@@ -6,7 +6,7 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 
 > **Demo:** https://&lt;usuario&gt;.github.io/&lt;repositorio&gt;/ _(disponible cuando se publique el repositorio)_
 
-> 🚧 **Estado:** en desarrollo. Fase actual: **2 — Generador de niveles**. Hay un nivel de pruebas generado desde sectores, con escaleras, rampa, foso de lava con puente, patio exterior y terraza. Todavía no hay texturas, armas ni enemigos, y las puertas y los ascensores aún no se accionan.
+> 🚧 **Estado:** en desarrollo. Fase actual: **3 — Texturas, iluminación y post-procesado**. El nivel de pruebas ya tiene texturas procedurales, lámparas con parpadeos, sol con sombras, cielo, niebla y bloom. Todavía no hay armas ni enemigos, y las puertas y los ascensores aún no se accionan.
 
 ## Controles
 
@@ -23,7 +23,7 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 | Cambiar de arma     | 1-5 / rueda       | Próximamente |
 | Usar                | E                 | Próximamente |
 | Automapa            | Tab               | Próximamente |
-| Estadísticas        | F3                | Próximamente |
+| Estadísticas        | F3                | ✅           |
 
 > **¿Por qué C para agacharse?** En los navegadores, Ctrl+W cierra la pestaña y una página web no puede impedirlo. Ctrl también funciona, pero C es más seguro.
 
@@ -101,14 +101,15 @@ Dos salas unidas por un escalón de 50 cm:
 
 ### Campos del nivel
 
-| Campo      | Tipo              | Descripción                                                 |
-| ---------- | ----------------- | ----------------------------------------------------------- |
-| `version`  | número            | Siempre `1`.                                                |
-| `name`     | texto             | Nombre del nivel.                                           |
-| `vertices` | lista de `[x, z]` | Todos los vértices del nivel; se referencian por su índice. |
-| `sectors`  | lista             | Los sectores (ver abajo).                                   |
-| `slabs`    | lista (opcional)  | Losas: plataformas sólidas flotantes (ver abajo).           |
-| `things`   | lista             | Jugador, y más adelante enemigos, objetos y llaves.         |
+| Campo         | Tipo              | Descripción                                                 |
+| ------------- | ----------------- | ----------------------------------------------------------- |
+| `version`     | número            | Siempre `1`.                                                |
+| `name`        | texto             | Nombre del nivel.                                           |
+| `vertices`    | lista de `[x, z]` | Todos los vértices del nivel; se referencian por su índice. |
+| `sectors`     | lista             | Los sectores (ver abajo).                                   |
+| `slabs`       | lista (opcional)  | Losas: plataformas sólidas flotantes (ver abajo).           |
+| `environment` | objeto (opcional) | Niebla, cielo, luz ambiental y sol (ver abajo).             |
+| `things`      | lista             | Jugador, y más adelante enemigos, objetos y llaves.         |
 
 ### Campos de un sector
 
@@ -148,14 +149,49 @@ Una losa es un bloque sólido flotante: permite pasar por encima y por debajo, c
 
 ### Cosas (`things`)
 
-| Campo    | Tipo              | Descripción                                                                                                                   |
-| -------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `type`   | texto             | `player_start` (obligatorio y único) o `model` (modelo glTF opcional). Los enemigos y objetos llegarán en las próximas fases. |
-| `x`, `z` | número            | Posición. Debe estar dentro de un sector.                                                                                     |
-| `y`      | número (opcional) | Altura; por defecto, la del suelo del sector.                                                                                 |
-| `angle`  | grados (opcional) | Orientación.                                                                                                                  |
+| Campo    | Tipo              | Descripción                                                                                                                                     |
+| -------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`   | texto             | `player_start` (obligatorio y único), `lamp` (lámpara) o `model` (modelo glTF opcional). Los enemigos y objetos llegarán en las próximas fases. |
+| `x`, `z` | número            | Posición. Debe estar dentro de un sector.                                                                                                       |
+| `y`      | número (opcional) | Altura; por defecto, la del suelo del sector.                                                                                                   |
+| `angle`  | grados (opcional) | Orientación.                                                                                                                                    |
 
 El resto de campos se guardan como propiedades. Por ejemplo, un `model` usa `url` (ruta dentro de `public/`, por ejemplo `models/estatua.glb`) y `scale`.
+
+#### Lámparas (`"type": "lamp"`)
+
+Por defecto, una lámpara cuelga del techo de su sector. En zonas con cielo se coloca sobre una farola de 3 m. Con `y` se fija su altura exacta.
+
+| Campo       | Tipo        | Por defecto | Descripción                                                                                                        |
+| ----------- | ----------- | ----------- | ------------------------------------------------------------------------------------------------------------------ |
+| `color`     | `"#rrggbb"` | `#ffd8a8`   | Color de la luz y de la pantalla.                                                                                  |
+| `intensity` | número      | `1`         | Intensidad relativa.                                                                                               |
+| `radius`    | número      | `10`        | Alcance en metros.                                                                                                 |
+| `flicker`   | texto       | `steady`    | `steady` (fija), `flicker` (tiembla), `pulse` (late), `strobe` (intermitente) o `broken` (averiada, con apagones). |
+| `shadows`   | booleano    | `false`     | Proyecta sombras. Resérvalo para las luces principales: solo una lámpara a la vez puede tener sombra real.         |
+
+Solo las 6 lámparas más cercanas a la cámara iluminan de verdad. Las demás se siguen viendo encendidas por su pantalla brillante.
+
+### Entorno (`environment`)
+
+Todos los campos son opcionales. Los colores van en formato `"#rrggbb"`.
+
+| Campo                                  | Por defecto      | Descripción                                                                                                                                                                        |
+| -------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fog.color`                            | `#1b1512`        | Color de la niebla y del fondo.                                                                                                                                                    |
+| `fog.near`, `fog.far`                  | `14`, `75`       | Distancia (m) a la que empieza la niebla y a la que ya lo tapa todo.                                                                                                               |
+| `sky.top`, `sky.horizon`, `sky.bottom` | tonos de brasa   | Degradado del cielo procedural.                                                                                                                                                    |
+| `sky.clouds`                           | `0.55`           | Nubosidad, de 0 (despejado) a 1 (cubierto).                                                                                                                                        |
+| `ambient.color`, `ambient.intensity`   | `#c8b8ac`, `0.9` | Luz ambiental base. Se multiplica por la `light` de cada sector.                                                                                                                   |
+| `sun`                                  | sol cálido       | `{ "color", "intensity", "direction": [x, y, z] }` o `null` para no tener sol. Solo existe si el nivel tiene sectores con cielo. Proyecta sombras, así que no entra en interiores. |
+
+### Texturas disponibles
+
+Todas se generan por código al arrancar. Un nombre desconocido se muestra con un damero magenta (`missing`) y un aviso en la consola.
+
+`brick`, `stone_floor`, `stone_step`, `metal_floor`, `metal_ceiling`, `metal_grate`, `tech_wall` (con tiras luminosas), `tech_panel` (circuitos), `door_metal`, `door_frame`, `lift_top`, `rock`, `dirt`, `lava` y `acid` (emisivas y animadas).
+
+Cada textura mide 64×64 píxeles y cubre 2×2 metros. La de las puertas visibles se ajusta al tamaño de la hoja.
 
 ### Errores
 

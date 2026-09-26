@@ -140,6 +140,54 @@ describe('parseLevel', () => {
     ).toContain('fuera');
   });
 
+  it('usa el entorno por defecto y valida el que se indica', () => {
+    const level = parseLevel(rawLevel(SQUARE, [rawSector([0, 1, 2, 3])]));
+    expect(level.environment.fog.far).toBeGreaterThan(level.environment.fog.near);
+    const custom = parseLevel(
+      rawLevel(SQUARE, [rawSector([0, 1, 2, 3])], {
+        environment: { fog: { color: '#102030', near: 5, far: 40 } },
+      }),
+    );
+    expect(custom.environment.fog).toEqual({ color: 0x102030, near: 5, far: 40 });
+    expect(custom.environment.sky).toEqual(level.environment.sky);
+    const issues = issuesOf(
+      rawLevel(SQUARE, [rawSector([0, 1, 2, 3])], {
+        environment: { fog: { color: 'rojo', near: 50, far: 10 }, sky: { clouds: 2 } },
+      }),
+    ).join('\n');
+    expect(issues).toContain('environment.fog.color');
+    expect(issues).toContain('"far" debe ser mayor');
+    expect(issues).toContain('environment.sky.clouds');
+  });
+
+  it('valida las lámparas y rellena sus valores por defecto', () => {
+    const level = parseLevel(
+      rawLevel(SQUARE, [rawSector([0, 1, 2, 3])], {
+        things: [
+          { type: 'player_start', x: 1, z: 1 },
+          { type: 'lamp', x: 2, z: 2, color: '#ff8800', flicker: 'pulse' },
+        ],
+      }),
+    );
+    expect(level.things[1]!.properties).toMatchObject({
+      color: 0xff8800,
+      intensity: 1,
+      radius: 10,
+      flicker: 'pulse',
+      shadows: false,
+    });
+    const issues = issuesOf(
+      rawLevel(SQUARE, [rawSector([0, 1, 2, 3])], {
+        things: [
+          { type: 'player_start', x: 1, z: 1 },
+          { type: 'lamp', x: 2, z: 2, flicker: 'disco', radius: 0 },
+        ],
+      }),
+    ).join();
+    expect(issues).toContain('flicker');
+    expect(issues).toContain('radius');
+  });
+
   it('valida las losas', () => {
     const vertices: [number, number][] = [...SQUARE, [1, 1], [2, 1], [2, 2], [1, 2]];
     const slab = { vertices: [4, 5, 6, 7], bottom: 2, top: 1, texture: 'metal' };

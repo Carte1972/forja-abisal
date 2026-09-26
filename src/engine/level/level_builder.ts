@@ -2,7 +2,9 @@ import type RAPIER from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
 import { clamp } from '../core/math_utils';
 import type { PhysicsWorld } from '../physics/physics_world';
-import type { MaterialLibrary } from '../render/placeholder_materials';
+import type { Bounds, Lamp } from '../render/light_system';
+import type { LampProperties } from './level_parser';
+import type { MaterialLibrary } from '../textures/texture_library';
 import { loadGltfModel } from './gltf_loader';
 import { findSectorAt, surfaceHeightAt } from './level_queries';
 import type { LevelData, ThingData } from './level_types';
@@ -44,6 +46,8 @@ export interface LoadedLevel {
   root: THREE.Group;
   movers: Mover[];
   spawn: LevelSpawn;
+  lamps: Lamp[];
+  bounds: Bounds;
   /** Estadísticas de la geometría generada (para el panel F3). */
   stats: { meshes: number; triangles: number };
   dispose(): void;
@@ -70,10 +74,65 @@ function batchesToGroup(
     if (batch.indices.length === 0) continue;
     const mesh = new THREE.Mesh(toBufferGeometry(batch), materials.get(texture));
     mesh.name = texture;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     mesh.matrixAutoUpdate = false;
     group.add(mesh);
   }
   return group;
+}
+
+const OUTDOOR_LAMP_HEIGHT = 3;
+
+/**
+ * Altura por defecto de una lámpara: colgada del techo o, bajo el cielo, sobre un poste de
+ * 3 m. Devuelve también la altura del poste (0 si no lleva).
+ */
+function lampPlacement(level: LevelData, thing: ThingData): { y: number; post: number } {
+  const [x, z] = thing.position;
+  const sector = findSectorAt(level, x, z);
+  if (thing.y !== undefined) return { y: thing.y, post: 0 };
+  if (!sector) return { y: OUTDOOR_LAMP_HEIGHT, post: 0 };
+  if (sector.sky) {
+    return {
+      y: surfaceHeightAt(sector.floor, x, z) + OUTDOOR_LAMP_HEIGHT,
+      post: OUTDOOR_LAMP_HEIGHT,
+    };
+  }
+  return { y: surfaceHeightAt(sector.ceiling, x, z) - 0.06, post: 0 };
+}
+
+function extractLamps(level: LevelData): Lamp[] {
+  return level.things
+    .filter((thing) => thing.type === 'lamp')
+    .map((thing, i) => {
+      const props = thing.properties as unknown as LampProperties;
+      const { y, post } = lampPlacement(level, thing);
+      return {
+        position: { x: thing.position[0], y, z: thing.position[1] },
+        post,
+        color: props.color,
+        intensity: props.intensity,
+        radius: props.radius,
+        flicker: props.flicker,
+        shadows: props.shadows,
+        seed: i * 7.31 + 1,
+      };
+    });
+}
+
+function collisionBounds(positions: number[]): Bounds {
+  const min = { x: Infinity, y: Infinity, z: Infinity };
+  const max = { x: -Infinity, y: -Infinity, z: -Infinity };
+  for (let i = 0; i < positions.length; i += 3) {
+    min.x = Math.min(min.x, positions[i]!);
+    min.y = Math.min(min.y, positions[i + 1]!);
+    min.z = Math.min(min.z, positions[i + 2]!);
+    max.x = Math.max(max.x, positions[i]!);
+    max.y = Math.max(max.y, positions[i + 1]!);
+    max.z = Math.max(max.z, positions[i + 2]!);
+  }
+  return { min, max };
 }
 
 function thingHeight(level: LevelData, thing: ThingData): number {
@@ -157,6 +216,8 @@ export function buildLevel(
     root,
     movers,
     spawn,
+    lamps: extractLamps(data),
+    bounds: collisionBounds(geometry.collision.positions),
     stats: { meshes, triangles },
     dispose() {
       scene.remove(root);
