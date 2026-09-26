@@ -4,13 +4,32 @@ _Un homenaje a los shooters en primera persona de los años 90._
 
 FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de aquellos clásicos: niveles laberínticos y verticales, muchos enemigos, llaves y secretos. Todo el contenido (modelos, texturas, sonidos, niveles y nombres) es original y se genera por código.
 
-<!-- CAPTURA: añade aquí una captura o GIF del juego, por ejemplo: ![Forja Abisal](docs/captura.gif) -->
+![Lago de lava del Núcleo Abisal](docs/capturas/nivel_3_lago_de_lava.jpg)
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/capturas/nivel_1_canal_de_lava.jpg" alt="Canal de lava de Fundición Cero"><br><sub>Fundición Cero: el canal de lava visto desde la galería.</sub></td>
+    <td width="50%"><img src="docs/capturas/nivel_2_sima.jpg" alt="La sima a cielo abierto de Pozos de Ceniza"><br><sub>Pozos de Ceniza: un centinela al borde de la sima.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/capturas/combate.jpg" alt="Combate con la remachadora"><br><sub>Combate con la remachadora. El arco rojo indica de dónde llega el daño.</sub></td>
+    <td width="50%"><img src="docs/capturas/automapa.jpg" alt="Automapa"><br><sub>El automapa (Tab) se descubre al explorar.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/capturas/menu_principal.jpg" alt="Menú principal"><br><sub>Menú principal.</sub></td>
+    <td width="50%"><img src="docs/planos/nivel_1_fundicion_cero.svg" alt="Plano de Fundición Cero"><br><sub>Plano completo de un nivel, en la <a href="INSTRUCCIONES.md#los-niveles">guía del jugador</a>.</sub></td>
+  </tr>
+</table>
 
 > **Demo:** https://carte1972.github.io/forja-abisal/ (juega en el navegador, sin instalar nada)
+>
+> **Guía del jugador:** [INSTRUCCIONES.md](INSTRUCCIONES.md), con cómo jugar, daño y premios, el automapa y los planos y rutas de cada nivel.
 
 **Índice:** [Qué hay que hacer](#qué-hay-que-hacer) · [Funcionalidad](#funcionalidad) · [Controles](#controles) · [Instalación y ejecución](#instalación-y-ejecución) · [Arquitectura](#arquitectura) · [Cómo crear niveles nuevos](#cómo-crear-niveles-nuevos) · [Desarrollo](#desarrollo) · [Créditos y licencia](#créditos-y-licencia)
 
 ## Qué hay que hacer
+
+> La guía completa, con los planos de los niveles, está en [INSTRUCCIONES.md](INSTRUCCIONES.md).
 
 Desciendes por una forja abandonada e infestada, nivel a nivel. En cada nivel tienes que **llegar al interruptor de salida y pulsarlo con E**. Por el camino, las puertas con franja de color te cierran el paso hasta que encuentras su llave.
 
@@ -297,6 +316,8 @@ Un nivel es una lista de **vértices 2D** y de **sectores**: polígonos que los 
 │   ├── levels/                          Niveles en JSON y tests de jugabilidad
 │   └── types/                           Tipos de librerías que no los traen
 ├── public/                              Archivos estáticos
+├── docs/                                Capturas del juego y planos de los niveles (SVG)
+├── INSTRUCCIONES.md                     Guía del jugador
 └── .github/workflows/                   CI (lint, formato, tipos, tests) y despliegue en GitHub Pages
 ```
 

@@ -5,6 +5,11 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Añadido
+
+- `INSTRUCCIONES.md`: guía del jugador con cómo empezar, el objetivo, salud y daño, qué pasa al morir, objetos, armas, secretos, enemigos, cómo leer el automapa y la descripción de cada nivel, con su plano completo y la ruta (ocultos como spoiler).
+- Capturas del juego en el README (`docs/capturas/`) y planos de los tres niveles en SVG (`docs/planos/`), generados a partir de los datos de cada nivel.
+
 ### Cambiado
 
 - README: la introducción presenta el juego como homenaje a los shooters en primera persona de los años 90.
