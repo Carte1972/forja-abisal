@@ -90,14 +90,20 @@ export class Player {
 
     const v = state.velocity;
     const desired = { x: v.x * dt, y: v.y * dt, z: v.z * dt };
-    const { movement, grounded } = this.body.move(desired);
+    const { movement, grounded, wallNormals } = this.body.move(desired);
 
-    // Contra una pared solo conservamos la velocidad que realmente se ha podido aplicar.
+    // Si una pared ha frenado el avance, quitamos la componente de la velocidad que la empuja
+    // (así se desliza a lo largo de ella). Rampas y escalones no cuentan como paredes.
     const desiredHorizontal = Math.hypot(desired.x, desired.z);
     const actualHorizontal = Math.hypot(movement.x, movement.z);
     if (desiredHorizontal > 1e-6 && actualHorizontal < desiredHorizontal * 0.99) {
-      v.x = movement.x / dt;
-      v.z = movement.z / dt;
+      for (const n of wallNormals) {
+        const into = v.x * n.x + v.z * n.z;
+        if (into < 0) {
+          v.x -= into * n.x;
+          v.z -= into * n.z;
+        }
+      }
     }
     // Golpe con el techo.
     if (desired.y > 0 && movement.y < desired.y * 0.5) {

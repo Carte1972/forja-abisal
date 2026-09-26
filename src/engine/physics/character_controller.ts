@@ -10,7 +10,12 @@ export interface CapsuleDimensions {
 export interface MoveResult {
   movement: Vec3;
   grounded: boolean;
+  /** Normales horizontales de las paredes contra las que ha chocado (sin suelos ni rampas). */
+  wallNormals: Vec3[];
 }
+
+/** Por debajo de esta componente vertical, una normal de contacto se considera pared. */
+const WALL_NORMAL_MAX_Y = 0.3;
 
 const IDENTITY_ROTATION = { x: 0, y: 0, z: 0, w: 1 };
 
@@ -80,7 +85,19 @@ export class CharacterBody {
     this.feet.y += m.y;
     this.feet.z += m.z;
     this.body.setNextKinematicTranslation(this.feet);
-    return { movement: { x: m.x, y: m.y, z: m.z }, grounded: this.controller.computedGrounded() };
+
+    const wallNormals: Vec3[] = [];
+    for (let i = 0; i < this.controller.numComputedCollisions(); i++) {
+      const n = this.controller.computedCollision(i)?.normal1;
+      if (!n || Math.abs(n.y) > WALL_NORMAL_MAX_Y) continue;
+      const length = Math.hypot(n.x, n.z);
+      if (length > 1e-6) wallNormals.push({ x: n.x / length, y: 0, z: n.z / length });
+    }
+    return {
+      movement: { x: m.x, y: m.y, z: m.z },
+      grounded: this.controller.computedGrounded(),
+      wallNormals,
+    };
   }
 
   /** Cambia entre de pie y agachado. Devuelve el estado final (no se levanta si no cabe). */
