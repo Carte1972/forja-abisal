@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { initNavigation, Navigation } from '../engine/ai/navmesh';
+import { AudioSystem } from '../engine/audio/audio_system';
 import { EventBus } from '../engine/core/event_bus';
 import { GameLoop } from '../engine/core/game_loop';
 import { Rng } from '../engine/core/rng';
 import { InputSystem } from '../engine/input/input_system';
 import { buildLevel, type LoadedLevel } from '../engine/level/level_builder';
+import { findSectorAt } from '../engine/level/level_queries';
 import { parseLevel } from '../engine/level/level_parser';
 import type { KeyColor, LevelData } from '../engine/level/level_types';
 import { initPhysics, PhysicsWorld } from '../engine/physics/physics_world';
@@ -14,6 +16,7 @@ import { ParticleSystem } from '../engine/render/particle_system';
 import { Renderer, type RenderQuality } from '../engine/render/renderer';
 import { SkyDome } from '../engine/render/sky_dome';
 import { ProceduralMaterials } from '../engine/textures/texture_library';
+import { Automap } from '../hud/automap';
 import { Crosshair } from '../hud/crosshair';
 import { Hud } from '../hud/hud';
 import { StatsPanel } from '../hud/stats_panel';
@@ -36,7 +39,7 @@ import { WeaponSystem } from './weapons/weapon_system';
 import type { Inventory } from './world/pickup_rules';
 import { WorldSystem } from './world/world_system';
 
-export type GameStatus = 'ready' | 'playing' | 'paused' | 'complete';
+export type GameStatus = 'ready' | 'playing' | 'paused' | 'dead' | 'complete';
 
 export interface GameCallbacks {
   onStatusChange(status: GameStatus): void;
@@ -59,14 +62,26 @@ export interface GameSetup {
   carry?: PlayerCarry;
 }
 
-export interface GameplayOptions {
+/** Ajustes que el juego aplica en caliente (los guarda la interfaz). */
+export interface GameSettings {
+  mouseSensitivity: number;
+  invertY: boolean;
+  fov: number;
+  volume: number;
   headBob: boolean;
   recoil: boolean;
+  shadows: boolean;
+  postProcessing: boolean;
+  pixelate: boolean;
+  resolutionScale: number;
+  showFps: boolean;
 }
 
 const FIXED_STEP = 1 / 60;
-/** Segundos tras morir antes de reaparecer (la pantalla de muerte llega en la fase 8). */
-const RESPAWN_DELAY = 2.5;
+/** Segundos de la caída de la cámara antes de mostrar la pantalla de muerte. */
+const DEATH_DELAY = 1.6;
+/** Tiempo mínimo entre quejidos del jugador al recibir daño. */
+const PAIN_SOUND_INTERVAL = 0.35;
 const DEFAULT_LOADOUT: Loadout = { weapons: ['pistol'], ammo: { bullets: 50 } };
 
 /**
@@ -106,6 +121,9 @@ export class Game {
   private readonly statsPanel: StatsPanel;
   private readonly crosshair: Crosshair;
   private readonly hud: Hud;
+  private readonly automap: Automap;
+  private readonly audio: AudioSystem;
+  private lastPainSound = -Infinity;
   readonly level: LoadedLevel;
   private readonly navigation: Navigation | null;
   private readonly player: Player;
@@ -115,10 +133,10 @@ export class Game {
   private readonly enemies: EnemySystem;
   private readonly world: WorldSystem;
   private stats = new LevelStats(0, 0, 0);
-  private respawnTimer = 0;
+  private deathTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
   private readonly loop: GameLoop;
-  private readonly options: GameplayOptions = { headBob: true, recoil: true };
+  private readonly options = { headBob: true, recoil: true, mouseSensitivity: 1, invertY: false };
   private status: GameStatus = 'ready';
   private time = 0;
   private readonly unsubscribeLock: () => void;
@@ -157,6 +175,9 @@ export class Game {
     this.hud = new Hud(this.hudRoot);
     this.crosshair = new Crosshair(this.hudRoot);
     this.statsPanel = new StatsPanel(this.hudRoot);
+    this.automap = new Automap(this.hudRoot, this.level.data);
+    this.audio = new AudioSystem(this.renderer.camera, this.renderer.scene);
+    this.audio.startAmbient();
 
     this.navigation = this.buildNavigation();
     this.player = new Player(this.physics, this.level.spawn, this.options);
@@ -225,8 +246,13 @@ export class Game {
       this.bus.on('playerDied', () => {
         this.player.die();
         this.weapons.setVisible(false);
-        this.respawnTimer = RESPAWN_DELAY;
+        if (this.automap.isVisible) this.automap.toggle();
+        this.deathTimer = DEATH_DELAY;
+        this.audio.play('player_death');
       }),
+      this.bus.on('sound', ({ id, position, volume, pitch }) =>
+        this.audio.play(id, { ...(position ? { position } : {}), volume, pitch }),
+      ),
       this.bus.on('enemyKilled', () => this.stats.kills++),
       this.bus.on('secretFound', () => this.stats.secrets++),
       this.bus.on('pickup', ({ name, color, weapon }) => {
@@ -240,7 +266,9 @@ export class Game {
     );
 
     this.unsubscribeLock = this.input.onPointerLockChanged((locked) => {
-      if (this.status !== 'complete') this.setStatus(locked ? 'playing' : 'paused');
+      if (this.status !== 'complete' && this.status !== 'dead') {
+        this.setStatus(locked ? 'playing' : 'paused');
+      }
     });
 
     this.loop = new GameLoop(
@@ -256,6 +284,8 @@ export class Game {
 
   /** Debe llamarse desde un gesto del usuario (clic) para que el navegador conceda el pointer lock. */
   requestPlay(): Promise<void> {
+    // El mismo clic desbloquea el audio del navegador.
+    this.audio.resume();
     return this.input.requestPointerLock();
   }
 
@@ -264,8 +294,27 @@ export class Game {
     this.lights.setShadowsEnabled(quality.shadows);
   }
 
-  setGameplayOptions(options: Partial<GameplayOptions>): void {
-    Object.assign(this.options, options);
+  /** Aplica los ajustes de la interfaz: controles, cámara, sonido y calidad gráfica. */
+  applySettings(settings: GameSettings): void {
+    Object.assign(this.options, {
+      headBob: settings.headBob,
+      recoil: settings.recoil,
+      mouseSensitivity: settings.mouseSensitivity,
+      invertY: settings.invertY,
+    });
+    const camera = this.renderer.camera;
+    camera.fov = settings.fov;
+    camera.updateProjectionMatrix();
+    this.audio.setVolume(settings.volume);
+    this.statsPanel.setVisible(settings.showFps);
+    this.setQuality({
+      postProcessing: settings.postProcessing,
+      bloom: settings.postProcessing,
+      vignette: settings.postProcessing,
+      pixelate: settings.pixelate,
+      shadows: settings.shadows,
+      resolutionScale: settings.resolutionScale,
+    });
   }
 
   /** Entra o sale del modo juego sin pointer lock real (solo para pruebas automatizadas). */
@@ -315,6 +364,8 @@ export class Game {
     this.bus.clear();
     this.input.dispose();
     this.world.dispose();
+    this.audio.dispose();
+    this.automap.dispose();
     this.enemies.dispose();
     this.navigation?.dispose();
     this.weapons.dispose();
@@ -364,11 +415,18 @@ export class Game {
     this.world.fixedUpdate(dt);
     this.player.fixedUpdate(this.input, dt);
     if (this.player.dead) {
-      this.respawnTimer -= dt;
-      if (this.respawnTimer <= 0) this.respawnPlayer();
+      this.deathTimer -= dt;
+      if (this.deathTimer <= 0) {
+        this.setStatus('dead');
+        this.input.exitPointerLock();
+      }
     } else {
       if (this.input.consumePressed('use')) this.use();
+      if (this.input.consumePressed('automap')) this.automap.toggle();
       this.weapons.fixedUpdate(dt, this.input, true);
+      const feet = this.player.body.feetPosition;
+      const sector = findSectorAt(this.level.data, feet.x, feet.z);
+      if (sector) this.automap.reveal(sector.index);
     }
     this.enemies.fixedUpdate(dt);
     this.physics.step((h1, h2) => this.weapons.handleCollision(h1, h2));
@@ -392,6 +450,7 @@ export class Game {
       this.player.applyLook(look.x, look.y);
       if (this.input.consumePressed('stats')) this.statsPanel.toggle();
     }
+    this.audio.update();
     const dt = Math.min(frameDt, 0.1);
     // El tiempo de las animaciones visuales (lava, parpadeos, nubes) sigue corriendo en pausa.
     this.time += dt;
@@ -407,6 +466,11 @@ export class Game {
       this.enemies.render(alpha, dt);
     }
     this.updateHud(dt);
+    this.automap.draw(
+      this.time,
+      { x: camera.position.x, z: camera.position.z, yaw: this.player.yaw },
+      this.world.markers(),
+    );
     this.renderer.render(frameDt);
     this.statsPanel.update(frameDt, this.renderer.stats(), {
       lámparas: this.level.lamps.length,
@@ -442,6 +506,10 @@ export class Game {
   }
 
   private onPlayerDamaged(amount: number, from: { x: number; y: number; z: number }): void {
+    if (this.playerCombatant.alive && this.time - this.lastPainSound > PAIN_SOUND_INTERVAL) {
+      this.lastPainSound = this.time;
+      this.audio.play('player_pain', { pitch: 0.9 + Math.random() * 0.2 });
+    }
     const center = this.player.center();
     const horizontal = Math.hypot(from.x - center.x, from.z - center.z);
     if (horizontal < 0.3) {
@@ -485,12 +553,6 @@ export class Game {
       console.warn('No se pudo generar la malla de navegación', error);
       return null;
     }
-  }
-
-  private respawnPlayer(): void {
-    this.player.respawn();
-    this.playerCombatant.health.reset();
-    this.weapons.setVisible(true);
   }
 
   /** Niebla, cielo, luz ambiental y lámparas según el entorno del nivel. */

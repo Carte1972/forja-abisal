@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { SoundId } from '../../engine/audio/synth';
 import type { EventBus } from '../../engine/core/event_bus';
 import type { Rng } from '../../engine/core/rng';
 import type { InputSystem } from '../../engine/input/input_system';
@@ -36,6 +37,13 @@ const RAY_GROUPS = interactionGroups(GROUP.HITSCAN, SOLID_WORLD);
 /** Solo la geometría del nivel, para comprobar si una explosión llega a un objetivo. */
 const WORLD_ONLY = interactionGroups(GROUP.HITSCAN, GROUP.STATIC | GROUP.MOVER);
 const EXPLOSION_PUSH = 15;
+const FIRE_SOUNDS: Record<WeaponId, SoundId> = {
+  hammer: 'hammer_swing',
+  pistol: 'pistol',
+  shotgun: 'shotgun',
+  riveter: 'riveter',
+  launcher: 'launcher',
+};
 const MUZZLE_FLASH: Record<WeaponId, { intensity: number; radius: number }> = {
   hammer: { intensity: 0, radius: 0 },
   pistol: { intensity: 1.6, radius: 7 },
@@ -186,16 +194,19 @@ export class WeaponSystem {
         break;
       case 'reloadStart':
         this.animator.onReloadStart(event.duration);
+        this.sound('reload');
         break;
       case 'lower':
         this.animator.onLower(event.duration);
+        this.sound('weapon_switch');
         break;
       case 'raise':
         this.animator.onRaise(event.weapon, event.duration);
         break;
       case 'dryFire':
+        this.sound('dry_fire');
+        break;
       case 'reloadEnd':
-        // Los sonidos llegan en la fase 8.
         break;
     }
   }
@@ -203,6 +214,7 @@ export class WeaponSystem {
   private fire(weapon: WeaponId, _mode: FireMode, def: FireModeDef, shots: Shot[]): void {
     const { player, bus, rng } = this.deps;
     this.updateAimBasis();
+    this.sound(FIRE_SOUNDS[weapon], undefined, 0.94 + rng.next() * 0.12);
     player.addRecoil(def.recoil, rng.range(-0.3, 0.3) * def.recoil);
     this.deps.onShot?.(def);
     bus.emit('noise', { position: this.vec(this.eye), radius: def.noise, source: 'player' });
@@ -272,6 +284,7 @@ export class WeaponSystem {
       if (target) {
         this.impact(hit, dir, def, 0);
       } else {
+        this.sound('hammer_hit', hit.point, def.damage > 50 ? 0.8 : 1);
         this.deps.particles.dust(hit.point, hit.normal, def.damage > 50 ? 14 : 7);
         this.deps.particles.sparks(hit.point, hit.normal, def.damage > 50 ? 6 : 2);
         this.deps.player.addShake(def.damage > 50 ? 0.35 : 0.15);
@@ -293,9 +306,11 @@ export class WeaponSystem {
         attacker: this.deps.player,
       });
       particles.blood(hit.point, this.vec(dir), target.bloodColor, def.kind === 'melee' ? 20 : 10);
+      if (def.kind === 'melee') this.sound('hammer_hit', hit.point, 0.7);
       return;
     }
     particles.sparks(hit.point, hit.normal, sparks);
+    this.sound('impact', hit.point, 0.9 + rng.next() * 0.3, 0.35);
     // Solo se marca la geometría estática: las puertas se mueven y dejarían marcas flotando.
     if (hit.collider.handle === level.staticColliderHandle) {
       decals.bulletHole(hit.point, hit.normal, rng.next());
@@ -338,6 +353,7 @@ export class WeaponSystem {
     lights.flash(position, 0xff8030, 7, radius * 3, 0.35);
     bus.emit('noise', { position, radius: 60, source: 'player' });
     bus.emit('explosion', { position, radius });
+    this.sound('explosion', position, 0.9 + rng.next() * 0.2);
 
     // Marca de quemadura en la superficie más cercana (en la dirección de vuelo o debajo).
     for (const dir of [request.heading, { x: 0, y: -1, z: 0 }]) {
@@ -433,6 +449,10 @@ export class WeaponSystem {
       if (!hit || Math.abs(hit.distance - 0.1) > 0.03) return false;
     }
     return true;
+  }
+
+  private sound(id: SoundId, position?: Vec3, pitch = 1, volume = 1): void {
+    this.deps.bus.emit('sound', position ? { id, position, pitch, volume } : { id, pitch, volume });
   }
 
   private hasLineOfSight(from: Vec3, to: Vec3): boolean {

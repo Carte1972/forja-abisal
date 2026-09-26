@@ -2,7 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { Game, type GameStatus, type PlayerCarry } from '../game/game';
 import type { LevelSummary } from '../game/rules/level_stats';
 import { initialLevelIndex, levelAt, nextLevelIndex } from './campaign';
+import { ControlsPanel } from './controls_panel';
+import { DeathScreen } from './death_screen';
 import { LevelEnd } from './level_end';
+import { MainMenu } from './main_menu';
+import { OptionsMenu } from './options_menu';
+import { PauseMenu } from './pause_menu';
+import {
+  browserStorage,
+  defaultSettings,
+  loadSettings,
+  saveSettings,
+  type Settings,
+} from './settings_store';
 
 declare global {
   interface Window {
@@ -12,6 +24,7 @@ declare global {
 }
 
 type AppStatus = GameStatus | 'loading';
+type Panel = 'options' | 'controls' | null;
 
 interface RunState {
   levelIndex: number;
@@ -26,13 +39,23 @@ interface Completion {
   carry: PlayerCarry;
 }
 
+const hasLevelParam = new URLSearchParams(window.location.search).has('nivel');
+
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Game | null>(null);
+  // Con ?nivel=N se entra directamente al nivel (útil para probar); si no, al menú principal.
+  const [inGame, setInGame] = useState(hasLevelParam);
+  const [panel, setPanel] = useState<Panel>(null);
+  const [showLevels, setShowLevels] = useState(false);
   const [status, setStatus] = useState<AppStatus>('loading');
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [completion, setCompletion] = useState<Completion | null>(null);
+  const [settings, setSettings] = useState<Settings>(() =>
+    loadSettings(browserStorage(), defaultSettings(window.devicePixelRatio)),
+  );
+  const settingsRef = useRef(settings);
   const [run, setRun] = useState<RunState>(() => ({
     levelIndex: initialLevelIndex(window.location.search),
     carry: undefined,
@@ -40,8 +63,10 @@ export function App() {
   }));
   const level = levelAt(run.levelIndex);
   const next = nextLevelIndex(run.levelIndex);
+  const levelLabel = `${run.levelIndex >= 0 ? `Nivel ${run.levelIndex + 1} · ` : ''}${level.name}`;
 
   useEffect(() => {
+    if (!inGame) return;
     const container = containerRef.current;
     if (!container) return;
     let cancelled = false;
@@ -62,6 +87,7 @@ export function App() {
         }
         game = created;
         gameRef.current = created;
+        created.applySettings(settingsRef.current);
         if (import.meta.env.DEV) window.__forja = created;
       })
       .catch((err: unknown) => {
@@ -75,12 +101,30 @@ export function App() {
       gameRef.current = null;
       if (import.meta.env.DEV) delete window.__forja;
     };
-  }, [run]);
+  }, [inGame, run]);
+
+  const changeSettings = (value: Settings) => {
+    settingsRef.current = value;
+    setSettings(value);
+    saveSettings(browserStorage(), value);
+    gameRef.current?.applySettings(value);
+  };
 
   const startLevel = (levelIndex: number, carry: PlayerCarry | undefined) => {
     setCompletion(null);
+    setPanel(null);
+    setShowLevels(false);
     setStatus('loading');
+    setError(null);
+    setInGame(true);
     setRun((previous) => ({ levelIndex, carry, attempt: previous.attempt + 1 }));
+  };
+
+  const quitToMenu = () => {
+    setPanel(null);
+    setCompletion(null);
+    setInGame(false);
+    setStatus('loading');
   };
 
   const play = () => {
@@ -91,9 +135,54 @@ export function App() {
     });
   };
 
+  const panelView =
+    panel === 'options' ? (
+      <OptionsMenu settings={settings} onChange={changeSettings} onClose={() => setPanel(null)} />
+    ) : panel === 'controls' ? (
+      <ControlsPanel onClose={() => setPanel(null)} />
+    ) : null;
+
+  if (!inGame) {
+    return (
+      <div className="game-root">
+        {panelView ? (
+          <div className="overlay menu-overlay">{panelView}</div>
+        ) : (
+          <MainMenu
+            onNewGame={() => startLevel(0, undefined)}
+            onChooseLevel={(index) => startLevel(index, undefined)}
+            onOptions={() => setPanel('options')}
+            onControls={() => setPanel('controls')}
+            showLevels={showLevels}
+            onToggleLevels={setShowLevels}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="game-root">
       <div ref={containerRef} className="game-container" />
+      {panelView && status !== 'playing' && <div className="overlay menu-overlay">{panelView}</div>}
+      {!panelView && status === 'paused' && (
+        <PauseMenu
+          levelLabel={levelLabel}
+          notice={notice}
+          onResume={play}
+          onOptions={() => setPanel('options')}
+          onControls={() => setPanel('controls')}
+          onRestart={() => startLevel(run.levelIndex, run.carry)}
+          onQuit={quitToMenu}
+        />
+      )}
+      {!panelView && status === 'dead' && (
+        <DeathScreen
+          levelLabel={levelLabel}
+          onRetry={() => startLevel(run.levelIndex, run.carry)}
+          onQuit={quitToMenu}
+        />
+      )}
       {status === 'complete' && completion && (
         <LevelEnd
           levelName={level.name}
@@ -104,27 +193,23 @@ export function App() {
           onRestart={() =>
             next === null ? startLevel(0, undefined) : startLevel(run.levelIndex, run.carry)
           }
+          onMenu={quitToMenu}
         />
       )}
-      {status !== 'playing' && status !== 'complete' && (
+      {!panelView && (status === 'loading' || status === 'ready') && (
         <div className="overlay" onClick={status === 'loading' ? undefined : play}>
           <h1>Forja Abisal</h1>
-          <p className="overlay-level">
-            {run.levelIndex >= 0 ? `Nivel ${run.levelIndex + 1} · ` : ''}
-            {level.name}
-          </p>
+          <p className="overlay-level">{levelLabel}</p>
           {error ? (
             <p className="overlay-error">No se pudo iniciar el juego: {error}</p>
           ) : status === 'loading' ? (
             <p>Cargando…</p>
           ) : (
             <>
-              <p className="overlay-action">
-                {status === 'paused' ? 'Pausa · haz clic para continuar' : 'Haz clic para jugar'}
-              </p>
+              <p className="overlay-action">Haz clic para empezar</p>
               <p className="overlay-help">
-                WASD moverse · Ratón mirar · Espacio saltar · C o Ctrl agacharse · Shift correr · E
-                usar · R recargar · 1-5 armas · Esc pausa
+                WASD moverse · Ratón mirar · Espacio saltar · C agacharse · Shift correr · E usar ·
+                Tab mapa · Esc pausa
               </p>
             </>
           )}

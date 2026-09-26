@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { Navigation } from '../../engine/ai/navmesh';
+import type { SoundId } from '../../engine/audio/synth';
 import type { EventBus } from '../../engine/core/event_bus';
 import type { Rng } from '../../engine/core/rng';
 import type { LoadedLevel } from '../../engine/level/level_builder';
@@ -27,6 +28,13 @@ const TURN_SPEED = 7;
 const REPATH_INTERVAL = 0.5;
 const DIRECT_CHASE_DISTANCE = 4;
 const PASSIVE: readonly AiState[] = ['idle', 'patrol'];
+/** Cada tipo tiene su propio tono para los sonidos compartidos (dolor, muerte). */
+const VOICE_PITCH: Record<string, number> = {
+  sentinel: 1.25,
+  crawler: 1.5,
+  spitter: 0.7,
+  watcher: 1.8,
+};
 
 export interface EnemySystemDeps {
   physics: PhysicsWorld;
@@ -59,7 +67,12 @@ export class EnemySystem {
 
   constructor(private readonly deps: EnemySystemDeps) {
     this.group.name = 'enemies';
-    this.projectiles = new EnemyProjectiles(deps.physics, deps.particles, deps.damage);
+    this.projectiles = new EnemyProjectiles(
+      deps.physics,
+      deps.particles,
+      deps.damage,
+      (kind, point) => this.sound(kind === 'acid' ? 'splash' : 'impact', point),
+    );
     deps.scene.add(this.group, this.projectiles.group);
     this.unsubscribe = deps.bus.on('noise', ({ position, radius }) => this.hear(position, radius));
   }
@@ -220,6 +233,8 @@ export class EnemySystem {
       return;
     }
     if (command.entered === 'chase' || command.entered === 'alert') enemy.path = [];
+    if (command.entered === 'alert') this.sound(`${def.kind}_alert` as SoundId, eye);
+    if (command.entered === 'pain') this.sound('enemy_pain', eye, VOICE_PITCH[def.kind]);
 
     this.move(enemy, command, targetCenter, distance, dt);
     this.face(enemy, command, targetCenter, dt);
@@ -413,6 +428,15 @@ export class EnemySystem {
     const muzzle = { x: this.muzzle.x, y: this.muzzle.y, z: this.muzzle.z };
     const attack = def.attack;
     bus.emit('noise', { position: eye, radius: attack.kind === 'melee' ? 6 : 25, source: 'enemy' });
+    const attackSound: SoundId =
+      attack.kind === 'hitscan'
+        ? 'enemy_shot'
+        : attack.kind === 'melee'
+          ? 'claw'
+          : attack.projectile === 'acid'
+            ? 'spit'
+            : 'bolt';
+    this.sound(attackSound, muzzle, 0.95 + rng.next() * 0.1);
 
     switch (attack.kind) {
       case 'hitscan': {
@@ -484,6 +508,10 @@ export class EnemySystem {
     }
   }
 
+  private sound(id: SoundId, position: Vec3, pitch = 1): void {
+    this.deps.bus.emit('sound', { id, position, pitch });
+  }
+
   private die(enemy: Enemy): void {
     enemy.velocity = { x: 0, y: 0, z: 0 };
     enemy.path = [];
@@ -500,6 +528,7 @@ export class EnemySystem {
     enemy.prevFeet.copy(enemy.currFeet);
     this.deps.particles.blood(enemy.center(), { x: 0, y: 1, z: 0 }, enemy.def.bloodColor, 24);
     this.deps.bus.emit('enemyKilled', { kind: enemy.def.kind, position: feet });
+    this.sound('enemy_death', enemy.center(), VOICE_PITCH[enemy.def.kind]);
   }
 }
 

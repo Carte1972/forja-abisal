@@ -7,10 +7,18 @@ interface LevelEndProps {
   nextName: string | null;
   onNext: () => void;
   onRestart: () => void;
+  onMenu: () => void;
 }
 
 /** Pantalla de fin de nivel: tiempo y porcentajes de enemigos, objetos y secretos. */
-export function LevelEnd({ levelName, summary, nextName, onNext, onRestart }: LevelEndProps) {
+export function LevelEnd({
+  levelName,
+  summary,
+  nextName,
+  onNext,
+  onRestart,
+  onMenu,
+}: LevelEndProps) {
   const rows: [string, number, [number, number]][] = [
     ['Enemigos', summary.kills, summary.counts.kills],
     ['Objetos', summary.items, summary.counts.items],
@@ -47,6 +55,9 @@ export function LevelEnd({ levelName, summary, nextName, onNext, onRestart }: Le
       )}
       <button type="button" className="overlay-button overlay-button-secondary" onClick={onRestart}>
         {nextName ? 'Repetir nivel' : 'Volver a empezar'}
+      </button>
+      <button type="button" className="overlay-button overlay-button-secondary" onClick={onMenu}>
+        Menú principal
       </button>
     </div>
   );

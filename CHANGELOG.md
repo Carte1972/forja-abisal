@@ -5,6 +5,27 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Fase 8 — Audio, menús, opciones y automapa
+
+#### Añadido
+
+- Audio con Web Audio y `THREE.PositionalAudio`. Los 34 efectos (armas, impactos, explosiones, voces de los enemigos, puertas, ascensores, objetos, secretos, salida y ambiente) se sintetizan por código al arrancar, de forma determinista y con tests (sin saturación y sin chasquidos al empezar ni al acabar).
+  - 24 voces posicionales y 8 sin posición, reutilizadas; si se agotan, se corta la más antigua.
+  - Cada tipo de enemigo tiene su tono de voz.
+  - Zumbido ambiental en bucle sin saltos.
+- Menú principal con nueva partida, elección de nivel, opciones y controles.
+- Menú de pausa: continuar, opciones, controles, reiniciar el nivel y salir al menú.
+- Pantalla de muerte: tras una breve caída de la cámara, permite reintentar el nivel con lo que se tenía al entrar o volver al menú.
+- Opciones persistentes en `localStorage`, validadas y aplicadas en caliente: sensibilidad del ratón, invertir eje vertical, campo de visión, balanceo, retroceso, volumen, sombras, post-procesado, filtro de píxeles, resolución y panel de rendimiento.
+- Automapa (Tab) que se va descubriendo al explorar: paredes, escalones, zonas peligrosas, puertas coloreadas según su llave, ascensores, llaves pendientes y salida. No delata las paredes secretas ni los objetos de zonas sin descubrir.
+- Botón "Menú principal" en la pantalla de fin de nivel.
+
+#### Cambiado
+
+- Al morir ya no se reaparece en el sitio: se pasa al estado `dead` y se muestra la pantalla de muerte.
+- En pantallas de alta densidad la resolución empieza al 75 % por defecto (el límite era el relleno de píxeles de la GPU).
+- Sin `?nivel=N` en la dirección, el juego empieza en el menú principal.
+
 ### Fase 7 — Los tres niveles
 
 #### Añadido

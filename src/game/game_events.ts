@@ -1,3 +1,4 @@
+import type { SoundId } from '../engine/audio/synth';
 import type { Vec3 } from '../engine/physics/physics_world';
 import type { WeaponId } from './weapons/weapon_defs';
 
@@ -15,4 +16,6 @@ export type GameEvents = {
   pickup: { id: string; name: string; color: number; weapon?: WeaponId };
   secretFound: Record<string, never>;
   levelComplete: Record<string, never>;
+  /** Efecto de sonido; con posición suena en 3D. */
+  sound: { id: SoundId; position?: Vec3; volume?: number; pitch?: number };
 };

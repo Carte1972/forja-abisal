@@ -146,12 +146,17 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - **Node y TypeScript:** el script lo ejecuta Node directamente quitando los tipos, así que en `scripts/` solo vale TypeScript "borrable" (sin propiedades en el constructor ni enums) y los imports llevan la extensión `.ts`.
 - **Registro:** `src/levels/index.ts` (`LEVELS`), y `ui/campaign.ts` decide qué nivel cargar (también `?nivel=N` o `?nivel=prueba`). `App` guarda el `PlayerCarry` que devuelve `onLevelComplete` y se lo pasa a `Game.create` en el siguiente nivel.
 - **Verificación:** `src/levels/level_checks.ts` recorre el grafo de sectores (y de losas, con índices negativos) respetando `MAX_RISE` y `MIN_HEADROOM`. `campaign.test.ts` exige, para cada nivel de `LEVELS`, las tres llaves en orden, la salida bloqueada sin llaves, 2 o más secretos alcanzables y todos los objetos y enemigos alcanzables.
-- **Para revisar un nivel a ojo:** es útil un plano cenital en SVG (sectores coloreados por altura). En la fase 7 se hizo con un test temporal que escribía el SVG en el scratchpad; el automapa de la fase 8 lo sustituirá.
+- **Para revisar un nivel a ojo:** abre el automapa (Tab) o, para verlo entero, un plano cenital en SVG generado desde un test temporal en el scratchpad.
 
-**Previsto.**
+**Audio, menús y automapa (fase 8).**
 
-- **Automapa:** se generará a partir de `LevelData`.
-- **Rendimiento:** con la pantalla del Mac (2400×1896, DPR 2) el cuello de botella es el relleno de píxeles de la GPU (cielo y post-procesado), no la CPU ni las draw calls. A escala 0,75 va a 120 FPS. Revisarlo en la fase 8.
+- **Sonido:** `engine/audio/synth.ts` es puro (recetas → `Float32Array`, con tests) y `audio_system.ts` convierte las muestras en `AudioBuffer`s y reparte voces. La lógica del juego nunca llama al audio: emite el evento `sound` del bus (`{ id, position?, volume?, pitch? }`) y `Game` lo reenvía. Un sonido nuevo: añade el id a `SoundId` y su receta en `RECIPES`.
+- **El `AudioContext` es único y lo comparte Three.js:** `AudioSystem.dispose()` no lo cierra (al reiniciar el nivel se reutiliza). Empieza suspendido; `requestPlay()` lo reanuda.
+- **Estados de `Game`:** `ready` → `playing` ⇄ `paused`, más `dead` (tras `DEATH_DELAY`) y `complete`. El listener del pointer lock ignora `dead` y `complete`.
+- **Interfaz (`ui/app.tsx`):** sin `?nivel` empieza en `MainMenu`. Cada `startLevel` cambia `run` y el efecto recrea `Game`. Los paneles (`OptionsMenu`, `ControlsPanel`) se pintan encima de cualquier estado salvo `playing`.
+- **Ajustes:** `ui/settings_store.ts` (puro, con tests) valida y persiste en `localStorage` (`forja-abisal:ajustes`). `App` los aplica con `Game.applySettings`, que reparte FOV, sensibilidad, volumen, calidad y visibilidad del panel F3. Para añadir una opción: `Settings`, `sanitizeSettings`, `GameSettings`, `applySettings` y `OptionsMenu`.
+- **Automapa:** `hud/automap_lines.ts` (puro) saca las líneas de `LevelData`, y `hud/automap.ts` las dibuja en un canvas a 30 fps revelando el sector del jugador y sus vecinos (menos las puertas ocultas).
+- **Rendimiento:** con la pantalla del Mac (2400×1896, DPR 2) el cuello de botella es el relleno de píxeles de la GPU, no la CPU ni las draw calls. Por eso `defaultSettings` pone la resolución al 75 % con DPR ≥ 2 (≈115 FPS en los tres niveles).
 
 ## Verificación en el navegador
 
@@ -163,6 +168,7 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - Para simular teclas mantenidas, usa `page.keyboard.down/up` en `browser_run_code_unsafe`.
 - Para disparar sin mover el ratón (lo que giraría la vista), usa `__forja.input.press('fire', 'test', false)` y luego `release('fire', 'test')`. Tras cambiar `player.yaw`, espera al menos un frame antes de disparar: la puntería usa la cámara del último render.
 - **Ojo con `.overlay`:** la pantalla de fin de nivel también usa esa clase. Para ocultar solo la de inicio, usa `.overlay:not(.level-end)`.
+- **Entrar a un nivel sin pasar por el menú:** usa `?nivel=1`. Para forzar el fin de nivel, `__forja.bus.emit('levelComplete', {})`.
 - **Galerías sin que se muevan:** si no se entra en modo juego, los enemigos no se mueven. Para fotografiarlos, oculta el overlay con `page.addStyleTag({ content: '.overlay{display:none!important}' })`.
 - **Leer el búfer HDR:** `renderer.composer.inputBuffer` con `readRenderTargetPixels` (HalfFloat, se decodifica con `THREE.DataUtils.fromHalfFloat`). `gl.readPixels` sobre el canvas no sirve con el composer activo.
 - **Cuidado:** no lances en paralelo una edición de código y una recarga de la página. La recarga puede llegar antes del cambio (pasó en la fase 3 y el resultado confundió).

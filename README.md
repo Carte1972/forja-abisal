@@ -6,25 +6,25 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 
 > **Demo:** https://carte1972.github.io/forja-abisal/
 
-> 🚧 **Estado:** en desarrollo. Fase actual: **7 — Los tres niveles**. La campaña completa se puede jugar de principio a fin. Faltan el sonido, los menús, las opciones y el automapa.
+> 🚧 **Estado:** en desarrollo. Fase actual: **8 — Audio, menús, opciones y automapa**. El juego está completo; falta el empaquetado final (lanzadores para Windows y Linux).
 
 ## Controles
 
-| Acción                                    | Tecla             | Estado       |
-| ----------------------------------------- | ----------------- | ------------ |
-| Moverse                                   | W A S D / flechas | ✅           |
-| Mirar                                     | Ratón             | ✅           |
-| Saltar                                    | Espacio           | ✅           |
-| Agacharse                                 | C (o Ctrl)        | ✅           |
-| Correr                                    | Shift             | ✅           |
-| Pausa                                     | Esc               | ✅           |
-| Disparar                                  | Clic izquierdo    | ✅           |
-| Disparo alternativo                       | Clic derecho      | ✅           |
-| Cambiar de arma                           | 1-5 / rueda       | ✅           |
-| Recargar                                  | R                 | ✅           |
-| Usar (puertas, ascensores, interruptores) | E                 | ✅           |
-| Automapa                                  | Tab               | Próximamente |
-| Estadísticas                              | F3                | ✅           |
+| Acción                                    | Tecla             | Estado |
+| ----------------------------------------- | ----------------- | ------ |
+| Moverse                                   | W A S D / flechas | ✅     |
+| Mirar                                     | Ratón             | ✅     |
+| Saltar                                    | Espacio           | ✅     |
+| Agacharse                                 | C (o Ctrl)        | ✅     |
+| Correr                                    | Shift             | ✅     |
+| Pausa                                     | Esc               | ✅     |
+| Disparar                                  | Clic izquierdo    | ✅     |
+| Disparo alternativo                       | Clic derecho      | ✅     |
+| Cambiar de arma                           | 1-5 / rueda       | ✅     |
+| Recargar                                  | R                 | ✅     |
+| Usar (puertas, ascensores, interruptores) | E                 | ✅     |
+| Automapa                                  | Tab               | ✅     |
+| Estadísticas                              | F3                | ✅     |
 
 > **¿Por qué C para agacharse?** En los navegadores, Ctrl+W cierra la pestaña y una página web no puede impedirlo. Ctrl también funciona, pero C es más seguro.
 
@@ -83,6 +83,24 @@ Los objetos que no necesitas (salud llena, munición al máximo) se quedan en el
 - **Barra inferior:** munición y reserva, salud, icono del jugador, blindaje, armas que llevas (1-5, la actual resaltada) y llaves.
 - **Icono del jugador:** un casco cuyo visor cambia de color con la salud y se agrieta. Mira hacia el lado del que te atacan.
 - **Avisos visuales:** un arco rojo alrededor del punto de mira indica de dónde llega el daño. La pantalla destella en rojo al recibir daño y del color del objeto al recogerlo.
+
+### Menús, opciones y sonido
+
+- **Menú principal:** nueva partida, elegir nivel, opciones y controles. Con `?nivel=N` en la dirección se salta el menú y se entra directamente al nivel.
+- **Pausa (Esc):** continuar, opciones, controles, reiniciar el nivel o salir al menú.
+- **Muerte:** al caer, puedes reintentar el nivel con lo que tenías al entrar o volver al menú.
+- **Opciones** (se guardan en el navegador y se aplican al momento, también en plena partida):
+
+| Grupo     | Opción                                                                                         |
+| --------- | ---------------------------------------------------------------------------------------------- |
+| Controles | Sensibilidad del ratón, invertir eje vertical                                                  |
+| Cámara    | Campo de visión (60–100°), balanceo al andar, retroceso al disparar                            |
+| Sonido    | Volumen general                                                                                |
+| Gráficos  | Sombras, post-procesado (brillo y viñeta), filtro de píxeles, resolución, panel de rendimiento |
+
+- **Resolución:** en pantallas de alta densidad (Retina) empieza al 75 %, que apenas se nota y va mucho más fluido. Si tu equipo va sobrado, súbela al 100 %.
+- **Automapa (Tab):** plano de las zonas por las que has pasado, con el norte arriba. Muestra paredes, escalones, lava y ácido, puertas (con el color de su llave), ascensores, las llaves que quedan por coger y la salida, pero solo en zonas ya descubiertas. Las paredes secretas no se delatan.
+- **Sonido:** todos los efectos se sintetizan por código al arrancar (no hay archivos de audio). Los sonidos del mundo son posicionales: se oyen más fuerte cerca y a un lado u otro según de dónde vengan. Cada enemigo tiene su voz de alerta, de dolor y de muerte, y hay un zumbido ambiental de fondo. El navegador no deja sonar nada hasta el primer clic.
 
 ### Enemigos
 

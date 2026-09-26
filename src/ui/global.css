@@ -418,3 +418,244 @@ body,
 .overlay-button-secondary:hover {
   background: rgb(255 138 58 / 15%);
 }
+
+.automap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Menús ---------- */
+
+.menu-overlay {
+  cursor: default;
+  overflow-y: auto;
+}
+
+.death-screen {
+  background: radial-gradient(ellipse at center, rgb(40 4 2 / 80%), rgb(8 2 1 / 95%));
+}
+
+.death-screen h1 {
+  color: #ff3a28;
+  text-shadow: 0 0 24px rgb(255 30 10 / 55%);
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: min(20rem, 80vw);
+}
+
+.menu-button {
+  padding: 0.7rem 1.4rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: #1a0e08;
+  background: linear-gradient(#ffa060, #ff7a2a);
+  border: 0;
+  border-radius: 4px;
+  box-shadow:
+    0 2px 0 #8a3a10,
+    0 0 16px rgb(255 106 31 / 25%);
+  cursor: pointer;
+  transition:
+    transform 0.08s,
+    filter 0.08s;
+}
+
+.menu-button:hover,
+.menu-button:focus-visible {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.menu-button-secondary {
+  color: #ffd9b0;
+  background: rgb(20 12 8 / 70%);
+  border: 1px solid #6a5040;
+  box-shadow: none;
+}
+
+.menu-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: min(52rem, 94vw);
+  max-height: 92vh;
+  padding: 1.5rem;
+  overflow-y: auto;
+  background: rgb(14 9 7 / 94%);
+  border: 1px solid #4a3a2e;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgb(0 0 0 / 60%);
+}
+
+.menu-panel h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ff8a3a;
+}
+
+.menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.menu-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #a08870;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #3a2e26;
+  border-radius: 6px;
+}
+
+.option-group legend {
+  padding: 0 0.4rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c0a080;
+}
+
+.option-row {
+  display: grid;
+  grid-template-columns: 1fr 9rem 3.6rem;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.option-row input[type='range'] {
+  width: 9rem;
+  accent-color: #ff8a3a;
+}
+
+.option-row:has(input[type='checkbox']) > span {
+  grid-column: 1 / 3;
+}
+
+.option-row input[type='checkbox'] {
+  grid-column: 3;
+  justify-self: end;
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: #ff8a3a;
+}
+
+.option-row output {
+  min-width: 3.6rem;
+  text-align: right;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  color: #ffb070;
+}
+
+.controls-table {
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.controls-table th {
+  padding: 5px 1.5rem 5px 0;
+  text-align: right;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  color: #ffb070;
+}
+
+.controls-table td {
+  padding: 5px 0;
+  text-align: left;
+  color: #e8d6c4;
+}
+
+.main-menu {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 120%, rgb(255 90 20 / 45%), transparent 60%),
+    radial-gradient(ellipse at 50% -20%, rgb(60 30 80 / 35%), transparent 55%), #0b0706;
+}
+
+.main-menu-embers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 10% 90%, #ffb060, transparent),
+    radial-gradient(1.5px 1.5px at 30% 80%, #ff7a2a, transparent),
+    radial-gradient(2px 2px at 55% 95%, #ffd070, transparent),
+    radial-gradient(1.5px 1.5px at 75% 85%, #ff9040, transparent),
+    radial-gradient(2px 2px at 90% 92%, #ffb060, transparent);
+  animation: embers 7s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes embers {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+.main-menu-title {
+  position: relative;
+  margin: 0;
+  font-size: clamp(2.6rem, 9vw, 5.5rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ff6a1f;
+  text-shadow:
+    0 0 30px rgb(255 106 31 / 55%),
+    0 4px 0 #5a1c06;
+}
+
+.main-menu-subtitle {
+  position: relative;
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: #c0a080;
+}
+
+.main-menu-footer {
+  position: absolute;
+  bottom: 1rem;
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6a5848;
+}

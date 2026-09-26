@@ -28,6 +28,9 @@ export interface PlayerOptions {
   headBob: boolean;
   /** Retroceso de cámara al disparar. */
   recoil: boolean;
+  /** Multiplicador de la sensibilidad del ratón. */
+  mouseSensitivity: number;
+  invertY: boolean;
 }
 
 export class Player {
@@ -59,8 +62,10 @@ export class Player {
 
   /** La vista se actualiza en cada frame (no a paso fijo) para que el ratón responda al instante. */
   applyLook(dx: number, dy: number): void {
-    this.yaw -= dx * MOUSE_SENSITIVITY;
-    this.pitch = clamp(this.pitch - dy * MOUSE_SENSITIVITY, -MAX_PITCH, MAX_PITCH);
+    const sensitivity = MOUSE_SENSITIVITY * this.options.mouseSensitivity;
+    this.yaw -= dx * sensitivity;
+    const vertical = this.options.invertY ? -dy : dy;
+    this.pitch = clamp(this.pitch - vertical * sensitivity, -MAX_PITCH, MAX_PITCH);
   }
 
   /** Retroceso al disparar (si está activado en las opciones). */

@@ -39,6 +39,7 @@ export class EnemyProjectiles {
     private readonly physics: PhysicsWorld,
     private readonly particles: ParticleSystem,
     private readonly damage: DamageRegistry,
+    private readonly onImpact?: (kind: Kind, point: Vec3) => void,
   ) {
     this.group.name = 'enemy_projectiles';
     this.materials = {
@@ -123,6 +124,7 @@ export class EnemyProjectiles {
         attacker: shot.owner,
       });
     }
+    this.onImpact?.(shot.kind, point);
     // Salpicadura del color del proyectil.
     this.particles.blood(point, normal, COLORS[shot.kind], 10);
     this.particles.sparks(point, normal, shot.kind === 'bolt' ? 8 : 2);

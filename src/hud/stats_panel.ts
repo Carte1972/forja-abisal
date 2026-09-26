@@ -17,6 +17,10 @@ export class StatsPanel {
     parent.appendChild(this.element);
   }
 
+  setVisible(visible: boolean): void {
+    if (visible !== this.visible) this.toggle();
+  }
+
   toggle(): void {
     this.visible = !this.visible;
     this.element.hidden = !this.visible;

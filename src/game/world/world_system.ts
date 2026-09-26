@@ -13,6 +13,7 @@ import {
   activateMover,
   createMoverState,
   stepMover,
+  type MoverEvent,
   type MoverParams,
   type MoverState,
 } from './mover_logic';
@@ -126,6 +127,22 @@ export class WorldSystem {
     }
   }
 
+  /** Llaves que quedan por recoger y salidas (para el automapa). */
+  markers(): { position: [number, number]; kind: 'key' | 'exit'; key?: KeyColor }[] {
+    const keys = this.pickups
+      .filter((p) => !p.taken && p.id.startsWith('key_'))
+      .map((p) => ({
+        position: [p.position.x, p.position.z] as [number, number],
+        kind: 'key' as const,
+        key: p.id.slice(4) as KeyColor,
+      }));
+    const exits = this.exits.map((e) => ({
+      position: [e.position.x, e.position.z] as [number, number],
+      kind: 'exit' as const,
+    }));
+    return [...keys, ...exits];
+  }
+
   get totalItems(): number {
     return this.pickups.length;
   }
@@ -153,7 +170,8 @@ export class WorldSystem {
       const blocked =
         entry.mover.kind === 'door' &&
         (this.inside(entry.sector, feet) || enemies.some((p) => this.inside(entry.sector, p)));
-      stepMover(entry.state, entry.params, blocked, dt);
+      const events = stepMover(entry.state, entry.params, blocked, dt);
+      if (events.length > 0) this.moverSounds(entry, events);
       if (entry.state.progress !== entry.mover.progress) {
         entry.mover.setProgress(entry.state.progress);
         moved = true;
@@ -198,6 +216,7 @@ export class WorldSystem {
       ) {
         exit.setOn(true);
         this.completed = true;
+        bus.emit('sound', { id: 'exit' });
         bus.emit('levelComplete', {});
         return;
       }
@@ -212,6 +231,7 @@ export class WorldSystem {
     if (!entry) return;
     if (entry.key && !this.deps.inventory.keys.has(entry.key)) {
       bus.emit('message', { text: `Necesitas la llave ${KEY_NAMES[entry.key]}`, color: 0xff6040 });
+      bus.emit('sound', { id: 'denied' });
       return;
     }
     activateMover(entry.state);
@@ -228,6 +248,24 @@ export class WorldSystem {
 
   dispose(): void {
     this.deps.scene.remove(this.group);
+  }
+
+  /** Motor de puertas y ascensores al arrancar, volver y reabrirse. */
+  private moverSounds(entry: WorldMover, events: MoverEvent[]): void {
+    const ring = entry.sector.outer.map((i) => this.deps.level.data.vertices[i]!);
+    const x = ring.reduce((sum, p) => sum + p[0], 0) / ring.length;
+    const z = ring.reduce((sum, p) => sum + p[1], 0) / ring.length;
+    const position = { x, y: entry.sector.floor.height + entry.mover.offset + 1, z };
+    for (const event of events) {
+      if (entry.mover.kind === 'lift') {
+        if (event === 'start' || event === 'return')
+          this.deps.bus.emit('sound', { id: 'lift', position });
+      } else if (event === 'start' || event === 'reopen') {
+        this.deps.bus.emit('sound', { id: 'door_open', position });
+      } else if (event === 'return') {
+        this.deps.bus.emit('sound', { id: 'door_close', position });
+      }
+    }
   }
 
   private inside(sector: SectorData, point: Vec3): boolean {
@@ -260,6 +298,14 @@ export class WorldSystem {
       pickup.taken = true;
       this.group.remove(pickup.root);
       bus.emit('pickup', { id: pickup.id, name: def.name, color: def.flash, weapon: newWeapon });
+      bus.emit('sound', {
+        id:
+          def.effect.kind === 'key'
+            ? 'pickup_key'
+            : def.effect.kind === 'weapon'
+              ? 'pickup_weapon'
+              : 'pickup',
+      });
     }
   }
 
@@ -269,6 +315,7 @@ export class WorldSystem {
     this.secretsFound.add(sector.index);
     this.deps.bus.emit('message', { text: '¡Has encontrado un secreto!', color: 0xffd070 });
     this.deps.bus.emit('secretFound', {});
+    this.deps.bus.emit('sound', { id: 'secret' });
   }
 
   /** Lava y ácido hacen daño a intervalos mientras se pisan. */
