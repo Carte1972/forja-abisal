@@ -16,12 +16,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "allowImportingTsExtensions": false,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
       "@kninnug/constrainautor": ["./src/types/constrainautor.d.ts"]
     }
   },
-  "include": ["src", "vite.config.ts", "eslint.config.js"]
+  "include": ["src", "scripts", "vite.config.ts", "eslint.config.js"]
 }

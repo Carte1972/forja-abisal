@@ -17,7 +17,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "levels": "node scripts/build_levels.ts && prettier --write src/levels/level_*.json"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",
