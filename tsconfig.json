@@ -18,7 +18,10 @@
     "verbatimModuleSyntax": true,
     "allowImportingTsExtensions": false,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@kninnug/constrainautor": ["./src/types/constrainautor.d.ts"]
+    }
   },
   "include": ["src", "vite.config.ts", "eslint.config.js"]
 }

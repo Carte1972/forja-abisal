@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",
+    "@kninnug/constrainautor": "^4.1.0",
+    "delaunator": "^5.1.0",
     "earcut": "^3.2.3",
     "postprocessing": "^6.39.5",
     "react": "^19.3.0",

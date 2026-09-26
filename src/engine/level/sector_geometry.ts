@@ -1,5 +1,6 @@
 import earcut from 'earcut';
 import { findSectorAt, ringPoints, surfaceHeightAt } from './level_queries';
+import { triangulateSurface } from './surface_triangulation';
 import type { LevelData, Point2, SectorData, SlabData, SurfaceData } from './level_types';
 
 /**
@@ -16,6 +17,14 @@ const EPS = 1e-6;
  * al moverse, sus caras quedarían en el mismo plano que las paredes estáticas y parpadearían.
  */
 export const MOVER_INSET = 0.02;
+/** Prolongación oculta de puertas (hacia arriba) y ascensores (hacia abajo). */
+export const MOVER_SKIRT = 0.5;
+/**
+ * Ancho máximo de las columnas en que se dibujan las paredes. Algunas GPU (ANGLE sobre Metal, al
+ * menos) no dibujan triángulos largos y finos que cruzan el plano de la cámara; los suelos y
+ * techos lo evitan con `triangulateSurface`. La colisión usa las piezas enteras.
+ */
+export const MAX_RENDER_EDGE = 2;
 
 export interface GeometryBatch {
   positions: number[];
@@ -75,10 +84,10 @@ class MeshWriter {
     light: number,
     collide = true,
   ): void {
-    const normal = newellNormal(points);
+    const normal = planeNormal(points, triangles, expectedNormal);
     if (!normal) return;
-    if (dot(normal, expectedNormal) < 0) scale(normal, -1);
 
+    const oriented = orientTriangles(points, triangles, normal);
     const batch = this.batch(texture);
     const base = batch.positions.length / 3;
     for (const p of points) {
@@ -88,7 +97,6 @@ class MeshWriter {
       batch.uvs.push(u, v);
       batch.colors.push(light, light, light);
     }
-    const oriented = orientTriangles(points, triangles, normal);
     for (const index of oriented) batch.indices.push(base + index);
 
     if (collide && this.collision) appendCollision(this.collision, points, oriented);
@@ -134,15 +142,22 @@ function triangleNormal(a: P3, b: P3, c: P3): P3 {
   return [uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx];
 }
 
-/** Normal de un polígono plano por el método de Newell (robusto con vértices alineados). */
-function newellNormal(points: P3[]): P3 | null {
+/**
+ * Normal de un polígono plano a partir de sus triángulos (los puntos pueden venir en cualquier
+ * orden), orientada hacia `expected`. Devuelve null si el polígono no tiene área.
+ */
+function planeNormal(points: P3[], triangles: readonly number[], expected: P3): P3 | null {
   const n: P3 = [0, 0, 0];
-  for (let i = 0; i < points.length; i++) {
-    const a = points[i]!;
-    const b = points[(i + 1) % points.length]!;
-    n[0] += (a[1] - b[1]) * (a[2] + b[2]);
-    n[1] += (a[2] - b[2]) * (a[0] + b[0]);
-    n[2] += (a[0] - b[0]) * (a[1] + b[1]);
+  for (let t = 0; t < triangles.length; t += 3) {
+    const face = triangleNormal(
+      points[triangles[t]!]!,
+      points[triangles[t + 1]!]!,
+      points[triangles[t + 2]!]!,
+    );
+    const sign = dot(face, expected) < 0 ? -1 : 1;
+    n[0] += face[0] * sign;
+    n[1] += face[1] * sign;
+    n[2] += face[2] * sign;
   }
   const length = Math.hypot(n[0], n[1], n[2]);
   if (length < EPS) return null;
@@ -213,15 +228,31 @@ function addWall(
   const uv: UvFn =
     customUv ??
     ((p) => [Math.hypot(p[0] - a[0], p[2] - a[1]) * TEXTURE_SCALE, p[1] * TEXTURE_SCALE]);
-  writer.addPolygon(
-    texture,
-    points,
-    fan(points.length),
-    [normal2[0], 0, normal2[1]],
-    uv,
-    light,
-    collide,
-  );
+  const normal: P3 = [normal2[0], 0, normal2[1]];
+  const columns = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / MAX_RENDER_EDGE);
+  if (columns <= 1) {
+    writer.addPolygon(texture, points, fan(points.length), normal, uv, light, collide);
+    return;
+  }
+  // Paredes largas: se dibujan en columnas (ver MAX_RENDER_EDGE) y colisionan enteras.
+  if (collide) writer.addCollisionOnly(points, fan(points.length));
+  for (let k = 0; k < columns; k++) {
+    const t0 = k / columns;
+    const t1 = (k + 1) / columns;
+    const p = lerp2(a, b, t0);
+    const q = lerp2(a, b, t1);
+    const column: P3[] = [
+      [p[0], bottom[0] + (bottom[1] - bottom[0]) * t0, p[1]],
+      [q[0], bottom[0] + (bottom[1] - bottom[0]) * t1, q[1]],
+    ];
+    const topQ = top[0] + (top[1] - top[0]) * t1;
+    const topP = top[0] + (top[1] - top[0]) * t0;
+    if (topQ - column[1]![1] > EPS) column.push([q[0], topQ, q[1]]);
+    if (topP - column[0]![1] > EPS) column.push([p[0], topP, p[1]]);
+    if (column.length >= 3) {
+      writer.addPolygon(texture, column, fan(column.length), normal, uv, light, false);
+    }
+  }
 }
 
 /** Normal horizontal hacia el interior de un anillo (a la izquierda de a→b en ejes XZ). */
@@ -346,8 +377,10 @@ export function buildLevelGeometry(level: LevelData): LevelGeometry {
 }
 
 function addSectorSurfaces(writer: MeshWriter, level: LevelData, sector: SectorData): void {
-  const rings = [sector.outer, ...sector.holes].map((ring) => ringPoints(level, ring));
-  const { flat, triangles } = triangulate(rings);
+  const { points: flat, triangles } = triangulateSurface(level.vertices, [
+    sector.outer,
+    ...sector.holes,
+  ]);
 
   // El suelo del ascensor y el techo de la puerta son parte de sus prismas móviles.
   if (sector.special?.type !== 'lift') {
@@ -382,7 +415,7 @@ function addSolidWall(writer: MeshWriter, level: LevelData, side: EdgeSide): voi
 
 function addSlab(writer: MeshWriter, level: LevelData, slab: SlabData): void {
   const points = ringPoints(level, slab.outer);
-  const { flat, triangles } = triangulate([points]);
+  const { points: flat, triangles } = triangulateSurface(level.vertices, [slab.outer]);
   const light = slab.light ?? lightInside(level, flat, triangles);
 
   const top = flat.map(([x, z]): P3 => [x, slab.top, z]);
@@ -405,19 +438,25 @@ function addSlab(writer: MeshWriter, level: LevelData, slab: SlabData): void {
   });
 }
 
-/** Desplaza cada arista de un polígono convexo antihorario `distance` metros hacia dentro. */
-function insetConvex(points: Point2[], distance: number): Point2[] {
+/**
+ * Desplaza hacia dentro cada arista de un polígono convexo antihorario su propia distancia
+ * (`distances[i]` para la arista i → i+1). Cada vértice queda en el cruce de sus dos aristas
+ * desplazadas.
+ */
+function insetEdges(points: Point2[], distances: number[]): Point2[] {
   const n = points.length;
   return points.map((p, i) => {
-    const prev = points[(i - 1 + n) % n]!;
-    const next = points[(i + 1) % n]!;
-    const n1 = interiorNormal(prev, p);
-    const n2 = interiorNormal(p, next);
-    // Bisectriz de las dos normales, escalada para que ambas aristas se muevan `distance`.
-    const bx = n1[0] + n2[0];
-    const bz = n1[1] + n2[1];
-    const scale = distance / Math.max(1 + n1[0] * n2[0] + n1[1] * n2[1], 1e-3);
-    return [p[0] + bx * scale, p[1] + bz * scale];
+    const prevIndex = (i - 1 + n) % n;
+    const n1 = interiorNormal(points[prevIndex]!, p);
+    const n2 = interiorNormal(p, points[(i + 1) % n]!);
+    const d1 = distances[prevIndex]!;
+    const d2 = distances[i]!;
+    // Desplazamiento x con x·n1 = d1 y x·n2 = d2.
+    const det = n1[0] * n2[1] - n1[1] * n2[0];
+    if (Math.abs(det) < 1e-9) return [p[0] + n1[0] * d1, p[1] + n1[1] * d1];
+    const x = (d1 * n2[1] - d2 * n1[1]) / det;
+    const z = (n1[0] * d2 - n2[0] * d1) / det;
+    return [p[0] + x, p[1] + z];
   });
 }
 
@@ -447,25 +486,39 @@ function buildMover(
   }
   const writer = new MeshWriter(null);
   const exact = ringPoints(level, sector.outer);
-  const points = insetConvex(exact, MOVER_INSET);
+  const neighbours = sector.outer.map((ia, i) => {
+    const ib = sector.outer[(i + 1) % sector.outer.length]!;
+    const key = ia < ib ? `${ia}:${ib}` : `${ib}:${ia}`;
+    return edgeSides.get(key)?.find((side) => side.sector !== sector)?.sector;
+  });
+  // Solo se retranquean las caras que dan a sectores vecinos (las que podrían coincidir con una
+  // pared estática); contra las jambas no hace falta y dejaría una rendija.
+  const points = insetEdges(
+    exact,
+    neighbours.map((neighbour) => (neighbour ? MOVER_INSET : 0)),
+  );
   const isDoor = special.type === 'door';
   const bottomY = isDoor ? sector.floor.height : special.lowHeight;
   const topY = isDoor ? sector.ceiling.height : sector.floor.height;
+  // Faldón oculto: la puerta sigue por encima de su altura y el ascensor por debajo, para que
+  // la rendija del retranqueo nunca deje ver lo que hay detrás.
+  const visualBottom = isDoor ? bottomY : bottomY - MOVER_SKIRT;
+  const visualTop = isDoor ? topY + MOVER_SKIRT : topY;
 
-  const { flat, triangles } = triangulate([points]);
+  // Las tapas usan el contorno exacto: nunca coinciden con una pared y así no dejan rendijas.
+  const { flat, triangles } = triangulate([exact]);
   if (isDoor) {
     const texture = special.hidden ? sector.ceiling.texture : special.texture;
-    const face = flat.map(([x, z]): P3 => [x, bottomY, z]);
-    writer.addPolygon(texture, face, triangles, DOWN, floorUv, sector.light);
+    const bottomFace = flat.map(([x, z]): P3 => [x, bottomY, z]);
+    writer.addPolygon(texture, bottomFace, triangles, DOWN, floorUv, sector.light);
+    const topFace = flat.map(([x, z]): P3 => [x, visualTop, z]);
+    writer.addPolygon(texture, topFace, triangles, UP, floorUv, sector.light);
   } else {
     const face = flat.map(([x, z]): P3 => [x, topY, z]);
     writer.addPolygon(sector.floor.texture, face, triangles, UP, floorUv, sector.light);
   }
 
-  sector.outer.forEach((ia, i) => {
-    const ib = sector.outer[(i + 1) % sector.outer.length]!;
-    const key = ia < ib ? `${ia}:${ib}` : `${ib}:${ia}`;
-    const neighbour = edgeSides.get(key)?.find((side) => side.sector !== sector)?.sector;
+  neighbours.forEach((neighbour, i) => {
     if (!neighbour) return;
     const a = points[i]!;
     const b = points[(i + 1) % points.length]!;
@@ -487,8 +540,8 @@ function buildMover(
       texture,
       a,
       b,
-      [bottomY, bottomY],
-      [topY, topY],
+      [visualBottom, visualBottom],
+      [visualTop, visualTop],
       [-inward[0], -inward[1]],
       neighbour.light,
       false,

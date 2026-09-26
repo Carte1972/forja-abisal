@@ -2,10 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { parseLevel } from './level_parser';
 import {
   buildLevelGeometry,
+  MAX_RENDER_EDGE,
   MOVER_INSET,
+  MOVER_SKIRT,
+  type CollisionMesh,
   type GeometryBatch,
   type LevelGeometry,
 } from './sector_geometry';
+import testLevel from '../../levels/test_level.json';
+import { SURFACE_CELL } from './surface_triangulation';
+import { ringPoints } from './level_queries';
+import { signedArea } from './polygon_utils';
 import { rawLevel, rawSector, TWO_ROOMS_VERTICES, type RawSector } from './test_helpers';
 
 type V3 = [number, number, number];
@@ -69,6 +76,20 @@ function centroid(tri: Tri): V3 {
   return [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3];
 }
 
+function collisionArea(mesh: CollisionMesh): number {
+  let total = 0;
+  const p = (i: number): V3 => [
+    mesh.positions[i * 3]!,
+    mesh.positions[i * 3 + 1]!,
+    mesh.positions[i * 3 + 2]!,
+  ];
+  for (let t = 0; t < mesh.indices.length; t += 3) {
+    const c = cross(p(mesh.indices[t]!), p(mesh.indices[t + 1]!), p(mesh.indices[t + 2]!));
+    total += Math.hypot(...c) / 2;
+  }
+  return total;
+}
+
 const isUp = (t: Tri) => t.normal[1] > 0.99;
 const isDown = (t: Tri) => t.normal[1] < -0.99;
 const isWall = (t: Tri) => Math.abs(t.normal[1]) < 1e-6;
@@ -107,10 +128,9 @@ describe('buildLevelGeometry', () => {
     expect(tris.every((t) => t.color === 0.5)).toBe(true);
   });
 
-  it('la colisión contiene exactamente los triángulos visibles', () => {
+  it('la colisión cubre exactamente la misma superficie que la geometría visible', () => {
     const geometry = build(SQUARE, [rawSector([0, 1, 2, 3])]);
-    const visible = trianglesOf(geometry.batches).length;
-    expect(geometry.collision.indices.length / 3).toBe(visible);
+    expect(collisionArea(geometry.collision)).toBeCloseTo(sumArea(trianglesOf(geometry.batches)));
   });
 
   it('entre dos salas al mismo nivel no hay pared en la arista compartida', () => {
@@ -189,8 +209,8 @@ describe('buildLevelGeometry', () => {
     const tris = trianglesOf(geometry.batches);
     expect(tris.some(isDown)).toBe(false);
     expect(tris.some((t) => isWall(t) && Math.abs(centroid(t)[0] - 4) < 1e-6)).toBe(false);
-    // 4 triángulos de suelo + 4 de tapa invisible de más en la colisión.
-    expect(geometry.collision.indices.length / 3).toBe(tris.length + 4);
+    // La colisión incluye además una tapa invisible de 8×4 m a la altura del cielo.
+    expect(collisionArea(geometry.collision)).toBeCloseTo(sumArea(tris) + 32);
   });
 
   it('una sala interior junto a un patio con cielo genera la fachada hasta el cielo', () => {
@@ -243,12 +263,12 @@ describe('buildLevelGeometry', () => {
     expect(door.hullPoints).toHaveLength(4 * 2 * 3);
     const doorTris = trianglesOf(door.batches);
     expectConsistentWinding(doorTris);
-    // Cara inferior + una única cara lateral hacia el vecino (x≈4, mirando a -X), metidas
-    // MOVER_INSET hacia dentro para no coincidir con las paredes estáticas.
-    const inner = 4 - 2 * MOVER_INSET;
-    expect(sumArea(doorTris.filter(isDown))).toBeCloseTo(inner * inner);
+    // Tapas con el contorno exacto y una única cara lateral hacia el vecino (x≈4, mirando a -X),
+    // metida MOVER_INSET hacia dentro y MOVER_SKIRT más alta.
+    expect(sumArea(doorTris.filter(isDown))).toBeCloseTo(16);
+    expect(sumArea(doorTris.filter(isUp))).toBeCloseTo(16);
     const sides = doorTris.filter(isWall);
-    expect(sumArea(sides)).toBeCloseTo(inner * 3);
+    expect(sumArea(sides)).toBeCloseTo(4 * (3 + MOVER_SKIRT));
     expect(sides.every((t) => t.normal[0] < -0.99 && t.texture === 'door_panel')).toBe(true);
     expect(
       sides.every((t) => t.points.every((p) => Math.abs(p[0] - (4 + MOVER_INSET)) < 1e-9)),
@@ -278,7 +298,7 @@ describe('buildLevelGeometry', () => {
     expect(lift.kind).toBe('lift');
     expect(lift.travel).toBeCloseTo(-2);
     const top = trianglesOf(lift.batches).filter(isUp);
-    expect(sumArea(top)).toBeCloseTo((4 - 2 * MOVER_INSET) ** 2);
+    expect(sumArea(top)).toBeCloseTo(16);
     expect(top.every((t) => t.points.every((p) => Math.abs(p[1] - 2) < 1e-9))).toBe(true);
   });
 
@@ -299,8 +319,54 @@ describe('buildLevelGeometry', () => {
       expect(side.normal[0] * (c[0] - 2) + side.normal[2] * (c[2] - 2)).toBeGreaterThan(0);
     }
     expect(slab.every((t) => t.color === 0.4)).toBe(true);
-    expect(withSlab.collision.indices.length - withoutSlab.collision.indices.length).toBe(
-      slab.length * 3,
+    expect(collisionArea(withSlab.collision) - collisionArea(withoutSlab.collision)).toBeCloseTo(
+      sumArea(slab),
     );
+  });
+
+  it('en el nivel de pruebas ninguna arista visible supera el máximo en planta y el suelo sigue estanco', () => {
+    const geometry = buildLevelGeometry(parseLevel(testLevel));
+    const tris = trianglesOf(geometry.batches);
+    for (const tri of tris) {
+      for (let e = 0; e < 3; e++) {
+        const p = tri.points[e]!;
+        const q = tri.points[(e + 1) % 3]!;
+        // Longitud en planta: las paredes altas pueden tener aristas verticales largas.
+        expect(Math.hypot(q[0] - p[0], q[2] - p[2])).toBeLessThanOrEqual(
+          Math.max(MAX_RENDER_EDGE, SURFACE_CELL * 1.5) + 1e-9,
+        );
+      }
+    }
+    // Estanqueidad: en el suelo de piedra, cada arista interior la comparten dos triángulos.
+    const edges = new Map<string, number>();
+    const key = (p: V3) => p.map((n) => n.toFixed(5)).join(',');
+    for (const tri of tris.filter((t) => t.texture === 'stone_floor' && isUp(t))) {
+      for (let e = 0; e < 3; e++) {
+        const a = key(tri.points[e]!);
+        const b = key(tri.points[(e + 1) % 3]!);
+        const k = a < b ? `${a}|${b}` : `${b}|${a}`;
+        edges.set(k, (edges.get(k) ?? 0) + 1);
+      }
+    }
+    expect([...edges.values()].every((n) => n === 1 || n === 2)).toBe(true);
+    expect([...edges.values()].filter((n) => n === 2).length).toBeGreaterThan(100);
+  });
+
+  it('en el nivel de pruebas los suelos cubren exactamente el área en planta de sectores y losas', () => {
+    const level = parseLevel(testLevel);
+    const geometry = buildLevelGeometry(level);
+    const planArea = (ring: number[]) => Math.abs(signedArea(ringPoints(level, ring)));
+    let expected = 0;
+    for (const sector of level.sectors) {
+      if (sector.special?.type === 'lift') continue;
+      expected += planArea(sector.outer) - sector.holes.reduce((sum, h) => sum + planArea(h), 0);
+    }
+    for (const slab of level.slabs) expected += planArea(slab.outer);
+    const projected = (tri: Tri) => {
+      const [a, b, c] = tri.points;
+      return Math.abs((b[0] - a[0]) * (c[2] - a[2]) - (c[0] - a[0]) * (b[2] - a[2])) / 2;
+    };
+    const floors = trianglesOf(geometry.batches).filter((t) => t.normal[1] > 0.5);
+    expect(floors.reduce((sum, t) => sum + projected(t), 0)).toBeCloseTo(expected, 3);
   });
 });
