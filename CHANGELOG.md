@@ -5,6 +5,10 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Cambiado
+
+- README: la introducción presenta el juego como homenaje a los shooters en primera persona de los años 90.
+
 ## [1.0.0] - 2026-09-26
 
 Primera versión completa: tres niveles jugables de principio a fin, cinco armas, cuatro tipos de enemigos, sonido, menús, opciones y automapa. Se juega en el navegador (demo en GitHub Pages) o en local con los lanzadores de macOS, Windows y Linux. Las secciones siguientes recogen los cambios de cada fase del desarrollo.

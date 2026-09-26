@@ -1,6 +1,8 @@
 # Forja Abisal
 
-FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de los shooters de los 90: niveles laberínticos y verticales, muchos enemigos, llaves y secretos. Todo el contenido (modelos, texturas, sonidos, niveles y nombres) es original y se genera por código.
+_Un homenaje a los shooters en primera persona de los años 90._
+
+FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de aquellos clásicos: niveles laberínticos y verticales, muchos enemigos, llaves y secretos. Todo el contenido (modelos, texturas, sonidos, niveles y nombres) es original y se genera por código.
 
 <!-- CAPTURA: añade aquí una captura o GIF del juego, por ejemplo: ![Forja Abisal](docs/captura.gif) -->
 
