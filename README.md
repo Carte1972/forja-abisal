@@ -567,12 +567,12 @@ El juego se desarrolló con [Claude Code](https://claude.com/claude-code) a part
 | Modelo principal          | Claude Opus 5.5 (`claude-opus-5-5`), 644 llamadas                                              |
 | Esfuerzo de razonamiento  | Alto (`high`)                                                                                  |
 | Modelo auxiliar           | Claude Sonnet 5, en un subagente que analizó los niveles para la guía del jugador (6 llamadas) |
-| Tiempo de trabajo activo  | ~3 h 35 min (5 h 07 min de reloj, incluidas las pausas para probar y revisar entre fases)      |
+| Tiempo de trabajo activo  | ~3 h 35 min                                                                                    |
 | Tokens totales procesados | ~297 millones                                                                                  |
 | Tokens generados          | ~937.000 (código, documentación y respuestas)                                                  |
 | Resultado                 | 10 fases, versión 1.0.0, 254 tests                                                             |
 
-Casi todos los tokens procesados son contexto (el código, los resultados de las herramientas y el historial) que el modelo vuelve a leer de caché en cada paso. Los datos corresponden al desarrollo completo del 26 de septiembre de 2026, hasta la versión 1.0.0, las capturas y la guía del jugador. El tiempo activo es una estimación que descuenta las pausas de más de 5 minutos.
+Casi todos los tokens procesados son contexto (el código, los resultados de las herramientas y el historial) que el modelo vuelve a leer de caché en cada paso. Los datos corresponden al desarrollo completo del 26 de septiembre de 2026, hasta la versión 1.0.0, las capturas y la guía del jugador. El tiempo activo es una estimación que no incluye las pausas para probar y revisar entre fases.
 
 ## Créditos y licencia
 
