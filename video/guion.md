@@ -36,7 +36,7 @@ Hace tres semanas que la Forja Abisal dejó de responder, pero sus hornos siguen
 ### Imagen
 
 - Negro. Un zumbido grave de la música crece.
-- **Clip `gancho_salto_carga`** (Núcleo Abisal, vista del jugador, sin HUD, con el arma): el jugador corre por la pasarela sur del lago de lava hacia la isla, salta, dispara el lanzacargas al suelo y sale despedido por encima de la lava. La cámara ve pasar la lava por debajo y la torre de frente; aterriza en la isla.
+- **Clip `gancho_salto_carga`** (Núcleo Abisal, vista del jugador, sin HUD, con el arma): el jugador corre por la orilla sur hasta el borde del lago de lava, salta, dispara el lanzacargas al suelo y sale despedido por encima de la lava. La cámara ve pasar la lava por debajo y la torre de frente; aterriza en lo alto de la torre, cara a cara con un centinela, y gira para ver el lago desde arriba.
 - Corte a negro con un destello de fundición y aparece el título.
 
 ### Textos en pantalla
@@ -84,7 +84,7 @@ Cuatro planos encadenados con fundidos, cada uno de 6 a 8 segundos:
   2. **Clip `arma_pistola`**: tiro preciso y ráfaga de tres contra un centinela lejano.
   3. **Clip `arma_escopeta`**: un cañón y los dos a la vez contra un rastrero que se acerca.
   4. **Clip `arma_remachadora`**: ráfaga continua y modo sobrecargado contra un vigía.
-  5. **Clip `arma_lanzacargas`**: carga explosiva contra un grupo y carga rebotadora que rebota en la pared antes de estallar.
+  5. **Clip `arma_lanzacargas`**: carga explosiva contra un grupo y carga rebotadora que remata al superviviente.
 - Los clips de armas son en vista del jugador, con el arma y el HUD visibles.
 
 ### Textos en pantalla
@@ -171,7 +171,7 @@ Cuatro planos encadenados con fundidos, cada uno de 6 a 8 segundos:
 
 - Cuatro trucos, unos 7 s cada uno, con su clip a pantalla completa y un rótulo:
   1. **Clip `truco_secreto`** (Fundición Cero, vista del jugador, con HUD): el jugador se acerca a la pared sur del sótano, pulsa E, la pared sube y aparece el escondite con el blindaje.
-  2. **Clip `truco_pelea`** (cámara libre): un escupidor alcanza por error a un centinela con su ácido y los dos se enfrentan.
+  2. **Clip `truco_pelea`** (Fundición Cero, cámara libre): un escupidor alcanza por error a un centinela con su ácido y los dos se enfrentan.
   3. **Clip `truco_salto_carga`** (Pozos de Ceniza, vista del jugador): salto con carga desde el anillo inferior de la sima hasta el anillo superior.
   4. **Clip `truco_automapa`** (Fundición Cero, vista del jugador, con HUD): el jugador abre el automapa con Tab mientras camina; el plano se va completando.
 
@@ -212,29 +212,29 @@ Cuatro planos encadenados con fundidos, cada uno de 6 a 8 segundos:
 
 Clips que graba el modo de grabación del juego (fase 2), en el orden en que aparecen:
 
-| Clip                  | Nivel           | Cámara  | HUD | Qué muestra                                              |
-| --------------------- | --------------- | ------- | --- | -------------------------------------------------------- |
-| `gancho_salto_carga`  | Núcleo Abisal   | Jugador | No  | Salto con carga sobre el lago de lava hasta la isla      |
-| `historia_fundicion`  | Fundición Cero  | Libre   | No  | Travelling por la nave, del puente a la galería          |
-| `historia_ronda`      | Fundición Cero  | Libre   | No  | Un centinela patrulla la galería, de espaldas            |
-| `historia_rastrero`   | Fundición Cero  | Libre   | No  | Un rastrero se levanta en la penumbra del sótano         |
-| `historia_entrada`    | Fundición Cero  | Jugador | No  | Del pasillo de entrada hacia la fundición                |
-| `controles_recorrido` | Fundición Cero  | Jugador | Sí  | Caminar, saltar, agacharse y abrir una puerta            |
-| `arma_martillo`       | Fundición Cero  | Jugador | Sí  | Golpe rápido y golpe cargado                             |
-| `arma_pistola`        | Fundición Cero  | Jugador | Sí  | Tiro preciso y ráfaga de tres                            |
-| `arma_escopeta`       | Fundición Cero  | Jugador | Sí  | Un cañón y dos cañones                                   |
-| `arma_remachadora`    | Pozos de Ceniza | Jugador | Sí  | Ráfaga continua y modo sobrecargado                      |
-| `arma_lanzacargas`    | Núcleo Abisal   | Jugador | Sí  | Carga explosiva y carga rebotadora                       |
-| `enemigo_centinela`   | Fundición Cero  | Libre   | No  | Se asoma tras una columna y dispara                      |
-| `enemigo_rastrero`    | Pozos de Ceniza | Libre   | No  | Carga hacia la cámara y ataca                            |
-| `enemigo_escupidor`   | Pozos de Ceniza | Libre   | No  | Lanza una bola de ácido en parábola                      |
-| `enemigo_vigia`       | Núcleo Abisal   | Libre   | No  | Flota sobre la lava y dispara                            |
-| `nivel_1_panoramica`  | Fundición Cero  | Libre   | No  | La fundición y el patio                                  |
-| `nivel_2_panoramica`  | Pozos de Ceniza | Libre   | No  | La sima, del anillo superior al pozo de ácido            |
-| `nivel_3_panoramica`  | Núcleo Abisal   | Libre   | No  | Vuelo sobre el lago de lava hacia la torre               |
-| `truco_secreto`       | Fundición Cero  | Jugador | Sí  | Abrir la pared secreta del sótano                        |
-| `truco_pelea`         | Pozos de Ceniza | Libre   | No  | Un escupidor y un centinela se enfrentan                 |
-| `truco_salto_carga`   | Pozos de Ceniza | Jugador | No  | Salto con carga del anillo inferior al superior          |
-| `truco_automapa`      | Fundición Cero  | Jugador | Sí  | Automapa abierto mientras se camina                      |
-| `cierre_lago`         | Núcleo Abisal   | Libre   | No  | La cámara se aleja del lago de lava                      |
-| `cierre_rastrero`     | Fundición Cero  | Libre   | No  | El rastrero del sótano levanta la cabeza y mira a cámara |
+| Clip                  | Nivel           | Cámara  | HUD | Qué muestra                                                     |
+| --------------------- | --------------- | ------- | --- | --------------------------------------------------------------- |
+| `gancho_salto_carga`  | Núcleo Abisal   | Jugador | No  | Salto con carga sobre el lago de lava hasta lo alto de la torre |
+| `historia_fundicion`  | Fundición Cero  | Libre   | No  | Travelling por la nave, del puente a la galería                 |
+| `historia_ronda`      | Fundición Cero  | Libre   | No  | Un centinela patrulla la galería, de espaldas                   |
+| `historia_rastrero`   | Fundición Cero  | Libre   | No  | Un rastrero se levanta en la penumbra del sótano                |
+| `historia_entrada`    | Fundición Cero  | Jugador | No  | Del pasillo de entrada hacia la fundición                       |
+| `controles_recorrido` | Fundición Cero  | Jugador | Sí  | Caminar, saltar, agacharse y abrir una puerta                   |
+| `arma_martillo`       | Fundición Cero  | Jugador | Sí  | Golpe rápido y golpe cargado                                    |
+| `arma_pistola`        | Fundición Cero  | Jugador | Sí  | Tiro preciso y ráfaga de tres                                   |
+| `arma_escopeta`       | Fundición Cero  | Jugador | Sí  | Un cañón y dos cañones                                          |
+| `arma_remachadora`    | Pozos de Ceniza | Jugador | Sí  | Ráfaga continua y modo sobrecargado                             |
+| `arma_lanzacargas`    | Pozos de Ceniza | Jugador | Sí  | Carga explosiva y carga rebotadora                              |
+| `enemigo_centinela`   | Fundición Cero  | Libre   | No  | Se asoma tras una columna y dispara                             |
+| `enemigo_rastrero`    | Pozos de Ceniza | Libre   | No  | Carga hacia la cámara y ataca                                   |
+| `enemigo_escupidor`   | Pozos de Ceniza | Libre   | No  | Lanza una bola de ácido en parábola                             |
+| `enemigo_vigia`       | Núcleo Abisal   | Libre   | No  | Flota sobre la lava y dispara                                   |
+| `nivel_1_panoramica`  | Fundición Cero  | Libre   | No  | La fundición y el patio                                         |
+| `nivel_2_panoramica`  | Pozos de Ceniza | Libre   | No  | La sima, del anillo superior al pozo de ácido                   |
+| `nivel_3_panoramica`  | Núcleo Abisal   | Libre   | No  | Vuelo sobre el lago de lava hacia la torre                      |
+| `truco_secreto`       | Fundición Cero  | Jugador | Sí  | Abrir la pared secreta del sótano                               |
+| `truco_pelea`         | Fundición Cero  | Libre   | No  | Un escupidor y un centinela se enfrentan                        |
+| `truco_salto_carga`   | Pozos de Ceniza | Jugador | No  | Salto con carga del anillo inferior al superior                 |
+| `truco_automapa`      | Fundición Cero  | Jugador | Sí  | Automapa abierto mientras se camina                             |
+| `cierre_lago`         | Núcleo Abisal   | Libre   | No  | La cámara se aleja del lago de lava                             |
+| `cierre_rastrero`     | Fundición Cero  | Libre   | No  | El rastrero del sótano levanta la cabeza y mira a cámara        |
