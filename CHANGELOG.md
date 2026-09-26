@@ -8,7 +8,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 ### Añadido
 
 - `INSTRUCCIONES.md`: guía del jugador con cómo empezar, el objetivo, salud y daño, qué pasa al morir, objetos, armas, secretos, enemigos, cómo leer el automapa y la descripción de cada nivel, con su plano completo y la ruta (ocultos como spoiler).
-- Capturas del juego en el README (`docs/capturas/`) y planos de los tres niveles en SVG (`docs/planos/`), generados a partir de los datos de cada nivel.
+- Capturas del juego en el README (`docs/capturas/`) y planos de los tres niveles en SVG (`docs/planos/`), generados a partir de los datos de cada nivel. Los planos solo aparecen en la guía, ocultos como spoiler.
 
 ### Cambiado
 

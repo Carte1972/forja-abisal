@@ -17,7 +17,7 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de a
   </tr>
   <tr>
     <td width="50%"><img src="docs/capturas/menu_principal.jpg" alt="Menú principal"><br><sub>Menú principal.</sub></td>
-    <td width="50%"><img src="docs/planos/nivel_1_fundicion_cero.svg" alt="Plano de Fundición Cero"><br><sub>Plano completo de un nivel, en la <a href="INSTRUCCIONES.md#los-niveles">guía del jugador</a>.</sub></td>
+    <td width="50%"><img src="docs/capturas/nivel_1_fundicion.jpg" alt="La nave de la fundición"><br><sub>Fundición Cero: dos centinelas vigilan la nave. Planos y rutas en la <a href="INSTRUCCIONES.md#los-niveles">guía del jugador</a>.</sub></td>
   </tr>
 </table>
 
