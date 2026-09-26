@@ -35,18 +35,18 @@
 <line x1="40.0" y1="604.0" x2="904.0" y2="604.0" stroke="#1c1410"/>
 <line x1="40.0" y1="652.0" x2="904.0" y2="652.0" stroke="#1c1410"/>
 <line x1="40.0" y1="700.0" x2="904.0" y2="700.0" stroke="#1c1410"/>
-<path d="M424.0,652.0 L448.0,652.0 L472.0,652.0 L496.0,652.0 L496.0,724.0 L424.0,724.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
-<path d="M448.0,580.0 L472.0,580.0 L472.0,652.0 L448.0,652.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
-<path d="M304.0,508.0 L376.0,508.0 L592.0,508.0 L664.0,508.0 L664.0,580.0 L472.0,580.0 L448.0,580.0 L304.0,580.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
-<path d="M304.0,220.0 L460.0,220.0 L484.0,220.0 L664.0,220.0 L664.0,292.0 L640.0,292.0 L592.0,292.0 L376.0,292.0 L304.0,292.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
-<path d="M304.0,292.0 L376.0,292.0 L376.0,400.0 L376.0,424.0 L376.0,508.0 L304.0,508.0 L304.0,412.0 L304.0,388.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
-<path d="M640.0,292.0 L664.0,292.0 L664.0,364.0 L664.0,388.0 L664.0,508.0 L592.0,508.0 L592.0,424.0 L592.0,400.0 L592.0,364.0 L640.0,364.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
-<path d="M592.0,292.0 L640.0,292.0 L640.0,364.0 L592.0,364.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
-<path d="M376.0,292.0 L592.0,292.0 L592.0,364.0 L592.0,400.0 L592.0,424.0 L592.0,508.0 L376.0,508.0 L376.0,424.0 L376.0,400.0 Z M424.0,460.0 L544.0,460.0 L544.0,364.0 L544.0,340.0 L520.0,340.0 L424.0,340.0 Z" fill="rgb(47,41,33)" fill-rule="evenodd"/>
-<path d="M424.0,340.0 L520.0,340.0 L520.0,364.0 L544.0,364.0 L544.0,460.0 L424.0,460.0 Z" fill="#1f4a12" fill-rule="evenodd"/>
-<path d="M520.0,340.0 L544.0,340.0 L544.0,364.0 L520.0,364.0 Z" fill="#123a32" fill-rule="evenodd"/>
-<path d="M460.0,208.0 L484.0,208.0 L484.0,220.0 L460.0,220.0 Z" fill="#ff403066" fill-rule="evenodd"/>
-<path d="M448.0,100.0 L544.0,100.0 L544.0,208.0 L484.0,208.0 L460.0,208.0 L400.0,208.0 L400.0,172.0 L448.0,172.0 L448.0,163.0 L448.0,154.0 L448.0,145.0 L448.0,136.0 L448.0,127.0 L448.0,118.0 L448.0,109.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
+<path d="M424.0,652.0 L448.0,652.0 L472.0,652.0 L496.0,652.0 L496.0,724.0 L424.0,724.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="esclusa"/>
+<path d="M448.0,580.0 L472.0,580.0 L472.0,652.0 L448.0,652.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="pasillo"/>
+<path d="M304.0,508.0 L376.0,508.0 L592.0,508.0 L664.0,508.0 L664.0,580.0 L472.0,580.0 L448.0,580.0 L304.0,580.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="anillo_sur"/>
+<path d="M304.0,220.0 L460.0,220.0 L484.0,220.0 L664.0,220.0 L664.0,292.0 L640.0,292.0 L592.0,292.0 L376.0,292.0 L304.0,292.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="anillo_norte"/>
+<path d="M304.0,292.0 L376.0,292.0 L376.0,400.0 L376.0,424.0 L376.0,508.0 L304.0,508.0 L304.0,412.0 L304.0,388.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="anillo_oeste"/>
+<path d="M640.0,292.0 L664.0,292.0 L664.0,364.0 L664.0,388.0 L664.0,508.0 L592.0,508.0 L592.0,424.0 L592.0,400.0 L592.0,364.0 L640.0,364.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="anillo_este"/>
+<path d="M592.0,292.0 L640.0,292.0 L640.0,364.0 L592.0,364.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="rampa_sima"/>
+<path d="M376.0,292.0 L592.0,292.0 L592.0,364.0 L592.0,400.0 L592.0,424.0 L592.0,508.0 L376.0,508.0 L376.0,424.0 L376.0,400.0 Z M424.0,460.0 L544.0,460.0 L544.0,364.0 L544.0,340.0 L520.0,340.0 L424.0,340.0 Z" fill="rgb(47,41,33)" fill-rule="evenodd" data-sector="anillo_inferior"/>
+<path d="M424.0,340.0 L520.0,340.0 L520.0,364.0 L544.0,364.0 L544.0,460.0 L424.0,460.0 Z" fill="#1f4a12" fill-rule="evenodd" data-sector="pozo_acido"/>
+<path d="M520.0,340.0 L544.0,340.0 L544.0,364.0 L520.0,364.0 Z" fill="#123a32" fill-rule="evenodd" data-sector="ascensor_pozo"/>
+<path d="M460.0,208.0 L484.0,208.0 L484.0,220.0 L460.0,220.0 Z" fill="#ff403066" fill-rule="evenodd" data-sector="puerta_roja"/>
+<path d="M448.0,100.0 L544.0,100.0 L544.0,208.0 L484.0,208.0 L460.0,208.0 L400.0,208.0 L400.0,172.0 L448.0,172.0 L448.0,163.0 L448.0,154.0 L448.0,145.0 L448.0,136.0 L448.0,127.0 L448.0,118.0 L448.0,109.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="crematorio"/>
 <path d="M400.0,163.0 L448.0,163.0 L448.0,172.0 L400.0,172.0 Z" fill="rgb(61,55,44)" fill-rule="evenodd"/>
 <path d="M400.0,154.0 L448.0,154.0 L448.0,163.0 L400.0,163.0 Z" fill="rgb(62,56,45)" fill-rule="evenodd"/>
 <path d="M400.0,145.0 L448.0,145.0 L448.0,154.0 L400.0,154.0 Z" fill="rgb(64,58,46)" fill-rule="evenodd"/>
@@ -55,11 +55,11 @@
 <path d="M400.0,118.0 L448.0,118.0 L448.0,127.0 L400.0,127.0 Z" fill="rgb(69,63,50)" fill-rule="evenodd"/>
 <path d="M400.0,109.0 L448.0,109.0 L448.0,118.0 L400.0,118.0 Z" fill="rgb(70,64,51)" fill-rule="evenodd"/>
 <path d="M400.0,100.0 L448.0,100.0 L448.0,109.0 L400.0,109.0 Z" fill="rgb(72,66,53)" fill-rule="evenodd"/>
-<path d="M400.0,76.0 L544.0,76.0 L544.0,82.0 L544.0,94.0 L544.0,100.0 L448.0,100.0 L400.0,100.0 Z" fill="rgb(72,66,53)" fill-rule="evenodd"/>
-<path d="M544.0,82.0 L550.0,82.0 L550.0,94.0 L544.0,94.0 Z" fill="#4a2a5a" fill-rule="evenodd"/>
-<path d="M550.0,70.0 L586.0,70.0 L586.0,106.0 L550.0,106.0 L550.0,94.0 L550.0,82.0 Z" fill="#3a1f4a" fill-rule="evenodd"/>
-<path d="M664.0,364.0 L670.0,364.0 L670.0,388.0 L664.0,388.0 Z" fill="#3a80ff66" fill-rule="evenodd"/>
-<path d="M670.0,340.0 L736.0,340.0 L736.0,412.0 L670.0,412.0 L670.0,388.0 L670.0,364.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
+<path d="M400.0,76.0 L544.0,76.0 L544.0,82.0 L544.0,94.0 L544.0,100.0 L448.0,100.0 L400.0,100.0 Z" fill="rgb(72,66,53)" fill-rule="evenodd" data-sector="entreplanta"/>
+<path d="M544.0,82.0 L550.0,82.0 L550.0,94.0 L544.0,94.0 Z" fill="#4a2a5a" fill-rule="evenodd" data-sector="pared_secreta_crematorio"/>
+<path d="M550.0,70.0 L586.0,70.0 L586.0,106.0 L550.0,106.0 L550.0,94.0 L550.0,82.0 Z" fill="#3a1f4a" fill-rule="evenodd" data-sector="escondite_crematorio"/>
+<path d="M664.0,364.0 L670.0,364.0 L670.0,388.0 L664.0,388.0 Z" fill="#3a80ff66" fill-rule="evenodd" data-sector="puerta_azul"/>
+<path d="M670.0,340.0 L736.0,340.0 L736.0,412.0 L670.0,412.0 L670.0,388.0 L670.0,364.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="galeria_baja"/>
 <path d="M736.0,340.0 L743.2,340.0 L743.2,412.0 L736.0,412.0 Z" fill="rgb(61,55,44)" fill-rule="evenodd"/>
 <path d="M743.2,340.0 L750.4,340.0 L750.4,412.0 L743.2,412.0 Z" fill="rgb(63,57,46)" fill-rule="evenodd"/>
 <path d="M750.4,340.0 L757.6,340.0 L757.6,412.0 L750.4,412.0 Z" fill="rgb(64,58,46)" fill-rule="evenodd"/>
@@ -70,11 +70,11 @@
 <path d="M786.4,340.0 L793.6,340.0 L793.6,412.0 L786.4,412.0 Z" fill="rgb(73,67,54)" fill-rule="evenodd"/>
 <path d="M793.6,340.0 L800.8,340.0 L800.8,412.0 L793.6,412.0 Z" fill="rgb(74,68,54)" fill-rule="evenodd"/>
 <path d="M800.8,340.0 L808.0,340.0 L808.0,412.0 L800.8,412.0 Z" fill="rgb(76,70,56)" fill-rule="evenodd"/>
-<path d="M808.0,268.0 L904.0,268.0 L904.0,484.0 L868.0,484.0 L844.0,484.0 L808.0,484.0 L808.0,412.0 L808.0,340.0 Z M844.0,376.0 L868.0,376.0 L868.0,352.0 L844.0,352.0 Z" fill="rgb(76,70,56)" fill-rule="evenodd"/>
-<path d="M844.0,484.0 L868.0,484.0 L868.0,490.0 L844.0,490.0 Z" fill="#4a2a5a" fill-rule="evenodd"/>
-<path d="M832.0,490.0 L844.0,490.0 L868.0,490.0 L880.0,490.0 L880.0,526.0 L832.0,526.0 Z" fill="#3a1f4a" fill-rule="evenodd"/>
-<path d="M298.0,388.0 L304.0,388.0 L304.0,412.0 L298.0,412.0 Z" fill="#ffd02066" fill-rule="evenodd"/>
-<path d="M208.0,376.0 L298.0,376.0 L298.0,388.0 L298.0,412.0 L298.0,424.0 L208.0,424.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd"/>
+<path d="M808.0,268.0 L904.0,268.0 L904.0,484.0 L868.0,484.0 L844.0,484.0 L808.0,484.0 L808.0,412.0 L808.0,340.0 Z M844.0,376.0 L868.0,376.0 L868.0,352.0 L844.0,352.0 Z" fill="rgb(76,70,56)" fill-rule="evenodd" data-sector="sala_alta"/>
+<path d="M844.0,484.0 L868.0,484.0 L868.0,490.0 L844.0,490.0 Z" fill="#4a2a5a" fill-rule="evenodd" data-sector="pared_secreta_galeria"/>
+<path d="M832.0,490.0 L844.0,490.0 L868.0,490.0 L880.0,490.0 L880.0,526.0 L832.0,526.0 Z" fill="#3a1f4a" fill-rule="evenodd" data-sector="escondite_galeria"/>
+<path d="M298.0,388.0 L304.0,388.0 L304.0,412.0 L298.0,412.0 Z" fill="#ffd02066" fill-rule="evenodd" data-sector="puerta_amarilla"/>
+<path d="M208.0,376.0 L298.0,376.0 L298.0,388.0 L298.0,412.0 L298.0,424.0 L208.0,424.0 Z" fill="rgb(59,53,42)" fill-rule="evenodd" data-sector="pasillo_salida"/>
 <path d="M208.0,424.0 L199.0,424.0 L199.0,376.0 L208.0,376.0 Z" fill="rgb(58,52,42)" fill-rule="evenodd"/>
 <path d="M199.0,424.0 L190.0,424.0 L190.0,376.0 L199.0,376.0 Z" fill="rgb(56,50,40)" fill-rule="evenodd"/>
 <path d="M190.0,424.0 L181.0,424.0 L181.0,376.0 L190.0,376.0 Z" fill="rgb(54,48,38)" fill-rule="evenodd"/>
@@ -83,7 +83,7 @@
 <path d="M163.0,424.0 L154.0,424.0 L154.0,376.0 L163.0,376.0 Z" fill="rgb(50,44,35)" fill-rule="evenodd"/>
 <path d="M154.0,424.0 L145.0,424.0 L145.0,376.0 L154.0,376.0 Z" fill="rgb(48,42,34)" fill-rule="evenodd"/>
 <path d="M145.0,424.0 L136.0,424.0 L136.0,376.0 L145.0,376.0 Z" fill="rgb(47,41,33)" fill-rule="evenodd"/>
-<path d="M40.0,316.0 L136.0,316.0 L136.0,376.0 L136.0,424.0 L136.0,484.0 L40.0,484.0 Z" fill="rgb(47,41,33)" fill-rule="evenodd"/>
+<path d="M40.0,316.0 L136.0,316.0 L136.0,376.0 L136.0,424.0 L136.0,484.0 L40.0,484.0 Z" fill="rgb(47,41,33)" fill-rule="evenodd" data-sector="sala_salida"/>
 <polygon points="376.0,400.0 592.0,400.0 592.0,424.0 376.0,424.0" fill="#8a7a6a55" stroke="#c0b0a0" stroke-width="1.2" stroke-dasharray="4 3"/>
 <line x1="424.0" y1="652.0" x2="448.0" y2="652.0" stroke="#ff8a3a" stroke-width="2" stroke-linecap="round"/>
 <line x1="448.0" y1="652.0" x2="472.0" y2="652.0" stroke="#8a6a50" stroke-width="1.2" stroke-linecap="round"/>
@@ -267,26 +267,26 @@
 <line x1="136.0" y1="424.0" x2="136.0" y2="484.0" stroke="#ff8a3a" stroke-width="2" stroke-linecap="round"/>
 <line x1="136.0" y1="484.0" x2="40.0" y2="484.0" stroke="#ff8a3a" stroke-width="2" stroke-linecap="round"/>
 <line x1="40.0" y1="484.0" x2="40.0" y2="316.0" stroke="#ff8a3a" stroke-width="2" stroke-linecap="round"/>
-<text x="460.0" y="676.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">esclusa</text>
-<text x="478.0" y="544.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">anillo sur</text>
-<text x="498.7" y="260.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">anillo norte</text>
-<text x="340.0" y="328.0" fill="#e8d6c4" font-size="10" text-anchor="middle" dominant-baseline="middle">anillo oeste</text>
-<text x="628.0" y="478.0" fill="#e8d6c4" font-size="10" text-anchor="middle" dominant-baseline="middle">anillo este</text>
-<text x="616.0" y="328.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">rampa</text>
-<text x="484.0" y="484.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">anillo inferior</text>
-<text x="484.0" y="370.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">pozo de ácido</text>
-<text x="457.6" y="155.2" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">crematorio</text>
-<text x="448.0" y="88.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">entreplanta</text>
-<text x="562.0" y="88.0" fill="#d0a0ff" font-size="11" text-anchor="middle" dominant-baseline="middle">secreto</text>
-<text x="702.4" y="397.6" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">galería</text>
-<text x="844.0" y="403.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">sala alta</text>
-<text x="856.0" y="502.0" fill="#d0a0ff" font-size="11" text-anchor="middle" dominant-baseline="middle">secreto</text>
-<text x="268.0" y="400.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">pasillo</text>
-<text x="104.0" y="400.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">salida</text>
+<text x="460.0" y="676.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="esclusa">esclusa</text>
+<text x="478.0" y="544.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="anillo_sur">anillo sur</text>
+<text x="498.7" y="260.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="anillo_norte">anillo norte</text>
+<text x="340.0" y="328.0" fill="#e8d6c4" font-size="10" text-anchor="middle" dominant-baseline="middle" data-label="anillo_oeste">anillo oeste</text>
+<text x="628.0" y="478.0" fill="#e8d6c4" font-size="10" text-anchor="middle" dominant-baseline="middle" data-label="anillo_este">anillo este</text>
+<text x="616.0" y="328.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="rampa_sima">rampa</text>
+<text x="484.0" y="484.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="anillo_inferior">anillo inferior</text>
+<text x="484.0" y="370.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="pozo_acido">pozo de ácido</text>
+<text x="457.6" y="155.2" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="crematorio">crematorio</text>
+<text x="448.0" y="88.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="entreplanta">entreplanta</text>
+<text x="562.0" y="88.0" fill="#d0a0ff" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="escondite_crematorio">secreto</text>
+<text x="702.4" y="397.6" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="galeria_baja">galería</text>
+<text x="844.0" y="403.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="sala_alta">sala alta</text>
+<text x="856.0" y="502.0" fill="#d0a0ff" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="escondite_galeria">secreto</text>
+<text x="268.0" y="400.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="pasillo_salida">pasillo</text>
+<text x="104.0" y="400.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="sala_salida">salida</text>
 <polygon points="460.0,692.8 469.6,715.6 460.0,710.8 450.4,715.6" fill="#ffffff"/>
 <text x="460.0" y="726.0" fill="#ffffff" font-size="11" text-anchor="middle">inicio</text>
-<circle cx="448.0" cy="436.0" r="6" fill="#ff4030" stroke="#000" stroke-width="1.5"/>
-<circle cx="526.0" cy="88.0" r="6" fill="#3a80ff" stroke="#000" stroke-width="1.5"/>
-<circle cx="892.0" cy="472.0" r="6" fill="#ffd020" stroke="#000" stroke-width="1.5"/>
-<rect x="42.4" y="394.0" width="12" height="12" fill="#60ff90" stroke="#000" stroke-width="1.5"/>
+<circle cx="448.0" cy="436.0" r="6" fill="#ff4030" stroke="#000" stroke-width="1.5" data-key="red"/>
+<circle cx="526.0" cy="88.0" r="6" fill="#3a80ff" stroke="#000" stroke-width="1.5" data-key="blue"/>
+<circle cx="892.0" cy="472.0" r="6" fill="#ffd020" stroke="#000" stroke-width="1.5" data-key="yellow"/>
+<rect x="42.4" y="394.0" width="12" height="12" fill="#60ff90" stroke="#000" stroke-width="1.5" data-exit=""/>
 </svg>

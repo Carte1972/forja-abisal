@@ -23,6 +23,10 @@ describe('plano SVG de los niveles', () => {
       );
       expect(count(svg, '>secreto</text>')).toBe(level.sectors.filter((s) => s.secret).length);
       expect(svg).not.toContain('NaN');
+      // Marcas para animar el plano en el vídeo.
+      expect(count(svg, 'data-key="')).toBe(3);
+      expect(count(svg, 'data-exit=""')).toBeGreaterThanOrEqual(1);
+      expect(svg).toContain('data-sector="');
     },
   );
 

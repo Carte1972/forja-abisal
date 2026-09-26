@@ -39,25 +39,25 @@
 <line x1="40.0" y1="952.0" x2="778.0" y2="952.0" stroke="#1c1410"/>
 <line x1="40.0" y1="1000.0" x2="778.0" y2="1000.0" stroke="#1c1410"/>
 <line x1="40.0" y1="1048.0" x2="778.0" y2="1048.0" stroke="#1c1410"/>
-<path d="M298.0,952.0 L334.0,952.0 L358.0,952.0 L394.0,952.0 L394.0,1048.0 L298.0,1048.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
-<path d="M334.0,880.0 L358.0,880.0 L358.0,952.0 L334.0,952.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
-<path d="M58.0,808.0 L130.0,808.0 L334.0,808.0 L358.0,808.0 L634.0,808.0 L634.0,832.0 L634.0,856.0 L634.0,880.0 L358.0,880.0 L334.0,880.0 L58.0,880.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
-<path d="M58.0,400.0 L154.0,400.0 L178.0,400.0 L538.0,400.0 L562.0,400.0 L634.0,400.0 L634.0,472.0 L586.0,472.0 L562.0,472.0 L358.0,472.0 L334.0,472.0 L58.0,472.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
-<path d="M130.0,793.6 L130.0,779.2 L130.0,764.8 L130.0,750.4 L130.0,736.0 L58.0,736.0 L58.0,472.0 L334.0,472.0 L358.0,472.0 L562.0,472.0 L586.0,472.0 L634.0,472.0 L634.0,808.0 L358.0,808.0 L334.0,808.0 L130.0,808.0 Z M274.0,712.0 L334.0,712.0 L358.0,712.0 L418.0,712.0 L418.0,652.0 L418.0,628.0 L418.0,568.0 L358.0,568.0 L334.0,568.0 L274.0,568.0 Z" fill="#6a1e08" fill-rule="evenodd"/>
-<path d="M58.0,736.0 L130.0,736.0 L130.0,750.4 L58.0,750.4 Z" fill="rgb(36,30,24)" fill-rule="evenodd"/>
-<path d="M58.0,750.4 L130.0,750.4 L130.0,764.8 L58.0,764.8 Z" fill="rgb(38,32,26)" fill-rule="evenodd"/>
-<path d="M58.0,764.8 L130.0,764.8 L130.0,779.2 L58.0,779.2 Z" fill="rgb(40,34,27)" fill-rule="evenodd"/>
-<path d="M58.0,779.2 L130.0,779.2 L130.0,793.6 L58.0,793.6 Z" fill="rgb(42,36,29)" fill-rule="evenodd"/>
-<path d="M58.0,793.6 L130.0,793.6 L130.0,808.0 L58.0,808.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
-<path d="M274.0,568.0 L334.0,568.0 L358.0,568.0 L418.0,568.0 L418.0,628.0 L418.0,652.0 L418.0,712.0 L358.0,712.0 L334.0,712.0 L274.0,712.0 Z M310.0,676.0 L334.0,676.0 L334.0,700.0 L358.0,700.0 L358.0,676.0 L382.0,676.0 L382.0,604.0 L310.0,604.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
-<path d="M310.0,604.0 L382.0,604.0 L382.0,676.0 L358.0,676.0 L334.0,676.0 L310.0,676.0 Z" fill="rgb(76,70,56)" fill-rule="evenodd"/>
-<path d="M334.0,676.0 L358.0,676.0 L358.0,700.0 L334.0,700.0 Z" fill="#123a32" fill-rule="evenodd"/>
-<path d="M154.0,394.0 L178.0,394.0 L178.0,400.0 L154.0,400.0 Z" fill="#ff403066" fill-rule="evenodd"/>
-<path d="M82.0,256.0 L250.0,256.0 L250.0,394.0 L178.0,394.0 L154.0,394.0 L82.0,394.0 L82.0,340.0 L82.0,316.0 Z M118.0,352.0 L130.0,352.0 L130.0,340.0 L118.0,340.0 Z M190.0,352.0 L202.0,352.0 L202.0,340.0 L190.0,340.0 Z M118.0,304.0 L130.0,304.0 L130.0,292.0 L118.0,292.0 Z M190.0,304.0 L202.0,304.0 L202.0,292.0 L190.0,292.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
-<path d="M76.0,316.0 L82.0,316.0 L82.0,340.0 L76.0,340.0 Z" fill="#4a2a5a" fill-rule="evenodd"/>
-<path d="M40.0,304.0 L76.0,304.0 L76.0,316.0 L76.0,340.0 L76.0,352.0 L40.0,352.0 Z" fill="#3a1f4a" fill-rule="evenodd"/>
-<path d="M538.0,394.0 L562.0,394.0 L562.0,400.0 L538.0,400.0 Z" fill="#3a80ff66" fill-rule="evenodd"/>
-<path d="M526.0,328.0 L574.0,328.0 L574.0,394.0 L562.0,394.0 L538.0,394.0 L526.0,394.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
+<path d="M298.0,952.0 L334.0,952.0 L358.0,952.0 L394.0,952.0 L394.0,1048.0 L298.0,1048.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="entrada"/>
+<path d="M334.0,880.0 L358.0,880.0 L358.0,952.0 L334.0,952.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="pasillo"/>
+<path d="M58.0,808.0 L130.0,808.0 L334.0,808.0 L358.0,808.0 L634.0,808.0 L634.0,832.0 L634.0,856.0 L634.0,880.0 L358.0,880.0 L334.0,880.0 L58.0,880.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="orilla_sur"/>
+<path d="M58.0,400.0 L154.0,400.0 L178.0,400.0 L538.0,400.0 L562.0,400.0 L634.0,400.0 L634.0,472.0 L586.0,472.0 L562.0,472.0 L358.0,472.0 L334.0,472.0 L58.0,472.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="orilla_norte"/>
+<path d="M130.0,793.6 L130.0,779.2 L130.0,764.8 L130.0,750.4 L130.0,736.0 L58.0,736.0 L58.0,472.0 L334.0,472.0 L358.0,472.0 L562.0,472.0 L586.0,472.0 L634.0,472.0 L634.0,808.0 L358.0,808.0 L334.0,808.0 L130.0,808.0 Z M274.0,712.0 L334.0,712.0 L358.0,712.0 L418.0,712.0 L418.0,652.0 L418.0,628.0 L418.0,568.0 L358.0,568.0 L334.0,568.0 L274.0,568.0 Z" fill="#6a1e08" fill-rule="evenodd" data-sector="lago_lava"/>
+<path d="M58.0,736.0 L130.0,736.0 L130.0,750.4 L58.0,750.4 Z" fill="rgb(36,30,24)" fill-rule="evenodd" data-sector="escape_lava_1"/>
+<path d="M58.0,750.4 L130.0,750.4 L130.0,764.8 L58.0,764.8 Z" fill="rgb(38,32,26)" fill-rule="evenodd" data-sector="escape_lava_2"/>
+<path d="M58.0,764.8 L130.0,764.8 L130.0,779.2 L58.0,779.2 Z" fill="rgb(40,34,27)" fill-rule="evenodd" data-sector="escape_lava_3"/>
+<path d="M58.0,779.2 L130.0,779.2 L130.0,793.6 L58.0,793.6 Z" fill="rgb(42,36,29)" fill-rule="evenodd" data-sector="escape_lava_4"/>
+<path d="M58.0,793.6 L130.0,793.6 L130.0,808.0 L58.0,808.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="escape_lava_5"/>
+<path d="M274.0,568.0 L334.0,568.0 L358.0,568.0 L418.0,568.0 L418.0,628.0 L418.0,652.0 L418.0,712.0 L358.0,712.0 L334.0,712.0 L274.0,712.0 Z M310.0,676.0 L334.0,676.0 L334.0,700.0 L358.0,700.0 L358.0,676.0 L382.0,676.0 L382.0,604.0 L310.0,604.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="isla"/>
+<path d="M310.0,604.0 L382.0,604.0 L382.0,676.0 L358.0,676.0 L334.0,676.0 L310.0,676.0 Z" fill="rgb(76,70,56)" fill-rule="evenodd" data-sector="torre"/>
+<path d="M334.0,676.0 L358.0,676.0 L358.0,700.0 L334.0,700.0 Z" fill="#123a32" fill-rule="evenodd" data-sector="ascensor_torre"/>
+<path d="M154.0,394.0 L178.0,394.0 L178.0,400.0 L154.0,400.0 Z" fill="#ff403066" fill-rule="evenodd" data-sector="puerta_roja"/>
+<path d="M82.0,256.0 L250.0,256.0 L250.0,394.0 L178.0,394.0 L154.0,394.0 L82.0,394.0 L82.0,340.0 L82.0,316.0 Z M118.0,352.0 L130.0,352.0 L130.0,340.0 L118.0,340.0 Z M190.0,352.0 L202.0,352.0 L202.0,340.0 L190.0,340.0 Z M118.0,304.0 L130.0,304.0 L130.0,292.0 L118.0,292.0 Z M190.0,304.0 L202.0,304.0 L202.0,292.0 L190.0,292.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="armeria"/>
+<path d="M76.0,316.0 L82.0,316.0 L82.0,340.0 L76.0,340.0 Z" fill="#4a2a5a" fill-rule="evenodd" data-sector="pared_secreta_armeria"/>
+<path d="M40.0,304.0 L76.0,304.0 L76.0,316.0 L76.0,340.0 L76.0,352.0 L40.0,352.0 Z" fill="#3a1f4a" fill-rule="evenodd" data-sector="escondite_armeria"/>
+<path d="M538.0,394.0 L562.0,394.0 L562.0,400.0 L538.0,400.0 Z" fill="#3a80ff66" fill-rule="evenodd" data-sector="puerta_azul"/>
+<path d="M526.0,328.0 L574.0,328.0 L574.0,394.0 L562.0,394.0 L538.0,394.0 L526.0,394.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="refrigeracion"/>
 <path d="M526.0,318.4 L574.0,318.4 L574.0,328.0 L526.0,328.0 Z" fill="rgb(47,41,33)" fill-rule="evenodd"/>
 <path d="M526.0,308.8 L574.0,308.8 L574.0,318.4 L526.0,318.4 Z" fill="rgb(49,43,34)" fill-rule="evenodd"/>
 <path d="M526.0,299.2 L574.0,299.2 L574.0,308.8 L526.0,308.8 Z" fill="rgb(51,45,36)" fill-rule="evenodd"/>
@@ -68,12 +68,12 @@
 <path d="M526.0,251.2 L574.0,251.2 L574.0,260.8 L526.0,260.8 Z" fill="rgb(61,55,44)" fill-rule="evenodd"/>
 <path d="M526.0,241.6 L574.0,241.6 L574.0,251.2 L526.0,251.2 Z" fill="rgb(63,57,46)" fill-rule="evenodd"/>
 <path d="M526.0,232.0 L574.0,232.0 L574.0,241.6 L526.0,241.6 Z" fill="rgb(66,60,48)" fill-rule="evenodd"/>
-<path d="M442.0,112.0 L466.0,112.0 L490.0,112.0 L658.0,112.0 L658.0,232.0 L574.0,232.0 L526.0,232.0 L442.0,232.0 Z M502.0,196.0 L598.0,196.0 L598.0,148.0 L502.0,148.0 Z" fill="rgb(66,60,48)" fill-rule="evenodd"/>
-<path d="M502.0,148.0 L598.0,148.0 L598.0,196.0 L502.0,196.0 Z" fill="#1f4a12" fill-rule="evenodd"/>
-<path d="M466.0,106.0 L490.0,106.0 L490.0,112.0 L466.0,112.0 Z" fill="#4a2a5a" fill-rule="evenodd"/>
-<path d="M454.0,70.0 L502.0,70.0 L502.0,106.0 L490.0,106.0 L466.0,106.0 L454.0,106.0 Z" fill="#3a1f4a" fill-rule="evenodd"/>
-<path d="M634.0,832.0 L640.0,832.0 L640.0,856.0 L634.0,856.0 Z" fill="#ffd02066" fill-rule="evenodd"/>
-<path d="M640.0,784.0 L778.0,784.0 L778.0,904.0 L640.0,904.0 L640.0,856.0 L640.0,832.0 Z M694.0,856.0 L718.0,856.0 L718.0,832.0 L694.0,832.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd"/>
+<path d="M442.0,112.0 L466.0,112.0 L490.0,112.0 L658.0,112.0 L658.0,232.0 L574.0,232.0 L526.0,232.0 L442.0,232.0 Z M502.0,196.0 L598.0,196.0 L598.0,148.0 L502.0,148.0 Z" fill="rgb(66,60,48)" fill-rule="evenodd" data-sector="sala_fria"/>
+<path d="M502.0,148.0 L598.0,148.0 L598.0,196.0 L502.0,196.0 Z" fill="#1f4a12" fill-rule="evenodd" data-sector="canal_acido"/>
+<path d="M466.0,106.0 L490.0,106.0 L490.0,112.0 L466.0,112.0 Z" fill="#4a2a5a" fill-rule="evenodd" data-sector="pared_secreta_fria"/>
+<path d="M454.0,70.0 L502.0,70.0 L502.0,106.0 L490.0,106.0 L466.0,106.0 L454.0,106.0 Z" fill="#3a1f4a" fill-rule="evenodd" data-sector="escondite_frio"/>
+<path d="M634.0,832.0 L640.0,832.0 L640.0,856.0 L634.0,856.0 Z" fill="#ffd02066" fill-rule="evenodd" data-sector="puerta_amarilla"/>
+<path d="M640.0,784.0 L778.0,784.0 L778.0,904.0 L640.0,904.0 L640.0,856.0 L640.0,832.0 Z M694.0,856.0 L718.0,856.0 L718.0,832.0 L694.0,832.0 Z" fill="rgb(45,39,31)" fill-rule="evenodd" data-sector="sala_salida"/>
 <polygon points="334.0,712.0 358.0,712.0 358.0,808.0 334.0,808.0" fill="#8a7a6a55" stroke="#c0b0a0" stroke-width="1.2" stroke-dasharray="4 3"/>
 <polygon points="334.0,472.0 358.0,472.0 358.0,568.0 334.0,568.0" fill="#8a7a6a55" stroke="#c0b0a0" stroke-width="1.2" stroke-dasharray="4 3"/>
 <polygon points="418.0,628.0 562.0,628.0 562.0,652.0 418.0,652.0" fill="#8a7a6a55" stroke="#c0b0a0" stroke-width="1.2" stroke-dasharray="4 3"/>
@@ -247,23 +247,23 @@
 <line x1="718.0" y1="856.0" x2="718.0" y2="832.0" stroke="#ff8a3a" stroke-width="2" stroke-linecap="round"/>
 <line x1="718.0" y1="832.0" x2="694.0" y2="832.0" stroke="#ff8a3a" stroke-width="2" stroke-linecap="round"/>
 <line x1="694.0" y1="832.0" x2="694.0" y2="856.0" stroke="#ff8a3a" stroke-width="2" stroke-linecap="round"/>
-<text x="346.0" y="984.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">entrada</text>
-<text x="378.7" y="840.7" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">orilla sur</text>
-<text x="388.0" y="436.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">orilla norte</text>
-<text x="178.0" y="616.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">lago de lava</text>
-<text x="346.0" y="584.8" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">isla</text>
-<text x="346.0" y="662.8" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">torre</text>
-<text x="145.0" y="343.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">armería</text>
-<text x="64.0" y="328.0" fill="#d0a0ff" font-size="11" text-anchor="middle" dominant-baseline="middle">secreto</text>
-<text x="550.0" y="358.0" fill="#e8d6c4" font-size="10" text-anchor="middle" dominant-baseline="middle">refrig.</text>
-<text x="550.0" y="214.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">sala fría</text>
-<text x="550.0" y="172.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">canal de ácido</text>
-<text x="478.0" y="94.0" fill="#d0a0ff" font-size="11" text-anchor="middle" dominant-baseline="middle">secreto</text>
-<text x="686.0" y="844.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle">salida</text>
+<text x="346.0" y="984.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="entrada">entrada</text>
+<text x="378.7" y="840.7" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="orilla_sur">orilla sur</text>
+<text x="388.0" y="436.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="orilla_norte">orilla norte</text>
+<text x="178.0" y="616.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="lago_lava">lago de lava</text>
+<text x="346.0" y="584.8" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="isla">isla</text>
+<text x="346.0" y="662.8" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="torre">torre</text>
+<text x="145.0" y="343.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="armeria">armería</text>
+<text x="64.0" y="328.0" fill="#d0a0ff" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="escondite_armeria">secreto</text>
+<text x="550.0" y="358.0" fill="#e8d6c4" font-size="10" text-anchor="middle" dominant-baseline="middle" data-label="refrigeracion">refrig.</text>
+<text x="550.0" y="214.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="sala_fria">sala fría</text>
+<text x="550.0" y="172.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="canal_acido">canal de ácido</text>
+<text x="478.0" y="94.0" fill="#d0a0ff" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="escondite_frio">secreto</text>
+<text x="686.0" y="844.0" fill="#e8d6c4" font-size="11" text-anchor="middle" dominant-baseline="middle" data-label="sala_salida">salida</text>
 <polygon points="346.0,1016.8 355.6,1039.6 346.0,1034.8 336.4,1039.6" fill="#ffffff"/>
 <text x="346.0" y="1050.0" fill="#ffffff" font-size="11" text-anchor="middle">inicio</text>
-<circle cx="346.0" cy="640.0" r="6" fill="#ff4030" stroke="#000" stroke-width="1.5"/>
-<circle cx="100.0" cy="268.0" r="6" fill="#3a80ff" stroke="#000" stroke-width="1.5"/>
-<circle cx="640.0" cy="124.0" r="6" fill="#ffd020" stroke="#000" stroke-width="1.5"/>
-<rect x="763.6" y="838.0" width="12" height="12" fill="#60ff90" stroke="#000" stroke-width="1.5"/>
+<circle cx="346.0" cy="640.0" r="6" fill="#ff4030" stroke="#000" stroke-width="1.5" data-key="red"/>
+<circle cx="100.0" cy="268.0" r="6" fill="#3a80ff" stroke="#000" stroke-width="1.5" data-key="blue"/>
+<circle cx="640.0" cy="124.0" r="6" fill="#ffd020" stroke="#000" stroke-width="1.5" data-key="yellow"/>
+<rect x="763.6" y="838.0" width="12" height="12" fill="#60ff90" stroke="#000" stroke-width="1.5" data-exit=""/>
 </svg>

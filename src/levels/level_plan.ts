@@ -98,7 +98,8 @@ export function buildLevelPlanSvg(level: LevelData, options: PlanOptions): strin
     }
     if (sector.secret) fill = '#3a1f4a';
     const path = [sector.outer, ...sector.holes].map((r) => `M${ring(r).join(' L')} Z`).join(' ');
-    out.push(`<path d="${path}" fill="${fill}" fill-rule="evenodd"/>`);
+    const id = sector.id ? ` data-sector="${escapeXml(sector.id)}"` : '';
+    out.push(`<path d="${path}" fill="${fill}" fill-rule="evenodd"${id}/>`);
   }
 
   for (const slab of level.slabs) {
@@ -122,7 +123,7 @@ export function buildLevelPlanSvg(level: LevelData, options: PlanOptions): strin
     if (!sector.secret && !label.at && polygonArea(points) < MIN_LABEL_AREA) continue;
     const [cx, cz] = label.at ?? centroid(points);
     out.push(
-      `<text x="${px(cx)}" y="${pz(cz)}" fill="${sector.secret ? '#d0a0ff' : '#e8d6c4'}" font-size="${label.size ?? 11}" text-anchor="middle" dominant-baseline="middle">${escapeXml(label.text)}</text>`,
+      `<text x="${px(cx)}" y="${pz(cz)}" fill="${sector.secret ? '#d0a0ff' : '#e8d6c4'}" font-size="${label.size ?? 11}" text-anchor="middle" dominant-baseline="middle" data-label="${escapeXml(sector.id ?? '')}">${escapeXml(label.text)}</text>`,
     );
   }
 
@@ -144,11 +145,11 @@ export function buildLevelPlanSvg(level: LevelData, options: PlanOptions): strin
     } else if (thing.type === 'pickup' && item.startsWith('key_')) {
       const color = KEY_COLORS[item.slice(4) as KeyColor];
       out.push(
-        `<circle cx="${px(x)}" cy="${pz(z)}" r="6" fill="${color}" stroke="#000" stroke-width="1.5"/>`,
+        `<circle cx="${px(x)}" cy="${pz(z)}" r="6" fill="${color}" stroke="#000" stroke-width="1.5" data-key="${item.slice(4)}"/>`,
       );
     } else if (thing.type === 'exit') {
       out.push(
-        `<rect x="${(Number(px(x)) - 6).toFixed(1)}" y="${(Number(pz(z)) - 6).toFixed(1)}" width="12" height="12" fill="#60ff90" stroke="#000" stroke-width="1.5"/>`,
+        `<rect x="${(Number(px(x)) - 6).toFixed(1)}" y="${(Number(pz(z)) - 6).toFixed(1)}" width="12" height="12" fill="#60ff90" stroke="#000" stroke-width="1.5" data-exit=""/>`,
       );
     }
   }

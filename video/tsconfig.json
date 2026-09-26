@@ -4,5 +4,5 @@
     "types": ["node"],
     "paths": {}
   },
-  "include": ["scripts", "clips"]
+  "include": ["scripts", "clips", "src", "remotion.config.ts"]
 }
