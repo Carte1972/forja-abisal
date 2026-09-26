@@ -5,6 +5,20 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Fase 9 — Cierre: lanzadores, documentación y verificación final
+
+#### Añadido
+
+- Lanzadores de doble clic para Windows (`jugar.bat`) y Linux (`jugar.sh`), con la misma lógica que el de macOS (`scripts/launcher.mjs`). El de Linux abre una terminal si se lanza con doble clic sin ella.
+- Si el equipo no tiene Node.js 22.12 o superior, los lanzadores descargan una copia portátil de Node.js LTS desde nodejs.org en `.forja_node/`, comprueban su suma SHA-256 y la usan solo para el juego, sin permisos de administrador. Si no se puede descargar, muestran el enlace de descarga y esperan una tecla.
+- `scripts/check_node.cjs`: única comprobación de la versión mínima de Node.js, leída de `engines` en `package.json`.
+- README completo: qué hay que hacer y puntuación, funcionalidad, controles, instalación en los tres sistemas con solución de problemas, arquitectura (diagrama Mermaid de sistemas, game loop, carga de niveles, generador de geometría y árbol de carpetas), creación de niveles, desarrollo, cómo contribuir y créditos.
+- `.gitattributes` con los finales de línea de cada tipo de lanzador.
+
+#### Cambiado
+
+- `jugar.command` delega en `scripts/node_portable.sh`, compartido con `jugar.sh`.
+
 ### Fase 8 — Audio, menús, opciones y automapa
 
 #### Añadido

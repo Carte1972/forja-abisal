@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Niveles: además de los sectores, se admiten **losas** (plataformas sólidas dentro de un sector) para poder pasar por debajo de balcones y puentes.
 - **Parar al final de cada fase** y esperar el OK del usuario antes de empezar la siguiente.
 - Navmesh con recast-navigation-js. Post-procesado con la librería `postprocessing`. Triangulación con `earcut`.
+- **Node.js en los lanzadores (fase 9):** si falta o es antiguo, el lanzador descarga una copia portátil de Node LTS en `.forja_node/` (con verificación SHA-256), sin administrador. Esto **contradice a propósito** el punto 2 de "Lanzador de doble clic" de la especificación ("No debe instalar Node automáticamente"): lo decidió el usuario después. Si la descarga falla, se hace lo que dice la especificación (mensaje con enlace y esperar una tecla).
 - TypeScript se queda en 6.x porque typescript-eslint aún no admite TS 7. Node mínimo: 22.12 (lo exige Vitest 5), fijado en `engines` y `.nvmrc`.
 
 ## Reglas innegociables
@@ -184,7 +185,9 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
   4. Hacer el commit. Solo si el juego arranca y los tests pasan.
   5. Dar un resumen corto, el mensaje del commit y cómo probarlo.
 - Commits en Conventional Commits en español (p. ej. `feat: fase 2 - generador de niveles por sectores`), con commits intermedios si hay cambios grandes e independientes.
-- Los lanzadores `jugar.command` y `jugar.sh` deben guardar el bit de ejecución en git (`git update-index --chmod=+x`). Son envoltorios finos: comprueban Node (≥ 22.12, la misma versión en `engines`) y llaman a `scripts/launcher.mjs`, que tiene toda la lógica.
+- **Lanzadores:** `jugar.command` (macOS), `jugar.sh` (Linux) y `jugar.bat` (Windows). `jugar.command` y `jugar.sh` deben guardar el bit de ejecución en git (`git update-index --chmod=+x`). `.gitattributes` fuerza CRLF en `.bat` y `.ps1` (cmd.exe falla con los `goto` si el `.bat` tiene LF) y LF en el resto.
+- **Preparar Node:** `scripts/node_portable.sh` (cargado con `source` por los dos lanzadores de shell) y `scripts/node_portable.ps1` (llamado por `jugar.bat`). Usan el Node del sistema si `scripts/check_node.cjs` lo acepta (lee `engines.node` de `package.json`, que es la única fuente de la versión mínima), si no la copia de `.forja_node/`, y si no la descargan de `nodejs.org/dist/latest-v22.x`. `FORJA_FORCE_PORTABLE=1` ignora el Node del sistema para probar la descarga.
+- El `.ps1` va en UTF-8 **con BOM**: Windows PowerShell 5.1 lee los scripts sin BOM como ANSI y rompería las tildes. `check_node.cjs` usa sintaxis antigua a propósito, porque se ejecuta con Nodes viejos.
 - **`launcher.mjs`:**
   - Reinstala solo si `package-lock.json` es más nuevo que `node_modules/.forja_install_stamp`.
   - Recompila solo si cambia el hash de las entradas del build (guardado en `dist/.forja_build_hash`).
