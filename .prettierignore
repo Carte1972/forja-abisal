@@ -1,0 +1,7 @@
+dist
+node_modules
+package-lock.json
+playwright_screenshots
+.playwright-mcp
+# Fuente de verdad: no se reformatea
+especificacion_proyecto.md

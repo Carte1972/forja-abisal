@@ -1,0 +1,34 @@
+# Dependencias y builds
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Cachés
+.vite/
+.cache/
+.eslintcache
+coverage/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Herramientas locales de Claude Code / Playwright
+.playwright-mcp/
+playwright_screenshots/
+.claude/settings.local.json
