@@ -29,7 +29,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Estado del proyecto
 
 - Las 10 fases (0–9) de la especificación están terminadas. **Versión 1.0.0** publicada: etiqueta `v1.0.0` y release en GitHub.
-- **Vídeo de presentación:** trabajo en la rama `feature/video`, según `especificacion_video.md`. Todavía no se ha fusionado con `main`, y no se hace push ni merge sin pedirlo.
+- **Vídeo de presentación:** terminado según `especificacion_video.md` (5 fases, rama `feature/video`) y fusionado con `main` el 26 de septiembre de 2026. El tráiler se ve desde el menú principal del juego («Ver tráiler»). Para trabajos nuevos del vídeo, usa una rama y no hagas push ni merge a `main` sin pedirlo.
 - Los cambios posteriores se anotan en `CHANGELOG.md` bajo `[Sin publicar]`. Para una versión nueva: subir `version` en `package.json` y `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`), pasar `[Sin publicar]` a `[X.Y.Z] - fecha` (con su enlace al final del archivo), etiqueta `vX.Y.Z` y `gh release create`, todo con el OK del usuario.
 
 ## Comandos
@@ -176,7 +176,7 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - **Planos (`npm run planos`):** `src/levels/level_plan.ts` (puro, con tests) dibuja el SVG a partir de `LevelData` y de `buildAutomapLines`. `scripts/build_plans.ts` guarda los nombres de las salas y la posición de las etiquetas que se solaparían, y carga el código de `src/` con `runnerImport` de Vite, porque `src/` usa imports sin extensión que Node no resuelve. Si un nivel cambia, regenera los planos y revisa que las etiquetas no se monten.
 - **Capturas (`docs/capturas/`):** se sacan a mano con Playwright (ver la sección siguiente) y se convierten a JPEG con `sips -s format jpeg -s formatOptions 85` (herramienta de macOS).
 
-**Vídeo de presentación (rama `feature/video`).**
+**Vídeo de presentación (`video/`).**
 
 - **Fuente de verdad:** `especificacion_video.md` (no se modifica). La documentación de uso está en `video/README.md`. El usuario **no grabará su voz**: se queda la voz Reed de macOS. La música es sintetizada y no hay efectos de sonido del juego en los clips.
 - **Tráiler dentro del juego:** el menú principal tiene «Ver tráiler» (`src/ui/trailer_player.tsx`), que reproduce `public/trailer/forja_abisal_trailer.mp4` (versión web, ~29 MB, generada con `npm run video:web`). Es la única copia del vídeo que se versiona: la especificación dice que el MP4 no se suba, pero el usuario decidió después tener el botón, y sin el archivo en el repositorio no funcionaría en GitHub Pages. Mantenla por debajo de 50 MB, que es donde GitHub empieza a avisar.
