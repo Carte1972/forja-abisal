@@ -380,7 +380,13 @@
       "type": "player_start",
       "x": 8,
       "z": 13,
-      "angle": 0
+      "angle": 0,
+      "weapons": ["pistol", "shotgun", "riveter", "launcher"],
+      "ammo": {
+        "bullets": 200,
+        "shells": 40,
+        "charges": 20
+      }
     },
     {
       "type": "lamp",

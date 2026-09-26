@@ -1,4 +1,5 @@
 import RAPIER from '@dimforge/rapier3d-compat';
+import { GROUP, interactionGroups, SOLID_WORLD } from './collision_groups';
 import type { PhysicsWorld, Vec3 } from './physics_world';
 
 export interface CapsuleDimensions {
@@ -18,6 +19,10 @@ export interface MoveResult {
 const WALL_NORMAL_MAX_Y = 0.3;
 
 const IDENTITY_ROTATION = { x: 0, y: 0, z: 0, w: 1 };
+/** El personaje choca con el nivel y los enemigos (no con proyectiles) y recibe disparos. */
+const CHARACTER_GROUPS = interactionGroups(GROUP.PLAYER, SOLID_WORLD | GROUP.HITSCAN);
+/** Las consultas del controlador solo ven lo que bloquea al personaje. */
+const CHARACTER_QUERY = interactionGroups(GROUP.PLAYER, SOLID_WORLD);
 
 /**
  * Cápsula cinemática movida por el KinematicCharacterController de Rapier.
@@ -47,11 +52,9 @@ export class CharacterBody {
     );
     const offsetY = this.colliderOffsetY(dims.standHeight);
     this.collider = world.createCollider(
-      RAPIER.ColliderDesc.capsule(this.halfHeight(dims.standHeight), dims.radius).setTranslation(
-        0,
-        offsetY,
-        0,
-      ),
+      RAPIER.ColliderDesc.capsule(this.halfHeight(dims.standHeight), dims.radius)
+        .setTranslation(0, offsetY, 0)
+        .setCollisionGroups(CHARACTER_GROUPS),
       this.body,
     );
 
@@ -79,7 +82,12 @@ export class CharacterBody {
 
   /** Intenta mover la cápsula `desired` metros; devuelve el movimiento real tras las colisiones. */
   move(desired: Vec3): MoveResult {
-    this.controller.computeColliderMovement(this.collider, desired);
+    this.controller.computeColliderMovement(
+      this.collider,
+      desired,
+      RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+      CHARACTER_QUERY,
+    );
     const m = this.controller.computedMovement();
     this.feet.x += m.x;
     this.feet.y += m.y;
@@ -135,8 +143,8 @@ export class CharacterBody {
       center,
       IDENTITY_ROTATION,
       shape,
-      undefined,
-      undefined,
+      RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+      CHARACTER_QUERY,
       this.collider,
     );
     return hit === null;

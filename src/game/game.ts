@@ -1,16 +1,34 @@
 import * as THREE from 'three';
+import { EventBus } from '../engine/core/event_bus';
 import { GameLoop } from '../engine/core/game_loop';
+import { Rng } from '../engine/core/rng';
 import { InputSystem } from '../engine/input/input_system';
 import { buildLevel, type LoadedLevel } from '../engine/level/level_builder';
 import { parseLevel } from '../engine/level/level_parser';
+import type { LevelData } from '../engine/level/level_types';
 import { initPhysics, PhysicsWorld } from '../engine/physics/physics_world';
+import { DecalSystem } from '../engine/render/decal_system';
 import { LightSystem } from '../engine/render/light_system';
+import { ParticleSystem } from '../engine/render/particle_system';
 import { Renderer, type RenderQuality } from '../engine/render/renderer';
 import { SkyDome } from '../engine/render/sky_dome';
 import { ProceduralMaterials } from '../engine/textures/texture_library';
+import { Crosshair } from '../hud/crosshair';
 import { StatsPanel } from '../hud/stats_panel';
+import { WeaponReadout } from '../hud/weapon_readout';
 import testLevel from '../levels/test_level.json';
+import type { GameEvents } from './game_events';
 import { Player } from './player/player';
+import { DamageRegistry } from './rules/damage';
+import {
+  AMMO_TYPES,
+  WEAPON_ORDER,
+  WEAPONS,
+  type AmmoType,
+  type WeaponId,
+} from './weapons/weapon_defs';
+import type { Loadout } from './weapons/weapon_logic';
+import { WeaponSystem } from './weapons/weapon_system';
 
 export type GameStatus = 'ready' | 'playing' | 'paused';
 
@@ -18,21 +36,56 @@ export interface GameCallbacks {
   onStatusChange(status: GameStatus): void;
 }
 
+export interface GameplayOptions {
+  headBob: boolean;
+  recoil: boolean;
+}
+
 const FIXED_STEP = 1 / 60;
+const DEFAULT_LOADOUT: Loadout = { weapons: ['pistol'], ammo: { bullets: 50 } };
+
+/**
+ * Inventario inicial desde las propiedades del `player_start` del nivel
+ * (`"weapons": ["pistol", ...]` y `"ammo": { "bullets": 50, ... }`).
+ */
+function loadoutFrom(level: LevelData): Loadout {
+  const props = level.things.find((thing) => thing.type === 'player_start')?.properties ?? {};
+  const weapons = Array.isArray(props.weapons)
+    ? props.weapons.filter((id): id is WeaponId => WEAPON_ORDER.includes(id as WeaponId))
+    : DEFAULT_LOADOUT.weapons;
+  const ammo: Partial<Record<AmmoType, number>> = {};
+  const rawAmmo = props.ammo;
+  if (rawAmmo && typeof rawAmmo === 'object') {
+    for (const type of AMMO_TYPES) {
+      const amount = (rawAmmo as Record<string, unknown>)[type];
+      if (typeof amount === 'number') ammo[type] = amount;
+    }
+  }
+  return props.weapons === undefined ? DEFAULT_LOADOUT : { weapons, ammo };
+}
 
 /** Orquesta motor y juego: crea los sistemas, ejecuta el bucle y expone el estado a la UI. */
 export class Game {
   private readonly renderer: Renderer;
   private readonly physics: PhysicsWorld;
   private readonly input: InputSystem;
+  private readonly bus = new EventBus<GameEvents>();
+  private readonly rng = new Rng(20260926);
   private readonly materials: ProceduralMaterials;
   private readonly lights = new LightSystem();
+  private readonly particles: ParticleSystem;
+  private readonly decals = new DecalSystem();
+  private readonly damage = new DamageRegistry();
   private readonly sky: SkyDome | null;
   private readonly hudRoot: HTMLDivElement;
   private readonly statsPanel: StatsPanel;
+  private readonly crosshair: Crosshair;
+  private readonly readout: WeaponReadout;
   readonly level: LoadedLevel;
   private readonly player: Player;
+  private readonly weapons: WeaponSystem;
   private readonly loop: GameLoop;
+  private readonly options: GameplayOptions = { headBob: true, recoil: true };
   private status: GameStatus = 'ready';
   private time = 0;
   private readonly unsubscribeLock: () => void;
@@ -57,12 +110,35 @@ export class Game {
       this.materials,
     );
     this.sky = this.setupEnvironment();
+    this.particles = new ParticleSystem(this.rng);
+    this.renderer.scene.add(this.particles.group, this.decals.group);
 
     this.hudRoot = document.createElement('div');
     this.hudRoot.className = 'hud-root';
     container.appendChild(this.hudRoot);
     this.statsPanel = new StatsPanel(this.hudRoot);
-    this.player = new Player(this.physics, this.level.spawn, { headBob: true });
+    this.crosshair = new Crosshair(this.hudRoot);
+    this.readout = new WeaponReadout(this.hudRoot);
+
+    this.player = new Player(this.physics, this.level.spawn, this.options);
+    this.weapons = new WeaponSystem(
+      {
+        physics: this.physics,
+        camera: this.renderer.camera,
+        viewmodelScene: this.renderer.viewmodelScene,
+        scene: this.renderer.scene,
+        lights: this.lights,
+        particles: this.particles,
+        decals: this.decals,
+        damage: this.damage,
+        bus: this.bus,
+        player: this.player,
+        level: this.level,
+        rng: this.rng,
+        onShot: (def) => this.crosshair.pulse(def.recoil * 8),
+      },
+      loadoutFrom(this.level.data),
+    );
 
     this.unsubscribeLock = this.input.onPointerLockChanged((locked) => {
       this.setStatus(locked ? 'playing' : 'paused');
@@ -89,6 +165,10 @@ export class Game {
     this.lights.setShadowsEnabled(quality.shadows);
   }
 
+  setGameplayOptions(options: Partial<GameplayOptions>): void {
+    Object.assign(this.options, options);
+  }
+
   /** Entra o sale del modo juego sin pointer lock real (solo para pruebas automatizadas). */
   debugSetPlaying(playing: boolean): void {
     this.input.simulatePointerLock(playing);
@@ -97,6 +177,7 @@ export class Game {
   /** Estado del jugador para depuración y pruebas automatizadas. */
   debugState() {
     const feet = this.player.body.feetPosition;
+    const weapons = this.weapons.state;
     return {
       status: this.status,
       feet: { x: feet.x, y: feet.y, z: feet.z },
@@ -105,19 +186,31 @@ export class Game {
       crouched: this.player.body.crouched,
       yaw: this.player.yaw,
       pitch: this.player.pitch,
+      weapon: weapons.current,
+      weaponPhase: weapons.phase,
+      magazine: weapons.magazines[weapons.current],
+      ammo: { ...weapons.ammo },
+      projectiles: this.weapons.projectiles.count,
+      particles: this.particles.activeCount,
     };
   }
 
   dispose(): void {
     this.loop.stop();
     this.unsubscribeLock();
+    this.bus.clear();
     this.input.dispose();
+    this.weapons.dispose();
     this.player.dispose();
     this.level.dispose();
     this.materials.dispose();
     this.lights.dispose();
+    this.particles.dispose();
+    this.decals.dispose();
     this.sky?.dispose();
     this.statsPanel.dispose();
+    this.crosshair.dispose();
+    this.readout.dispose();
     this.hudRoot.remove();
     this.physics.dispose();
     this.renderer.dispose();
@@ -126,26 +219,58 @@ export class Game {
   private fixedUpdate(dt: number): void {
     if (this.status !== 'playing') return;
     this.player.fixedUpdate(this.input, dt);
-    this.physics.step();
+    this.weapons.fixedUpdate(dt, this.input, true);
+    this.physics.step((h1, h2) => this.weapons.handleCollision(h1, h2));
   }
 
   private render(alpha: number, frameDt: number): void {
+    let lookX = 0;
+    let lookY = 0;
     if (this.status === 'playing') {
       const look = this.input.consumeMouseDelta();
+      lookX = look.x;
+      lookY = look.y;
       this.player.applyLook(look.x, look.y);
       if (this.input.consumePressed('stats')) this.statsPanel.toggle();
     }
+    const dt = Math.min(frameDt, 0.1);
     // El tiempo de las animaciones visuales (lava, parpadeos, nubes) sigue corriendo en pausa.
-    this.time += Math.min(frameDt, 0.1);
+    this.time += dt;
     const camera = this.renderer.camera;
     this.player.updateCamera(camera, this.status === 'playing' ? alpha : 1);
     this.materials.update(this.time);
     this.lights.update(this.time, camera.position);
     this.sky?.update(this.time, camera);
+    if (this.status === 'playing') {
+      this.weapons.frameUpdate(dt, lookX, lookY, this.options.headBob);
+      this.particles.update(dt, camera, this.renderer.bufferHeight);
+    }
+    this.updateHud(dt);
     this.renderer.render(frameDt);
     this.statsPanel.update(frameDt, this.renderer.stats(), {
       lámparas: this.level.lamps.length,
+      partículas: this.particles.activeCount,
     });
+  }
+
+  private updateHud(dt: number): void {
+    const state = this.weapons.state;
+    const def = WEAPONS[state.current];
+    this.crosshair.update(
+      dt,
+      def.primary.spread,
+      this.renderer.camera.fov,
+      this.renderer.canvas.clientHeight,
+      def.primary.kind === 'melee',
+    );
+    const status =
+      state.phase === 'reloading' ? 'RECARGANDO' : state.phase === 'ready' ? '' : '···';
+    this.readout.update(
+      def.name,
+      def.ammo ? state.magazines[state.current] : null,
+      def.ammo ? state.ammo[def.ammo] : null,
+      status,
+    );
   }
 
   /** Niebla, cielo, luz ambiental y lámparas según el entorno del nivel. */

@@ -45,6 +45,12 @@ export class Renderer {
   readonly renderer: THREE.WebGLRenderer;
   readonly scene = new THREE.Scene();
   readonly camera: THREE.PerspectiveCamera;
+  /**
+   * Capa del arma en primera persona: escena y cámara propias que se dibujan después del mundo
+   * borrando solo la profundidad, así el arma nunca atraviesa las paredes.
+   */
+  readonly viewmodelScene = new THREE.Scene();
+  readonly viewmodelCamera = new THREE.PerspectiveCamera(62, 1, 0.01, 10);
   private readonly composer: EffectComposer;
   private readonly bloom = new BloomEffect({
     luminanceThreshold: 0.95,
@@ -60,6 +66,7 @@ export class Renderer {
   private quality: RenderQuality = { ...DEFAULT_QUALITY };
   private readonly resizeObserver: ResizeObserver;
   private readonly size = new THREE.Vector2(1, 1);
+  private readonly drawingSize = new THREE.Vector2(1, 1);
 
   constructor(private readonly container: HTMLElement) {
     // Sin MSAA en el canvas: el antialiasing lo hace el composer sobre sus propios buffers.
@@ -81,6 +88,12 @@ export class Renderer {
       multisampling: 4,
     });
     this.composer.addPass(new RenderPass(this.scene, this.camera));
+    const viewmodelPass = new RenderPass(this.viewmodelScene, this.viewmodelCamera);
+    viewmodelPass.clearPass.color = false;
+    viewmodelPass.clearPass.depth = true;
+    viewmodelPass.ignoreBackground = true;
+    viewmodelPass.skipShadowMapUpdate = true;
+    this.composer.addPass(viewmodelPass);
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(container);
@@ -89,6 +102,11 @@ export class Renderer {
 
   get canvas(): HTMLCanvasElement {
     return this.renderer.domElement;
+  }
+
+  /** Alto del búfer de dibujo en píxeles (para el tamaño de las partículas). */
+  get bufferHeight(): number {
+    return this.renderer.getDrawingBufferSize(this.drawingSize).y;
   }
 
   get maxAnisotropy(): number {
@@ -121,8 +139,16 @@ export class Renderer {
 
   render(frameDt: number): void {
     this.renderer.info.reset();
-    if (this.quality.postProcessing) this.composer.render(frameDt);
-    else this.renderer.render(this.scene, this.camera);
+    if (this.quality.postProcessing) {
+      this.composer.render(frameDt);
+      return;
+    }
+    this.renderer.autoClear = false;
+    this.renderer.clear();
+    this.renderer.render(this.scene, this.camera);
+    this.renderer.clearDepth();
+    this.renderer.render(this.viewmodelScene, this.viewmodelCamera);
+    this.renderer.autoClear = true;
   }
 
   stats(): RenderStats {
@@ -153,5 +179,7 @@ export class Renderer {
     this.renderer.setSize(width, height, false);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
+    this.viewmodelCamera.aspect = width / height;
+    this.viewmodelCamera.updateProjectionMatrix();
   }
 }

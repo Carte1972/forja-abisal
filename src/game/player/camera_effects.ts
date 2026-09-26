@@ -43,3 +43,44 @@ export class LandingDip {
     return this.offsetY;
   }
 }
+
+/** Retroceso de la cámara al disparar: se suma a la vista y vuelve a su sitio enseguida. */
+export class CameraKick {
+  pitch = 0;
+  yaw = 0;
+
+  add(pitch: number, yaw: number): void {
+    this.pitch = clamp(this.pitch + pitch, 0, 0.35);
+    this.yaw = clamp(this.yaw + yaw, -0.1, 0.1);
+  }
+
+  update(dt: number): void {
+    const decay = Math.exp(-dt * 9);
+    this.pitch *= decay;
+    this.yaw *= decay;
+  }
+}
+
+/** Temblor de cámara (explosiones cercanas, golpes fuertes). */
+export class CameraShake {
+  private intensity = 0;
+  private time = 0;
+
+  add(amount: number): void {
+    this.intensity = clamp(this.intensity + amount, 0, 1);
+  }
+
+  update(dt: number): void {
+    this.time += dt;
+    this.intensity = approach(this.intensity, 0, dt * 1.6);
+  }
+
+  /** Desplazamiento angular (radianes) en cabeceo y guiñada. */
+  offset(): { pitch: number; yaw: number } {
+    const k = this.intensity * this.intensity * 0.05;
+    return {
+      pitch: Math.sin(this.time * 47) * k + Math.sin(this.time * 23) * k * 0.5,
+      yaw: Math.sin(this.time * 39 + 1.3) * k,
+    };
+  }
+}

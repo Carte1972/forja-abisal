@@ -5,6 +5,32 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Fase 4 — Armas, disparos, proyectiles, impactos y partículas
+
+#### Añadido
+
+- Cinco armas originales modeladas con primitivas: martillo de pistón, pistola de servicio, escopeta de dispersión, remachadora y lanzacargas. Cada una tiene disparo principal y alternativo.
+- Lógica pura de armas (`weapon_logic`), cubierta con tests: cadencia, cargadores y reserva, recarga automática y manual, ráfagas, dispersión determinista, clic en vacío con cambio automático de arma, cambio de arma con bajada y subida, y selección con 1-5 o la rueda.
+- Impactos instantáneos con raycast de Rapier y golpe cuerpo a cuerpo con tres rayos en abanico.
+- Proyectiles con física propia (cuerpos dinámicos con CCD):
+  - Carga explosiva que estalla al impactar.
+  - Carga rebotadora con espoleta que parpadea.
+- Explosiones con daño en área según la distancia y la línea de visión, empuje (rocket jump), temblor de cámara y marca de quemadura.
+- El arma se dibuja en una capa aparte (segunda pasada con la profundidad limpia), así que nunca atraviesa las paredes. Se ilumina según la luz del sector.
+- Animaciones procedurales del arma: balanceo al mirar y al andar, retroceso, fogonazo, recarga (la escopeta abre la báscula), cambio de arma y golpes del martillo.
+- Retroceso de cámara (desactivable) y fogonazos con las luces de destello.
+- Partículas en dos draw calls (aditivas y normales): chispas, polvo, humo, brasas, explosiones y sangre de color no realista, lista para los enemigos.
+- Marcas de bala y de quemadura con un límite máximo cada una. Las quemaduras solo se pegan si caben en la superficie.
+- Punto de mira dinámico e indicador provisional de arma y munición. Tecla R para recargar.
+- Grupos de colisión, bus de eventos tipado, ruido de disparo para alertar a los enemigos de la fase 5 y registro de objetivos dañables.
+- Inventario inicial configurable desde el `player_start` del nivel.
+
+#### Corregido
+
+- Suelos y techos se triangulan con Delaunay restringida sobre una rejilla de 2 m (`delaunator` + `@kninnug/constrainautor`), en vez de earcut. Earcut generaba triángulos largos y finos que la GPU del Mac (ANGLE sobre Metal) dejaba sin dibujar, y se veía una cuña del color del fondo cruzando el suelo y el techo. Las paredes largas se dibujan en columnas de 2 m.
+- La normal de los polígonos se calcula a partir de los triángulos, no del orden de los puntos. Con la nueva triangulación, las huellas de la escalera salían con la normal invertida y no se dibujaban.
+- Puertas y ascensores: se retranquean solo las caras que dan a sectores vecinos y llevan un faldón oculto, así que ya no dejan ver rendijas al moverse.
+
 ### Fase 3 — Texturas, iluminación, niebla y post-procesado
 
 #### Añadido

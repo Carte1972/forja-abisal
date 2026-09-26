@@ -3,7 +3,7 @@ import type { InputSystem } from '../../engine/input/input_system';
 import { approach, clamp, lerp } from '../../engine/core/math_utils';
 import { CharacterBody } from '../../engine/physics/character_controller';
 import type { PhysicsWorld, Vec3 } from '../../engine/physics/physics_world';
-import { HeadBob, LandingDip } from './camera_effects';
+import { CameraKick, CameraShake, HeadBob, LandingDip } from './camera_effects';
 import {
   createMovementState,
   DEFAULT_MOVEMENT,
@@ -26,6 +26,8 @@ export interface PlayerSpawn {
 
 export interface PlayerOptions {
   headBob: boolean;
+  /** Retroceso de cámara al disparar. */
+  recoil: boolean;
 }
 
 export class Player {
@@ -38,6 +40,8 @@ export class Player {
   private readonly currEye = new THREE.Vector3();
   private readonly headBob = new HeadBob();
   private readonly landingDip = new LandingDip();
+  private readonly kick = new CameraKick();
+  private readonly shake = new CameraShake();
 
   constructor(
     physics: PhysicsWorld,
@@ -56,8 +60,40 @@ export class Player {
     this.pitch = clamp(this.pitch - dy * MOUSE_SENSITIVITY, -MAX_PITCH, MAX_PITCH);
   }
 
+  /** Retroceso al disparar (si está activado en las opciones). */
+  addRecoil(pitch: number, yaw: number): void {
+    if (this.options.recoil) this.kick.add(pitch, yaw);
+  }
+
+  addShake(amount: number): void {
+    this.shake.add(amount);
+  }
+
+  /**
+   * Impulso externo (empuje de una explosión, golpes). Un impulso hacia arriba despega al
+   * jugador del suelo, lo que permite el rocket jump.
+   */
+  applyImpulse(impulse: Vec3): void {
+    const v = this.movement.velocity;
+    v.x += impulse.x;
+    v.y += impulse.y;
+    v.z += impulse.z;
+    if (impulse.y > 0.5) {
+      this.movement.grounded = false;
+      this.movement.timeSinceGrounded = DEFAULT_MOVEMENT.coyoteTime;
+    }
+  }
+
+  /** Centro del cuerpo (para distancias de explosiones y, en la fase 5, para los enemigos). */
+  center(): Vec3 {
+    const feet = this.body.feetPosition;
+    return { x: feet.x, y: feet.y + this.body.height / 2, z: feet.z };
+  }
+
   fixedUpdate(input: InputSystem, dt: number): void {
     this.prevEye.copy(this.currEye);
+    this.kick.update(dt);
+    this.shake.update(dt);
 
     const crouched = this.body.setCrouched(input.isDown('crouch'));
 
@@ -134,7 +170,12 @@ export class Player {
       lerp(this.prevEye.y, this.currEye.y, alpha) + bob.y + this.landingDip.offset,
       lerp(this.prevEye.z, this.currEye.z, alpha),
     );
-    camera.rotation.set(this.pitch, this.yaw, 0);
+    const shake = this.shake.offset();
+    camera.rotation.set(
+      clamp(this.pitch + this.kick.pitch + shake.pitch, -MAX_PITCH, MAX_PITCH),
+      this.yaw + this.kick.yaw + shake.yaw,
+      0,
+    );
     if (bob.x !== 0) {
       // El balanceo lateral va en el eje derecho de la cámara.
       camera.position.x += Math.cos(this.yaw) * bob.x;

@@ -48,6 +48,8 @@ export interface LoadedLevel {
   spawn: LevelSpawn;
   lamps: Lamp[];
   bounds: Bounds;
+  /** Handle del collider de la geometría estática (para distinguirla de puertas y enemigos). */
+  staticColliderHandle: number;
   /** Estadísticas de la geometría generada (para el panel F3). */
   stats: { meshes: number; triangles: number };
   dispose(): void;
@@ -217,6 +219,7 @@ export function buildLevel(
     movers,
     spawn,
     lamps: extractLamps(data),
+    staticColliderHandle: staticCollider.handle,
     bounds: collisionBounds(geometry.collision.positions),
     stats: { meshes, triangles },
     dispose() {

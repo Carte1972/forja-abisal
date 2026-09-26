@@ -49,7 +49,7 @@ npm run typecheck
 - `src/ui/`: React, solo para los menús.
 - `src/levels/`: niveles en JSON, importados por Vite.
 
-La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `polygon_utils`, `level_parser`, `sector_geometry`, `noise`, `normal_map`, `texture_catalog` y `light_effects`; están previstos weapon_logic, ai_state_machine y pickup_rules.
+La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `event_bus`, `polygon_utils`, `level_parser`, `sector_geometry`, `surface_triangulation`, `noise`, `normal_map`, `texture_catalog`, `decal_textures`, `light_effects`, `weapon_logic` y `damage`; están previstos ai_state_machine y pickup_rules.
 
 **Qué hay (fase 1).**
 
@@ -96,9 +96,22 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - **Cielo:** `sky_dome.ts`, una esfera que sigue a la cámara, en el plano lejano y sin escribir profundidad.
 - **Puertas y ascensores:** la geometría visible va `MOVER_INSET` hacia dentro para evitar z-fighting con paredes coplanares. El collider no.
 
+**Armas (fase 4).**
+
+- **Lógica pura:** `game/weapons/weapon_defs.ts` (datos) y `weapon_logic.ts` (`updateWeapons` devuelve eventos `fire`, `reloadStart`, `lower`…; tiene tests).
+- **`WeaponSystem`:** convierte esos eventos en raycasts (`PhysicsWorld.castRay` con grupos de `collision_groups.ts`), proyectiles (`projectiles.ts`, cuerpos dinámicos con CCD y eventos de colisión que llegan por `PhysicsWorld.step(onCollision)`), explosiones, fogonazos y ruido (`EventBus<GameEvents>`).
+- **Daño:** los objetivos implementan `Damageable` y se registran por handle de collider en `DamageRegistry`. Los enemigos de la fase 5 deben registrarse ahí.
+- **Capa del arma:** `Renderer.viewmodelScene` y `viewmodelCamera`, con un segundo `RenderPass` que solo borra la profundidad. Los modelos están en `viewmodels.ts` y la animación en `viewmodel_animator.ts`.
+- **Efectos:** partículas en `engine/render/particle_system.ts` y marcas en `decal_system.ts`. Solo se marca la geometría estática: se compara `hit.collider.handle` con `level.staticColliderHandle`.
+
+**Trampas de render ya encontradas.**
+
+- **Triángulos largos y finos:** la GPU del Mac (ANGLE sobre Metal) no los dibuja cuando cruzan el plano de la cámara. Por eso los suelos, techos y losas usan `surface_triangulation.ts` (Delaunay restringida sobre una rejilla de 2 m, con aristas partidas de forma canónica para que los sectores vecinos casen) y las paredes largas se parten en columnas (`MAX_RENDER_EDGE`). **No vuelvas a usar earcut para superficies visibles.** Solo lo usan las tapas pequeñas de puertas y ascensores.
+- **Normales:** `MeshWriter.addPolygon` calcula la normal a partir de los triángulos (`planeNormal`), porque los puntos pueden llegar en cualquier orden.
+- **Cómo detectar huecos:** pon en la escena `overrideMaterial` blanco, quita la niebla y el cielo, pon el fondo magenta y cuenta los píxeles magenta con `gl.readPixels` justo después de `renderer.render()`. Hay que renderizar a mano: tras un frame normal el búfer ya está limpio y la cuenta sale 0.
+
 **Previsto.**
 
-- **Armas:** el arma se renderizará en una segunda pasada con la profundidad limpia (habrá que añadir un `RenderPass` sin limpiar color al composer). Los fogonazos usan `LightSystem.flash()`.
 - **Navmesh (recast) y automapa:** se generarán a partir de `LevelData` y de la malla de colisión.
 
 ## Verificación en el navegador
@@ -109,6 +122,7 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
   - `debugState()` devuelve la posición y la velocidad.
   - Se accede a los campos internos con `__forja.player`, por ejemplo `player.body.teleport(...)` o `player.yaw`.
 - Para simular teclas mantenidas, usa `page.keyboard.down/up` en `browser_run_code_unsafe`.
+- Para disparar sin mover el ratón (lo que giraría la vista), usa `__forja.input.press('fire', 'test', false)` y luego `release('fire', 'test')`. Tras cambiar `player.yaw`, espera al menos un frame antes de disparar: la puntería usa la cámara del último render.
 - **Cuidado:** no lances en paralelo una edición de código y una recarga de la página. La recarga puede llegar antes del cambio (pasó en la fase 3 y el resultado confundió).
 - WebGL funciona en ese navegador, así que las capturas son fiables.
 

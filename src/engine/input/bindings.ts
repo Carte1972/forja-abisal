@@ -9,6 +9,7 @@ export type Action =
   | 'fire'
   | 'altFire'
   | 'use'
+  | 'reload'
   | 'automap'
   | 'weapon1'
   | 'weapon2'
@@ -35,6 +36,7 @@ export const DEFAULT_KEY_BINDINGS: Readonly<Record<string, Action>> = {
   ShiftLeft: 'run',
   ShiftRight: 'run',
   KeyE: 'use',
+  KeyR: 'reload',
   Tab: 'automap',
   Digit1: 'weapon1',
   Digit2: 'weapon2',

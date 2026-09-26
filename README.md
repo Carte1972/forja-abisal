@@ -6,7 +6,7 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 
 > **Demo:** https://&lt;usuario&gt;.github.io/&lt;repositorio&gt;/ _(disponible cuando se publique el repositorio)_
 
-> 🚧 **Estado:** en desarrollo. Fase actual: **3 — Texturas, iluminación y post-procesado**. El nivel de pruebas ya tiene texturas procedurales, lámparas con parpadeos, sol con sombras, cielo, niebla y bloom. Todavía no hay armas ni enemigos, y las puertas y los ascensores aún no se accionan.
+> 🚧 **Estado:** en desarrollo. Fase actual: **4 — Armas**. Ya hay cinco armas con disparo, recarga, proyectiles explosivos (con rocket jump), impactos, partículas y marcas en las paredes. Todavía no hay enemigos, y las puertas y los ascensores aún no se accionan.
 
 ## Controles
 
@@ -18,14 +18,29 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de l
 | Agacharse           | C (o Ctrl)        | ✅           |
 | Correr              | Shift             | ✅           |
 | Pausa               | Esc               | ✅           |
-| Disparar            | Clic izquierdo    | Próximamente |
-| Disparo alternativo | Clic derecho      | Próximamente |
-| Cambiar de arma     | 1-5 / rueda       | Próximamente |
+| Disparar            | Clic izquierdo    | ✅           |
+| Disparo alternativo | Clic derecho      | ✅           |
+| Cambiar de arma     | 1-5 / rueda       | ✅           |
+| Recargar            | R                 | ✅           |
 | Usar                | E                 | Próximamente |
 | Automapa            | Tab               | Próximamente |
 | Estadísticas        | F3                | ✅           |
 
 > **¿Por qué C para agacharse?** En los navegadores, Ctrl+W cierra la pestaña y una página web no puede impedirlo. Ctrl también funciona, pero C es más seguro.
+
+### Armas
+
+| Tecla | Arma                   | Disparo principal                       | Disparo alternativo                               |
+| ----- | ---------------------- | --------------------------------------- | ------------------------------------------------- |
+| 1     | Martillo de pistón     | Golpe rápido                            | Golpe cargado, más lento y con empuje             |
+| 2     | Pistola de servicio    | Tiro preciso (cargador de 12)           | Ráfaga de tres balas                              |
+| 3     | Escopeta de dispersión | 8 perdigones (2 cartuchos)              | Los dos cañones a la vez                          |
+| 4     | Remachadora            | Ráfaga continua (cargador de 50)        | Modo sobrecargado: más cadencia y menos precisión |
+| 5     | Lanzacargas            | Carga explosiva que estalla al impactar | Carga rebotadora con espoleta                     |
+
+- Cada arma recarga sola al vaciar el cargador. Con R se recarga antes.
+- Sin munición, el arma hace clic en vacío y se cambia sola a otra que tenga balas (nunca al lanzacargas).
+- Las explosiones empujan: disparar el lanzacargas al suelo justo después de saltar lanza al jugador por los aires (_rocket jump_).
 
 ## Instalación y ejecución
 
@@ -157,6 +172,8 @@ Una losa es un bloque sólido flotante: permite pasar por encima y por debajo, c
 | `angle`  | grados (opcional) | Orientación.                                                                                                                                    |
 
 El resto de campos se guardan como propiedades. Por ejemplo, un `model` usa `url` (ruta dentro de `public/`, por ejemplo `models/estatua.glb`) y `scale`.
+
+El `player_start` admite el inventario inicial: `"weapons": ["pistol", "shotgun", "riveter", "launcher"]` (el martillo va siempre) y `"ammo": { "bullets": 50, "shells": 10, "charges": 4 }`. Si no se indica, se empieza con martillo, pistola y 50 balas.
 
 #### Lámparas (`"type": "lamp"`)
 
