@@ -30,6 +30,31 @@ export class PhysicsWorld {
     );
   }
 
+  /** Malla de triángulos estática (geometría del nivel). */
+  addStaticTrimesh(positions: Float32Array, indices: Uint32Array): RAPIER.Collider {
+    const body = this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
+    // FIX_INTERNAL_EDGES evita "baches" al deslizar sobre aristas entre triángulos coplanares.
+    const desc = RAPIER.ColliderDesc.trimesh(
+      positions,
+      indices,
+      RAPIER.TriMeshFlags.FIX_INTERNAL_EDGES,
+    );
+    return this.world.createCollider(desc, body);
+  }
+
+  /** Cuerpo cinemático con un collider convexo (puertas, ascensores). */
+  addKinematicConvexHull(points: Float32Array): RAPIER.RigidBody {
+    const body = this.world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased());
+    const desc = RAPIER.ColliderDesc.convexHull(points);
+    if (!desc) throw new Error('No se pudo crear el collider convexo');
+    this.world.createCollider(desc, body);
+    return body;
+  }
+
+  removeBody(body: RAPIER.RigidBody): void {
+    this.world.removeRigidBody(body);
+  }
+
   step(): void {
     this.world.step();
   }

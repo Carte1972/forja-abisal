@@ -1,9 +1,13 @@
 import { GameLoop } from '../engine/core/game_loop';
 import { InputSystem } from '../engine/input/input_system';
+import { buildLevel, type LoadedLevel } from '../engine/level/level_builder';
+import { parseLevel } from '../engine/level/level_parser';
 import { initPhysics, PhysicsWorld } from '../engine/physics/physics_world';
+import { PlaceholderMaterials } from '../engine/render/placeholder_materials';
 import { Renderer } from '../engine/render/renderer';
+import testLevel from '../levels/test_level.json';
 import { Player } from './player/player';
-import { buildTestRoom } from './test_room';
+import { addProvisionalLighting } from './provisional_lighting';
 
 export type GameStatus = 'ready' | 'playing' | 'paused';
 
@@ -18,6 +22,8 @@ export class Game {
   private readonly renderer: Renderer;
   private readonly physics: PhysicsWorld;
   private readonly input: InputSystem;
+  private readonly materials = new PlaceholderMaterials();
+  readonly level: LoadedLevel;
   private readonly player: Player;
   private readonly loop: GameLoop;
   private status: GameStatus = 'ready';
@@ -35,8 +41,14 @@ export class Game {
     this.renderer = new Renderer(container);
     this.physics = new PhysicsWorld(FIXED_STEP);
     this.input = new InputSystem(this.renderer.canvas);
-    const spawn = buildTestRoom(this.renderer.scene, this.physics);
-    this.player = new Player(this.physics, spawn, { headBob: true });
+    addProvisionalLighting(this.renderer.scene);
+    this.level = buildLevel(
+      parseLevel(testLevel),
+      this.renderer.scene,
+      this.physics,
+      this.materials,
+    );
+    this.player = new Player(this.physics, this.level.spawn, { headBob: true });
 
     this.unsubscribeLock = this.input.onPointerLockChanged((locked) => {
       this.setStatus(locked ? 'playing' : 'paused');
@@ -82,6 +94,8 @@ export class Game {
     this.unsubscribeLock();
     this.input.dispose();
     this.player.dispose();
+    this.level.dispose();
+    this.materials.dispose();
     this.physics.dispose();
     this.renderer.dispose();
   }

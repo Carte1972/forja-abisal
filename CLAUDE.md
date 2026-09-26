@@ -49,7 +49,7 @@ npm run typecheck
 - `src/ui/`: React, solo para los menús.
 - `src/levels/`: niveles en JSON, importados por Vite.
 
-La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existe `player_movement` y `fixed_step`; están previstos sector_geometry, level_parser, weapon_logic, ai_state_machine y pickup_rules.
+La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `polygon_utils`, `level_parser` y `sector_geometry`; están previstos weapon_logic, ai_state_machine y pickup_rules.
 
 **Qué hay (fase 1).**
 
@@ -65,15 +65,32 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
   - Para levantarse comprueba antes el hueco con `intersectionWithShape`.
   - La gravedad y el salto del jugador los aplica `player_movement`, no el mundo de Rapier.
 
+**Niveles (fase 2).**
+
+- **Flujo:** `src/levels/*.json` → `engine/level/level_parser.ts` (`parseLevel`, validación y normalización) → `sector_geometry.ts` (`buildLevelGeometry`, puro) → `level_builder.ts` (`buildLevel`: mallas Three.js, colliders Rapier y `Mover`s).
+- **Formato:** está documentado campo a campo en el README ("Cómo crear niveles nuevos"). Es la referencia al crear niveles.
+- **Orientación:** el parser deja los anillos exteriores en sentido antihorario y los huecos en horario (área con signo en XZ). Así, el interior de un sector siempre queda a la izquierda de cada arista (`interiorNormal`). El generador no fía el sentido de los triángulos: los reorienta según la normal esperada (`MeshWriter.addPolygon`).
+- **Contigüidad:** sale de las aristas que comparten índices de vértice. Por eso el parser rechaza las uniones en T.
+- **Paredes entre sectores (`addDifferenceWall`):**
+  - La pared de suelos mira al lado bajo y usa `walls.lower` del sector de detrás.
+  - La de techos mira al lado alto y usa `walls.upper` del sector de detrás.
+  - Entre dos sectores con cielo no hay dintel.
+- **Puertas y ascensores:**
+  - Son prismas aparte con un cuerpo cinemático convexo. Se mueven con `Mover.setProgress(0..1)`, sin lógica todavía (llega en la fase 6).
+  - La geometría estática trata la puerta como abierta (no genera su techo) y el ascensor como bajado (suelo en `lowHeight`, sin su tapa). El prisma tapa el resto.
+- **Materiales:** `engine/render/placeholder_materials.ts` da colores planos por nombre de textura (con `vertexColors` para la luz horneada). Se sustituirá por texturas procedurales en la fase 3 detrás de la misma interfaz `MaterialLibrary`.
+- **Jugador contra paredes:** solo se recorta la velocidad contra las normales de las paredes (`MoveResult.wallNormals`) cuando el avance ha quedado bloqueado. Si se recortara con el movimiento real, se frenaría en rampas y escaleras.
+- **Nivel de pruebas:** `src/levels/test_level.json` se generó con un script auxiliar y ahora se edita a mano. Test de humo en `src/levels/levels.test.ts`.
+
 **Previsto.**
 
-- **Niveles:** una lista global de vértices y sectores que apuntan a ellos; la contigüidad sale de las aristas compartidas. El generador extruye paredes y escalones, triangula suelos y techos, crea colliders trimesh y fusiona lo estático por material. Puertas, ascensores y paredes secretas son mallas aparte con cuerpos cinemáticos. El automapa y el navmesh se generan a partir de los mismos datos.
-- **Rendimiento:** la luz de cada sector se hornea en colores de vértice y hay un pool fijo de luces puntuales (siempre el mismo número, para no recompilar shaders). El arma se renderiza en una segunda pasada con la profundidad limpia.
+- **Rendimiento:** pool fijo de luces puntuales (siempre el mismo número, para no recompilar shaders). El arma se renderiza en una segunda pasada con la profundidad limpia.
+- **Navmesh (recast) y automapa:** se generarán a partir de `LevelData` y de la malla de colisión.
 
 ## Verificación en el navegador
 
 - El navegador de Playwright **no concede pointer lock** (`WrongDocumentError`).
-- En desarrollo, `window.__forja` expone el `Game`:
+- En desarrollo, `window.__forja` expone el `Game`, incluido `level.movers` (por ejemplo, `.find(m => m.kind === 'door').setProgress(1)` abre la puerta):
   - `debugSetPlaying(true)` entra en modo juego sin capturar el ratón.
   - `debugState()` devuelve la posición y la velocidad.
   - Se accede a los campos internos con `__forja.player`, por ejemplo `player.body.teleport(...)` o `player.yaw`.

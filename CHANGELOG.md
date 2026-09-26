@@ -5,6 +5,37 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Fase 2 — Generador de niveles por sectores
+
+#### Añadido
+
+- Formato de nivel en JSON: vértices globales, sectores con suelo y techo (planos o en rampa), cielo, texturas de pared, luz, secretos y especiales (daño, puerta, ascensor), losas y cosas.
+- Parser con validación completa:
+  - Anillos simples, orientación normalizada y aristas compartidas por dos sectores como máximo.
+  - Uniones en T y alturas coherentes.
+  - Puertas y ascensores convexos.
+  - Un único inicio de jugador.
+  - Informa de todos los errores a la vez, con la ruta de cada uno.
+- Generador de geometría puro (`sector_geometry`):
+  - Extruye paredes sólidas, escalones y dinteles.
+  - Parte las paredes cuando dos rampas se cruzan.
+  - Triangula suelos y techos con huecos (earcut).
+  - Genera losas y la luz del sector en los colores de vértice.
+  - Agrupa por textura: un draw call por material.
+- Colisiones:
+  - Trimesh estático de Rapier con corrección de aristas internas.
+  - Techo invisible en los sectores con cielo.
+  - Puertas y ascensores como prismas móviles con cuerpo cinemático convexo.
+- Cargador glTF opcional (`things` de tipo `model`), cargado bajo demanda en su propio chunk.
+- Nivel de pruebas con escalera, sala superior, foso de lava con puente y ascensor, puerta, patio exterior, rampa, terraza y hueco secreto.
+- Sección "Cómo crear niveles nuevos" en el README.
+- 31 tests nuevos de polígonos, parser y extrusión/triangulación de sectores.
+
+#### Cambiado
+
+- La sala de prueba de la fase 1 se sustituye por el nivel generado.
+- Al chocar con una pared, la velocidad se recorta solo contra la normal de la pared: en rampas y escaleras el jugador ya no pierde velocidad.
+
 ### Fase 1 — Escena base
 
 #### Añadido

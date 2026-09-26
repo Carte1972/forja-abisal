@@ -1,0 +1,386 @@
+{
+  "version": 1,
+  "name": "Nivel de pruebas",
+  "vertices": [
+    [0, 0],
+    [6, 0],
+    [10, 0],
+    [16, 0],
+    [16, 7],
+    [16, 9],
+    [16, 16],
+    [0, 16],
+    [3, 3],
+    [4, 3],
+    [4, 4],
+    [3, 4],
+    [12, 11],
+    [13, 11],
+    [13, 12],
+    [12, 12],
+    [10, -0.5],
+    [6, -0.5],
+    [10, -1.0],
+    [6, -1.0],
+    [10, -1.5],
+    [6, -1.5],
+    [10, -2.0],
+    [6, -2.0],
+    [10, -2.5],
+    [6, -2.5],
+    [10, -3.0],
+    [6, -3.0],
+    [10, -3.5],
+    [6, -3.5],
+    [10, -4.0],
+    [6, -4.0],
+    [16, -4],
+    [0, -4],
+    [0, -14],
+    [16, -14],
+    [4, -12],
+    [12, -12],
+    [12, -9],
+    [12, -7],
+    [10, -7],
+    [4, -7],
+    [10, -9],
+    [16.5, 7],
+    [16.5, 9],
+    [16.5, 0],
+    [16.5, 16],
+    [30, 16],
+    [30, 0],
+    [26, 0],
+    [26, 6],
+    [22, 6],
+    [22, 0],
+    [30, -6],
+    [29, -6],
+    [27, -6],
+    [16.5, -6],
+    [29, -7.5],
+    [27, -7.5],
+    [6.5, -12],
+    [8, -12],
+    [8, -7],
+    [6.5, -7],
+    [11, 3],
+    [14, 3],
+    [14, 5],
+    [11, 5]
+  ],
+  "sectors": [
+    {
+      "id": "sala_inicio",
+      "vertices": [0, 1, 2, 3, 4, 5, 6, 7],
+      "floor": {
+        "height": 0,
+        "texture": "stone_floor"
+      },
+      "ceiling": {
+        "height": 5,
+        "texture": "metal_ceiling"
+      },
+      "walls": "brick",
+      "light": 0.75,
+      "holes": [
+        [8, 9, 10, 11],
+        [12, 13, 14, 15]
+      ]
+    },
+    {
+      "id": "escalera_1",
+      "vertices": [1, 2, 16, 17],
+      "floor": {
+        "height": 0.25,
+        "texture": "stone_step"
+      },
+      "ceiling": {
+        "height": 4.25,
+        "texture": "metal_ceiling"
+      },
+      "walls": {
+        "middle": "brick",
+        "lower": "stone_step"
+      },
+      "light": 0.7
+    },
+    {
+      "id": "escalera_2",
+      "vertices": [17, 16, 18, 19],
+      "floor": {
+        "height": 0.5,
+        "texture": "stone_step"
+      },
+      "ceiling": {
+        "height": 4.5,
+        "texture": "metal_ceiling"
+      },
+      "walls": {
+        "middle": "brick",
+        "lower": "stone_step"
+      },
+      "light": 0.7
+    },
+    {
+      "id": "escalera_3",
+      "vertices": [19, 18, 20, 21],
+      "floor": {
+        "height": 0.75,
+        "texture": "stone_step"
+      },
+      "ceiling": {
+        "height": 4.75,
+        "texture": "metal_ceiling"
+      },
+      "walls": {
+        "middle": "brick",
+        "lower": "stone_step"
+      },
+      "light": 0.7
+    },
+    {
+      "id": "escalera_4",
+      "vertices": [21, 20, 22, 23],
+      "floor": {
+        "height": 1.0,
+        "texture": "stone_step"
+      },
+      "ceiling": {
+        "height": 5.0,
+        "texture": "metal_ceiling"
+      },
+      "walls": {
+        "middle": "brick",
+        "lower": "stone_step"
+      },
+      "light": 0.7
+    },
+    {
+      "id": "escalera_5",
+      "vertices": [23, 22, 24, 25],
+      "floor": {
+        "height": 1.25,
+        "texture": "stone_step"
+      },
+      "ceiling": {
+        "height": 5.25,
+        "texture": "metal_ceiling"
+      },
+      "walls": {
+        "middle": "brick",
+        "lower": "stone_step"
+      },
+      "light": 0.7
+    },
+    {
+      "id": "escalera_6",
+      "vertices": [25, 24, 26, 27],
+      "floor": {
+        "height": 1.5,
+        "texture": "stone_step"
+      },
+      "ceiling": {
+        "height": 5.5,
+        "texture": "metal_ceiling"
+      },
+      "walls": {
+        "middle": "brick",
+        "lower": "stone_step"
+      },
+      "light": 0.7
+    },
+    {
+      "id": "escalera_7",
+      "vertices": [27, 26, 28, 29],
+      "floor": {
+        "height": 1.75,
+        "texture": "stone_step"
+      },
+      "ceiling": {
+        "height": 5.75,
+        "texture": "metal_ceiling"
+      },
+      "walls": {
+        "middle": "brick",
+        "lower": "stone_step"
+      },
+      "light": 0.7
+    },
+    {
+      "id": "escalera_8",
+      "vertices": [29, 28, 30, 31],
+      "floor": {
+        "height": 2.0,
+        "texture": "stone_step"
+      },
+      "ceiling": {
+        "height": 6.0,
+        "texture": "metal_ceiling"
+      },
+      "walls": {
+        "middle": "brick",
+        "lower": "stone_step"
+      },
+      "light": 0.7
+    },
+    {
+      "id": "sala_superior",
+      "vertices": [32, 30, 31, 33, 34, 35],
+      "floor": {
+        "height": 2,
+        "texture": "metal_floor"
+      },
+      "ceiling": {
+        "height": 8,
+        "texture": "metal_ceiling"
+      },
+      "walls": "tech_wall",
+      "light": 0.55,
+      "holes": [[36, 37, 38, 39, 40, 41]]
+    },
+    {
+      "id": "foso_lava",
+      "vertices": [36, 37, 38, 42, 40, 41],
+      "floor": {
+        "height": -1,
+        "texture": "lava"
+      },
+      "ceiling": {
+        "height": 8,
+        "texture": "metal_ceiling"
+      },
+      "walls": "rock",
+      "light": 0.9,
+      "special": {
+        "type": "damage",
+        "damagePerSecond": 20
+      }
+    },
+    {
+      "id": "ascensor_foso",
+      "vertices": [42, 38, 39, 40],
+      "floor": {
+        "height": 2,
+        "texture": "lift_top"
+      },
+      "ceiling": {
+        "height": 8,
+        "texture": "metal_ceiling"
+      },
+      "walls": "tech_wall",
+      "light": 0.6,
+      "special": {
+        "type": "lift",
+        "lowHeight": -1
+      }
+    },
+    {
+      "id": "puerta_patio",
+      "vertices": [4, 43, 44, 5],
+      "floor": {
+        "height": 0,
+        "texture": "stone_floor"
+      },
+      "ceiling": {
+        "height": 3,
+        "texture": "metal_ceiling"
+      },
+      "walls": "door_frame",
+      "light": 0.7,
+      "special": {
+        "type": "door",
+        "texture": "door_metal"
+      }
+    },
+    {
+      "id": "patio",
+      "vertices": [45, 43, 44, 46, 47, 48, 49, 50, 51, 52],
+      "floor": {
+        "height": 0,
+        "texture": "dirt"
+      },
+      "ceiling": {
+        "height": 14,
+        "sky": true
+      },
+      "walls": "rock",
+      "light": 1.0
+    },
+    {
+      "id": "rampa_terraza",
+      "vertices": [52, 49, 50, 51],
+      "floor": {
+        "height": 0,
+        "texture": "metal_floor",
+        "slope": {
+          "from": [24, 6],
+          "to": [24, 0],
+          "toHeight": 2.5
+        }
+      },
+      "ceiling": {
+        "height": 14,
+        "sky": true
+      },
+      "walls": "rock",
+      "light": 1.0
+    },
+    {
+      "id": "terraza",
+      "vertices": [45, 52, 49, 48, 53, 54, 55, 56],
+      "floor": {
+        "height": 2.5,
+        "texture": "stone_floor"
+      },
+      "ceiling": {
+        "height": 14,
+        "sky": true
+      },
+      "walls": "rock",
+      "light": 1.0
+    },
+    {
+      "id": "hueco_secreto",
+      "vertices": [55, 54, 57, 58],
+      "floor": {
+        "height": 2.5,
+        "texture": "stone_floor"
+      },
+      "ceiling": {
+        "height": 4.5,
+        "texture": "metal_ceiling"
+      },
+      "walls": "brick",
+      "light": 0.4,
+      "secret": true
+    }
+  ],
+  "slabs": [
+    {
+      "vertices": [59, 60, 61, 62],
+      "bottom": 1.7,
+      "top": 2,
+      "texture": "metal_grate"
+    },
+    {
+      "vertices": [63, 64, 65, 66],
+      "bottom": 1.2,
+      "top": 1.5,
+      "texture": {
+        "top": "metal_grate",
+        "bottom": "metal_grate",
+        "side": "tech_wall"
+      }
+    }
+  ],
+  "things": [
+    {
+      "type": "player_start",
+      "x": 8,
+      "z": 13,
+      "angle": 0
+    }
+  ]
+}

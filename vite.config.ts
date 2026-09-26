@@ -17,7 +17,8 @@ export default defineConfig({
         codeSplitting: {
           groups: [
             { name: 'rapier', test: /node_modules[\\/]@dimforge/ },
-            { name: 'three', test: /node_modules[\\/]three/ },
+            // Solo el núcleo: los addons (p. ej. GLTFLoader) se cargan bajo demanda en su propio chunk.
+            { name: 'three', test: /node_modules[\\/]three[\\/]build/ },
             { name: 'react', test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/ },
           ],
         },
