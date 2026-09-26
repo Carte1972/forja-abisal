@@ -16,7 +16,8 @@
     "studio": "npm run planos && remotion studio",
     "still": "npm run planos && remotion still presentacion",
     "voz": "node scripts/make_voice.ts",
-    "render": "node scripts/render.ts"
+    "render": "node scripts/render.ts",
+    "web": "node scripts/web_trailer.ts"
   },
   "dependencies": {
     "@fontsource/barlow-condensed": "5.3.0",

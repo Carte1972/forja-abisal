@@ -5,11 +5,12 @@ interface MainMenuProps {
   onChooseLevel: (index: number) => void;
   onOptions: () => void;
   onControls: () => void;
+  onTrailer: () => void;
   showLevels: boolean;
   onToggleLevels: (show: boolean) => void;
 }
 
-/** Menú principal: nueva partida, elegir nivel, opciones y controles. */
+/** Menú principal: nueva partida, elegir nivel, tráiler, opciones y controles. */
 export function MainMenu(props: MainMenuProps) {
   return (
     <div className="main-menu">
@@ -52,6 +53,9 @@ export function MainMenu(props: MainMenuProps) {
           </button>
           <button type="button" className="menu-button" onClick={() => props.onToggleLevels(true)}>
             Elegir nivel
+          </button>
+          <button type="button" className="menu-button" onClick={props.onTrailer}>
+            Ver tráiler
           </button>
           <button type="button" className="menu-button" onClick={props.onOptions}>
             Opciones

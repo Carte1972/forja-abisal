@@ -25,6 +25,7 @@ flowchart LR
 3. **Música.** Un bucle de fondo y un golpe metálico, sintetizados por código, sin muestras de terceros.
 4. **Montaje.** Remotion junta clips, narración, música, textos animados y los planos de los niveles. **Cada escena dura lo que su narración**, más un pequeño margen, así que el vídeo se reajusta solo si cambia la voz.
 5. **Render.** El MP4 final sale en H.264, 1920×1080, 60 fps, con audio AAC.
+6. **Versión web.** Una copia ligera (1080p a 30 fps) para el botón «Ver tráiler» del menú del juego.
 
 ## Requisitos
 
@@ -38,7 +39,7 @@ Todos se ejecutan desde la raíz del repositorio.
 
 | Comando                            | Qué hace                                                                               | Tiempo aproximado |
 | ---------------------------------- | -------------------------------------------------------------------------------------- | ----------------- |
-| `npm run video`                    | Todo seguido: clips, narración, música y render                                        | 12-15 min         |
+| `npm run video`                    | Todo seguido: clips, narración, música, render y versión web                           | 10-15 min         |
 | `npm run video:clips`              | Graba los 24 clips en `public/clips/`                                                  | 6 min             |
 | `npm run video:clips -- <clip> …`  | Graba solo los clips indicados                                                         |                   |
 | `npm run video:clips -- --vista …` | Guarda solo tres fotogramas por clip (inicio, mitad y final) en `public/clips/vistas/` | segundos          |
@@ -46,9 +47,10 @@ Todos se ejecutan desde la raíz del repositorio.
 | `npm run video:musica`             | Sintetiza la música en `public/musica/`                                                | 2 s               |
 | `npm run video:studio`             | Abre Remotion Studio para previsualizar y ajustar                                      |                   |
 | `npm run video:render`             | Renderiza `out/forja_abisal_presentacion.mp4`                                          | 6 min             |
+| `npm run video:web`                | Versión web para el botón «Ver tráiler» del juego (`public/trailer/` de la raíz)       | 1 min             |
 | `npm run video:typecheck`          | Comprueba los tipos del proyecto de vídeo                                              |                   |
 
-Los clips, audios y el MP4 **no se suben al repositorio**. Se regeneran con estos comandos.
+Los clips, audios y el MP4 **no se suben al repositorio**. Se regeneran con estos comandos. La única excepción es la versión web del tráiler (`public/trailer/forja_abisal_trailer.mp4`, 1080p a 30 fps, unos 29 MB, con su portada): el menú principal del juego la reproduce con el botón «Ver tráiler» y tiene que estar en el repositorio para que funcione en GitHub Pages. Si regeneras el vídeo, `npm run video` la actualiza al final.
 
 ## Editar el guion y regenerar el vídeo
 
@@ -165,7 +167,8 @@ video/
 │   ├── make_music.ts      npm run video:musica
 │   ├── copy_plans.ts      Copia docs/planos/ a public/planos/
 │   ├── find_browser.ts    Busca un Chrome instalado (sin descargas)
-│   └── render.ts          npm run video:render
+│   ├── render.ts          npm run video:render
+│   └── web_trailer.ts     npm run video:web (versión web para el juego)
 ├── src/                   Proyecto de Remotion
 │   ├── root.tsx           Composiciones: el vídeo completo y cada escena
 │   ├── presentation.tsx   Montaje: escenas, narración y música

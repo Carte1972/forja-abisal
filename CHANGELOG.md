@@ -23,6 +23,7 @@ Vídeo de unos 2 minutos y medio generado por código dentro del repositorio (`v
 - **Narración provisional** (`npm run video:voz`) con la voz Reed de macOS a partir del guion. Las grabaciones de `video/narracion_real/` tienen prioridad y nunca se sobrescriben.
 - **Música** sintetizada por código (`npm run video:musica`), que baja sola mientras hay narración.
 - **`npm run video:render`** (MP4 H.264, 1080p60, audio AAC) y **`npm run video`**, que hace el proceso completo.
+- **Botón «Ver tráiler»** en el menú principal del juego: reproduce a pantalla completa una versión web del vídeo (`public/trailer/`, 1080p a 30 fps, unos 29 MB, generada con `npm run video:web`). Respeta el volumen de las opciones y se cierra con Esc o al terminar.
 - `npm run planos` marca en los planos las salas, llaves y salida con atributos `data-*` para animarlos. La CI comprueba los tipos del proyecto de vídeo.
 
 ### Añadido

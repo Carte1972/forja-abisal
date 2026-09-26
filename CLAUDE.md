@@ -179,6 +179,7 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 **Vídeo de presentación (rama `feature/video`).**
 
 - **Fuente de verdad:** `especificacion_video.md` (no se modifica). La documentación de uso está en `video/README.md`. El usuario **no grabará su voz**: se queda la voz Reed de macOS. La música es sintetizada y no hay efectos de sonido del juego en los clips.
+- **Tráiler dentro del juego:** el menú principal tiene «Ver tráiler» (`src/ui/trailer_player.tsx`), que reproduce `public/trailer/forja_abisal_trailer.mp4` (versión web, ~29 MB, generada con `npm run video:web`). Es la única copia del vídeo que se versiona: la especificación dice que el MP4 no se suba, pero el usuario decidió después tener el botón, y sin el archivo en el repositorio no funcionaría en GitHub Pages. Mantenla por debajo de 50 MB, que es donde GitHub empieza a avisar.
 - **`video/` es un paquete npm aparte** (Remotion, `playwright-core`, `@fontsource`…), para que `npm install` y los lanzadores del juego no descarguen Remotion. Usa ESLint, Prettier y Vite de la raíz. Sus scripts se lanzan desde la raíz con `npm run video:*`.
 - **Modo de grabación (`src/recording/`):**
   - `main.tsx` solo lo carga con `import.meta.env.DEV || MODE === 'grabacion'`. Comprueba con un grep en `dist/` que no se cuela en el build.

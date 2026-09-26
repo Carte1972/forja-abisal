@@ -670,3 +670,28 @@ body.recording * {
 body.recording-no-hud .hud-root {
   display: none;
 }
+
+/* ---------- Tráiler ---------- */
+
+.trailer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.trailer-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.trailer-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+}

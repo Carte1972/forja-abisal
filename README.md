@@ -122,7 +122,7 @@ Los objetos que no necesitas (salud llena, munición al máximo) se quedan en el
 
 ### Menús y opciones
 
-- **Menú principal:** nueva partida, elegir nivel, opciones y controles. Con `?nivel=2` (o `3`) en la dirección se salta el menú y se entra directamente en ese nivel.
+- **Menú principal:** nueva partida, elegir nivel, **ver el tráiler**, opciones y controles. Con `?nivel=2` (o `3`) en la dirección se salta el menú y se entra directamente en ese nivel.
 - **Pausa (Esc):** continuar, opciones, controles, reiniciar el nivel o salir al menú.
 - **Opciones** (se guardan en el navegador y se aplican al momento, también en plena partida):
 
@@ -577,7 +577,7 @@ npm run video                # clips, narración, música y render → video/out
 npm run video:studio         # previsualizar y ajustar en Remotion Studio
 ```
 
-Los clips, los audios y el MP4 no se suben al repositorio: se regeneran con los comandos. Cómo funciona, cómo editar el guion, cómo sustituir la voz y cómo añadir clips: [`video/README.md`](video/README.md).
+El vídeo se puede ver desde el propio juego con el botón **«Ver tráiler»** del menú principal, que reproduce una versión ligera para web (`public/trailer/`, unos 29 MB). Los clips, los audios y el MP4 original no se suben al repositorio: se regeneran con los comandos. Cómo funciona, cómo editar el guion, cómo sustituir la voz y cómo añadir clips: [`video/README.md`](video/README.md).
 
 ## Recursos empleados
 

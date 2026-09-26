@@ -8,6 +8,7 @@ import { LevelEnd } from './level_end';
 import { MainMenu } from './main_menu';
 import { OptionsMenu } from './options_menu';
 import { PauseMenu } from './pause_menu';
+import { TrailerPlayer } from './trailer_player';
 import {
   browserStorage,
   defaultSettings,
@@ -24,7 +25,7 @@ declare global {
 }
 
 type AppStatus = GameStatus | 'loading';
-type Panel = 'options' | 'controls' | null;
+type Panel = 'options' | 'controls' | 'trailer' | null;
 
 interface RunState {
   levelIndex: number;
@@ -145,7 +146,9 @@ export function App() {
   if (!inGame) {
     return (
       <div className="game-root">
-        {panelView ? (
+        {panel === 'trailer' ? (
+          <TrailerPlayer volume={settings.volume} onClose={() => setPanel(null)} />
+        ) : panelView ? (
           <div className="overlay menu-overlay">{panelView}</div>
         ) : (
           <MainMenu
@@ -153,6 +156,7 @@ export function App() {
             onChooseLevel={(index) => startLevel(index, undefined)}
             onOptions={() => setPanel('options')}
             onControls={() => setPanel('controls')}
+            onTrailer={() => setPanel('trailer')}
             showLevels={showLevels}
             onToggleLevels={setShowLevels}
           />
