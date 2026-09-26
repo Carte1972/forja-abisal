@@ -1,5 +1,7 @@
 # Dependencias y builds
 node_modules/
+# Node.js portátil que descargan los lanzadores si el equipo no tiene uno válido
+.forja_node/
 dist/
 dist-ssr/
 *.local

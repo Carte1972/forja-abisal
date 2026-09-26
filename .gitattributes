@@ -1,2 +1,4 @@
 * text=auto eol=lf
+# cmd.exe falla con los saltos a etiquetas si el .bat no usa CRLF; PowerShell 5.1 también los prefiere.
 *.bat text eol=crlf
+*.ps1 text eol=crlf

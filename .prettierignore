@@ -1,5 +1,6 @@
 dist
 node_modules
+.forja_node
 package-lock.json
 playwright_screenshots
 .playwright-mcp
