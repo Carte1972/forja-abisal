@@ -24,7 +24,9 @@
     "video:typecheck": "npm --prefix video run typecheck",
     "video:musica": "npm --prefix video run musica",
     "video:studio": "npm --prefix video run studio",
-    "video:voz": "npm --prefix video run voz"
+    "video:voz": "npm --prefix video run voz",
+    "video:render": "npm --prefix video run render",
+    "video": "npm run video:clips && npm run video:voz && npm run video:musica && npm run video:render"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",

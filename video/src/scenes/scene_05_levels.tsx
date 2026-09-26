@@ -146,7 +146,14 @@ function Intro({ keysAt }: { keysAt: number }) {
       <div style={{ display: 'flex', gap: 40, alignItems: 'center' }}>
         {LEVELS.map((level) => (
           <div key={level.plan} style={{ width: 520, opacity: 0.95 }}>
-            <LevelPlan file={level.plan} draw={draw} rooms={rooms} markers={0} width={520} />
+            <LevelPlan
+              file={level.plan}
+              draw={draw}
+              rooms={rooms}
+              markers={0}
+              width={520}
+              height={560}
+            />
           </div>
         ))}
       </div>
@@ -206,7 +213,8 @@ function PlanPanel({ file, highlights, alarmAt }: PlanPanelProps) {
         markers={markers}
         highlight={lit}
         alarm={alarm}
-        width={700}
+        width={712}
+        height={852}
       />
     </div>
   );

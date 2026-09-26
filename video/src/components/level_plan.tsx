@@ -15,7 +15,9 @@ interface LevelPlanProps {
   highlight?: Readonly<Record<string, number>>;
   /** Pulso de alarma en la salida (0 a 1). */
   alarm?: number;
+  /** Caja en la que cabe el plano: se ajusta a ella sin deformarse. */
   width: number;
+  height: number;
 }
 
 /**
@@ -30,6 +32,7 @@ export function LevelPlan({
   highlight = {},
   alarm = 0,
   width,
+  height,
 }: LevelPlanProps) {
   const [svg, setSvg] = useState<string | null>(null);
   const [handle] = useState(() => delayRender(`Cargando el plano ${file}`));
@@ -37,7 +40,7 @@ export function LevelPlan({
     fetch(staticFile(`planos/${file}`))
       .then((response) => response.text())
       .then((text) => {
-        setSvg(text.replace(/width="\d+" height="\d+"/, 'width="100%"'));
+        setSvg(text.replace(/width="\d+" height="\d+"/, 'width="100%" height="100%"'));
         continueRender(handle);
       })
       .catch((error: unknown) => {
@@ -63,9 +66,11 @@ export function LevelPlan({
     ${glow}
   `;
   return (
-    <div id={id} style={{ width }}>
+    <div id={id} style={{ width, height }}>
       <style>{css}</style>
-      {svg ? <div dangerouslySetInnerHTML={{ __html: svg }} /> : null}
+      {svg ? (
+        <div style={{ width: '100%', height: '100%' }} dangerouslySetInnerHTML={{ __html: svg }} />
+      ) : null}
     </div>
   );
 }

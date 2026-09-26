@@ -5,6 +5,26 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ## [Sin publicar]
 
+### Vídeo de presentación
+
+Vídeo de unos 2 minutos y medio generado por código dentro del repositorio (`video/`, ver `video/README.md`), según `especificacion_video.md`.
+
+#### Añadido
+
+- **Guion** (`video/guion.md`): historia «Lo que arde abajo», de terror industrial, con un técnico de mantenimiento como protagonista. Siete escenas con narración enlazada, imagen, textos en pantalla y archivo de narración.
+- **Modo de grabación en el juego** (`src/recording/`, `?grabar=<clip>`, solo en desarrollo; no llega al build publicado):
+  - Avanza la simulación un paso de 1/60 s por fotograma, sin reloj real y con el azar sembrado. Dos grabaciones del mismo clip dan el mismo MP4 byte a byte.
+  - Recorridos de cámara suaves, línea de tiempo de acciones y seguimiento de enemigos, con tests.
+- **24 clips** (`video/clips/`) grabados con `npm run video:clips` en 1920×1080 a 60 fps. Chrome del equipo con `playwright-core`, captura por DevTools (incluye el HUD) y el ffmpeg de Remotion.
+- **Proyecto de Remotion** (`video/src/`):
+  - Una escena por componente, con la estética del juego.
+  - Título que se enciende como metal al rojo, rótulos de terminal, tabla de controles, fichas de armas y enemigos, y planos de los niveles que se dibujan trazo a trazo.
+  - La duración de cada escena la marca su narración. Los subtítulos quedan preparados.
+- **Narración provisional** (`npm run video:voz`) con la voz Reed de macOS a partir del guion. Las grabaciones de `video/narracion_real/` tienen prioridad y nunca se sobrescriben.
+- **Música** sintetizada por código (`npm run video:musica`), que baja sola mientras hay narración.
+- **`npm run video:render`** (MP4 H.264, 1080p60, audio AAC) y **`npm run video`**, que hace el proceso completo.
+- `npm run planos` marca en los planos las salas, llaves y salida con atributos `data-*` para animarlos. La CI comprueba los tipos del proyecto de vídeo.
+
 ### Añadido
 
 - `INSTRUCCIONES.md`: guía del jugador con cómo empezar, el objetivo, salud y daño, qué pasa al morir, objetos, armas, secretos, enemigos, cómo leer el automapa y la descripción de cada nivel, con su plano completo y la ruta (ocultos como spoiler).

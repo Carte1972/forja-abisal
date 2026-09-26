@@ -29,6 +29,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Estado del proyecto
 
 - Las 10 fases (0–9) de la especificación están terminadas. **Versión 1.0.0** publicada: etiqueta `v1.0.0` y release en GitHub.
+- **Vídeo de presentación:** trabajo en la rama `feature/video`, según `especificacion_video.md`. Todavía no se ha fusionado con `main`, y no se hace push ni merge sin pedirlo.
 - Los cambios posteriores se anotan en `CHANGELOG.md` bajo `[Sin publicar]`. Para una versión nueva: subir `version` en `package.json` y `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`), pasar `[Sin publicar]` a `[X.Y.Z] - fecha` (con su enlace al final del archivo), etiqueta `vX.Y.Z` y `gh release create`, todo con el OK del usuario.
 
 ## Comandos
@@ -174,6 +175,33 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 - **`INSTRUCCIONES.md`:** guía del jugador con cifras reales del código (daño de enemigos y armas, objetos, lava y ácido) y la descripción, el plano y la ruta de cada nivel, con los planos y rutas dentro de `<details>` como spoiler. **Si cambias armas, enemigos, objetos o niveles, actualízala.** Los planos no se ponen en el README, para no destripar llaves y secretos.
 - **Planos (`npm run planos`):** `src/levels/level_plan.ts` (puro, con tests) dibuja el SVG a partir de `LevelData` y de `buildAutomapLines`. `scripts/build_plans.ts` guarda los nombres de las salas y la posición de las etiquetas que se solaparían, y carga el código de `src/` con `runnerImport` de Vite, porque `src/` usa imports sin extensión que Node no resuelve. Si un nivel cambia, regenera los planos y revisa que las etiquetas no se monten.
 - **Capturas (`docs/capturas/`):** se sacan a mano con Playwright (ver la sección siguiente) y se convierten a JPEG con `sips -s format jpeg -s formatOptions 85` (herramienta de macOS).
+
+**Vídeo de presentación (rama `feature/video`).**
+
+- **Fuente de verdad:** `especificacion_video.md` (no se modifica). La documentación de uso está en `video/README.md`. El usuario **no grabará su voz**: se queda la voz Reed de macOS. La música es sintetizada y no hay efectos de sonido del juego en los clips.
+- **`video/` es un paquete npm aparte** (Remotion, `playwright-core`, `@fontsource`…), para que `npm install` y los lanzadores del juego no descarguen Remotion. Usa ESLint, Prettier y Vite de la raíz. Sus scripts se lanzan desde la raíz con `npm run video:*`.
+- **Modo de grabación (`src/recording/`):**
+  - `main.tsx` solo lo carga con `import.meta.env.DEV || MODE === 'grabacion'`. Comprueba con un grep en `dist/` que no se cuela en el build.
+  - `Game` expone `recordingStep`, `recordingAccess` y `cameraOverride`, y con `setup.recording` no arranca su bucle, no suena y hace al jugador invulnerable.
+  - El script `video/scripts/grab_clips.ts` llama a `window.__grabacion.step()` y captura con `Page.captureScreenshot` de DevTools (el HUD es DOM, no está en el canvas).
+- **Ajustar clips:**
+  - `npm run video:clips -- --vista <clip>` saca tres fotogramas.
+  - Para medir, carga `?grabar=<clip>` en un iframe desde Playwright y llama a `__grabacion.step()` y `debug()` fotograma a fotograma: posición del jugador, estado y salud de los enemigos.
+- **Trampas encontradas al grabar:**
+  - El yaw crece hacia el oeste, así que girar a la izquierda es sumar. Me equivoqué de signo una vez.
+  - El rastrero es bajo: para acertarle hay que mirar hacia abajo, o usar `aim`.
+  - Un enemigo solo ataca a la cámara si mira hacia ella (`yaw`) y hay `playerFollows`.
+  - El hueco del ascensor de la torre (Núcleo Abisal) frena los saltos con carga a su lado.
+  - Tras crear un clip nuevo hay que recargar la página, porque `import.meta.glob` se evalúa al cargar.
+- **Remotion (`video/src/`):**
+  - `timing.ts` calcula las escenas desde la duración real de `public/narracion/*.wav`; sin audio, usa la estimación del guion.
+  - Comprueba qué archivos existen con `getStaticFiles()`, no con `fetch`, para no provocar errores 404.
+  - Los cortes van en `narrationAt(timing, fracción)`. Si cambia el texto, mide las pausas del WAV (silencios de más de 0,18 s) y ajusta las fracciones.
+  - Las fuentes se cargan con `@remotion/fonts` desde `@fontsource`, sin Google Fonts en red.
+  - El navegador sale de `scripts/find_browser.ts`, así que nunca se descarga uno.
+  - `OffthreadVideo` usa `trimBefore`, no `startFrom`, que está obsoleto.
+- **El ffmpeg de Remotion es mínimo:** no tiene `drawtext` ni `xstack`. Para hojas de contacto, monta una página HTML y captúrala con Playwright.
+- **zsh no parte las variables en palabras** como bash: `set -- $var` no separa. Usa `bash -c` si hace falta.
 
 ## Verificación en el navegador
 

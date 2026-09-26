@@ -25,7 +25,7 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de a
 >
 > **Guía del jugador:** [INSTRUCCIONES.md](INSTRUCCIONES.md), con cómo jugar, daño y premios, el automapa y los planos y rutas de cada nivel.
 
-**Índice:** [Qué hay que hacer](#qué-hay-que-hacer) · [Funcionalidad](#funcionalidad) · [Controles](#controles) · [Instalación y ejecución](#instalación-y-ejecución) · [Arquitectura](#arquitectura) · [Cómo crear niveles nuevos](#cómo-crear-niveles-nuevos) · [Desarrollo](#desarrollo) · [Recursos empleados](#recursos-empleados) · [Créditos y licencia](#créditos-y-licencia)
+**Índice:** [Qué hay que hacer](#qué-hay-que-hacer) · [Funcionalidad](#funcionalidad) · [Controles](#controles) · [Instalación y ejecución](#instalación-y-ejecución) · [Arquitectura](#arquitectura) · [Cómo crear niveles nuevos](#cómo-crear-niveles-nuevos) · [Desarrollo](#desarrollo) · [Vídeo de presentación](#vídeo-de-presentación) · [Recursos empleados](#recursos-empleados) · [Créditos y licencia](#créditos-y-licencia)
 
 ## Qué hay que hacer
 
@@ -314,10 +314,12 @@ Un nivel es una lista de **vértices 2D** y de **sectores**: polígonos que los 
 │   │   └── rules/                       Daño, salud y estadísticas del nivel
 │   ├── hud/                             HUD, punto de mira, panel F3 y automapa
 │   ├── ui/                              Menús y pantallas (React), ajustes y campaña
+│   ├── recording/                       Modo de grabación de clips para el vídeo (solo desarrollo)
 │   ├── levels/                          Niveles en JSON y tests de jugabilidad
 │   └── types/                           Tipos de librerías que no los traen
 ├── public/                              Archivos estáticos
 ├── docs/                                Capturas del juego y planos de los niveles (SVG)
+├── video/                               Vídeo de presentación: guion, clips, narración y Remotion
 ├── INSTRUCCIONES.md                     Guía del jugador
 └── .github/workflows/                   CI (lint, formato, tipos, tests) y despliegue en GitHub Pages
 ```
@@ -515,18 +517,19 @@ Al cargar, el nivel se valida y los errores se muestran todos juntos, con la rut
 
 ## Desarrollo
 
-| Script               | Qué hace                                                 |
-| -------------------- | -------------------------------------------------------- |
-| `npm run dev`        | Servidor de desarrollo con recarga en caliente           |
-| `npm run build`      | Typecheck + build de producción en `dist/`               |
-| `npm run preview`    | Sirve el build de producción                             |
-| `npm test`           | Ejecuta los tests (Vitest)                               |
-| `npm run test:watch` | Tests en modo observación                                |
-| `npm run lint`       | ESLint                                                   |
-| `npm run format`     | Formatea el código con Prettier                          |
-| `npm run typecheck`  | Comprobación de tipos de TypeScript                      |
-| `npm run levels`     | Regenera los niveles JSON desde `scripts/levels/`        |
-| `npm run planos`     | Regenera los planos SVG de los niveles en `docs/planos/` |
+| Script               | Qué hace                                                                   |
+| -------------------- | -------------------------------------------------------------------------- |
+| `npm run dev`        | Servidor de desarrollo con recarga en caliente                             |
+| `npm run build`      | Typecheck + build de producción en `dist/`                                 |
+| `npm run preview`    | Sirve el build de producción                                               |
+| `npm test`           | Ejecuta los tests (Vitest)                                                 |
+| `npm run test:watch` | Tests en modo observación                                                  |
+| `npm run lint`       | ESLint                                                                     |
+| `npm run format`     | Formatea el código con Prettier                                            |
+| `npm run typecheck`  | Comprobación de tipos de TypeScript                                        |
+| `npm run levels`     | Regenera los niveles JSON desde `scripts/levels/`                          |
+| `npm run planos`     | Regenera los planos SVG de los niveles en `docs/planos/`                   |
+| `npm run video`      | Genera el vídeo de presentación (ver [`video/README.md`](video/README.md)) |
 
 ### Tests
 
@@ -558,6 +561,23 @@ npx vitest run -t "puertas"                           # por nombre
 4. Abre el pull request explicando qué cambia y por qué.
 
 **Todo el contenido debe ser original:** no se aceptan modelos, texturas, sonidos, nombres ni niveles de otros juegos. Las texturas y los sonidos se generan por código.
+
+## Vídeo de presentación
+
+El repositorio incluye un vídeo de presentación de unos 2 minutos y medio: cuenta la historia del juego («Lo que arde abajo», en tono de terror industrial) y enseña, con imágenes reales, los controles, las armas, los enemigos, los tres niveles con sus planos y los trucos. Se genera entero por código:
+
+1. **El propio juego graba sus clips** con un modo de grabación (`?grabar=<clip>`, solo en desarrollo): recorridos de cámara y escenas preparadas, fotograma a fotograma y siempre igual.
+2. **La narración** sale del guion ([`video/guion.md`](video/guion.md)) con una voz de macOS, provisional hasta sustituirla por grabaciones reales.
+3. **La música** se sintetiza por código.
+4. **[Remotion](https://www.remotion.dev/)** lo monta todo, con textos animados y los planos de los niveles, y renderiza el MP4 (1920×1080, 60 fps).
+
+```bash
+npm install --prefix video   # dependencias del vídeo (una vez)
+npm run video                # clips, narración, música y render → video/out/forja_abisal_presentacion.mp4
+npm run video:studio         # previsualizar y ajustar en Remotion Studio
+```
+
+Los clips, los audios y el MP4 no se suben al repositorio: se regeneran con los comandos. Cómo funciona, cómo editar el guion, cómo sustituir la voz y cómo añadir clips: [`video/README.md`](video/README.md).
 
 ## Recursos empleados
 

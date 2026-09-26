@@ -50,6 +50,7 @@ export function SectionTitle({
             fontSize: 34,
             letterSpacing: '0.3em',
             color: COLORS.emberLight,
+            marginBottom: 18,
           }}
         >
           {kicker}
