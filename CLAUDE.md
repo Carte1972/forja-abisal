@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `especificacion_proyecto.md` es la especificación completa de **Forja Abisal** (FPS 3D retro en el navegador con Three.js). **Léela entera antes de empezar cualquier fase y consúltala en cada una. No la modifiques** (está en `.prettierignore` para que no se reformatee). Si algo es contradictorio, ambiguo o imposible de cumplir, pregunta al usuario en lugar de inventar.
 
+`especificacion_video.md` es la especificación del vídeo de presentación (`video/`), con las mismas reglas: léela antes de tocar el vídeo y no la modifiques.
+
 ## Decisiones ya tomadas con el usuario
 
 - Nombre del juego: **Forja Abisal**. Licencia: **MIT**.
@@ -20,7 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Reglas innegociables
 
 - **Todo el contenido es original**: modelos, texturas, sonidos, nombres, niveles y diseños. Nada de assets, nombres ni mapas de Doom ni de otro juego (el repo es público).
-- Texturas generadas en canvas al arrancar y sonidos sintetizados con Web Audio; no se añaden archivos de assets externos.
+- Texturas generadas en canvas al arrancar y sonidos sintetizados con Web Audio; no se añaden archivos de assets externos. Los únicos binarios versionados los genera el propio proyecto: `docs/capturas/`, `docs/planos/` y `public/trailer/` (la versión web del vídeo).
 - No instalar nada fuera de las dependencias npm del proyecto sin pedir permiso.
 - Nombres de archivo en **snake_case**. Tests junto al código como `*.test.ts`.
 - **Repositorio:** https://github.com/Carte1972/forja-abisal (público, remoto `origin`). El usuario ha pedido ir guardando en GitHub: hacer `git push` a `main` después de los commits de cada fase. No cambiar la visibilidad ni la configuración del repositorio sin pedirlo.
@@ -46,9 +48,19 @@ npm run format       # Prettier (la CI ejecuta format:check)
 npm run typecheck
 npm run levels       # regenera src/levels/level_0N.json desde scripts/levels/
 npm run planos       # regenera los planos SVG de docs/planos/ (los de INSTRUCCIONES.md)
+
+# Vídeo de presentación (antes, una vez: npm install --prefix video). Ver video/README.md.
+npm run video              # todo: clips, voz, música, render y versión web (~10 min)
+npm run video:clips        # graba los clips (video/clips/*.ts); --vista <clip> saca solo 3 fotogramas
+npm run video:voz          # narración desde video/guion.md (say de macOS o video/narracion_real/)
+npm run video:musica       # música sintetizada
+npm run video:studio       # Remotion Studio
+npm run video:render       # video/out/forja_abisal_presentacion.mp4
+npm run video:web          # public/trailer/ (versión web para el botón «Ver tráiler»)
+npm run video:typecheck    # tipos del proyecto de vídeo (también en la CI)
 ```
 
-`vite.config.ts` lee `VITE_BASE` para el `base`: el workflow de Pages le pasa `/<nombre-del-repo>/`, y en local se usa `/`. Los tests de Vitest se configuran en ese mismo archivo (`src/**/*.test.ts`, entorno node).
+`vite.config.ts` lee `VITE_BASE` para el `base`: el workflow de Pages le pasa `/<nombre-del-repo>/`, y en local se usa `/`. Los tests de Vitest se configuran en ese mismo archivo (`src/**/*.test.ts` y `video/scripts/**/*.test.ts`, entorno node). El `tsconfig.json` de la raíz incluye `video/clips` para comprobar los tipos de los clips; el resto de `video/` tiene su propio `video/tsconfig.json`. La CI tiene dos trabajos: `check` (juego) y `video` (tipos del vídeo).
 
 ## Arquitectura
 
@@ -61,8 +73,11 @@ npm run planos       # regenera los planos SVG de docs/planos/ (los de INSTRUCCI
 - `src/levels/`: niveles en JSON, importados por Vite, sus tests de jugabilidad y el generador de planos.
 - `scripts/`: lanzadores (`launcher.mjs` y compañía), fuentes de los niveles y generadores (`build_levels.ts`, `build_plans.ts`).
 - `docs/`: capturas del juego (`docs/capturas/`) y planos de los niveles (`docs/planos/`), usados por el README y por `INSTRUCCIONES.md`.
+- `src/recording/`: modo de grabación de clips para el vídeo (solo desarrollo).
+- `video/`: vídeo de presentación (paquete npm aparte): guion, clips, scripts y proyecto de Remotion.
+- `public/trailer/`: versión web del vídeo, que reproduce el botón «Ver tráiler» del menú.
 
-La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `event_bus`, `polygon_utils`, `level_parser`, `sector_geometry`, `surface_triangulation`, `noise`, `normal_map`, `texture_catalog`, `decal_textures`, `light_effects`, `weapon_logic` y `damage`; `ai_state_machine`, `perception`, `enemy_defs`, `player_health` y `navmesh` (con WASM); `mover_logic`, `pickup_rules` y `level_stats`; `synth`, `settings_store`, `automap_lines`, `level_checks` y `level_plan`.
+La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya existen `player_movement`, `fixed_step`, `rng`, `event_bus`, `polygon_utils`, `level_parser`, `sector_geometry`, `surface_triangulation`, `noise`, `normal_map`, `texture_catalog`, `decal_textures`, `light_effects`, `weapon_logic` y `damage`; `ai_state_machine`, `perception`, `enemy_defs`, `player_health` y `navmesh` (con WASM); `mover_logic`, `pickup_rules` y `level_stats`; `synth`, `settings_store`, `automap_lines`, `level_checks` y `level_plan`; para el vídeo, `camera_path` y `action_timeline` (`src/recording/`) y `script_parser` (`video/scripts/`).
 
 **Qué hay (fase 1).**
 
@@ -171,7 +186,10 @@ La lógica pura no importa Three.js ni el DOM, para poder testearla en Node. Ya 
 
 **Documentación para jugadores (después de la 1.0.0).**
 
-- **`README.md`:** incluye una galería de capturas, la sección "Recursos empleados" (modelo, esfuerzo, tiempo activo y tokens del desarrollo; datos fijos, no se recalculan solos) y el enlace a la guía.
+- **`README.md`:** incluye una galería de capturas, el enlace a la guía y al tráiler, y la sección "Recursos empleados": modelo, esfuerzo, tiempo activo y tokens, con una columna para el juego (hasta la 1.0.0) y otra para el vídeo, más el total.
+  - Son datos fijos, no se recalculan solos.
+  - Salen de la transcripción de la sesión (`~/.claude/projects/<proyecto>/<sesión>.jsonl`): se suma `usage` de los mensajes del asistente, sin repetir el mismo `message.id`, y los subagentes están en `<sesión>/subagents/`. El tiempo activo es la suma de los huecos de menos de 5 minutos entre eventos.
+  - El esfuerzo se lee de `~/.claude/settings.json` (`effortLevel`). El usuario pidió no poner horas de reloj, solo el tiempo activo.
 - **`INSTRUCCIONES.md`:** guía del jugador con cifras reales del código (daño de enemigos y armas, objetos, lava y ácido) y la descripción, el plano y la ruta de cada nivel, con los planos y rutas dentro de `<details>` como spoiler. **Si cambias armas, enemigos, objetos o niveles, actualízala.** Los planos no se ponen en el README, para no destripar llaves y secretos.
 - **Planos (`npm run planos`):** `src/levels/level_plan.ts` (puro, con tests) dibuja el SVG a partir de `LevelData` y de `buildAutomapLines`. `scripts/build_plans.ts` guarda los nombres de las salas y la posición de las etiquetas que se solaparían, y carga el código de `src/` con `runnerImport` de Vite, porque `src/` usa imports sin extensión que Node no resuelve. Si un nivel cambia, regenera los planos y revisa que las etiquetas no se monten.
 - **Capturas (`docs/capturas/`):** se sacan a mano con Playwright (ver la sección siguiente) y se convierten a JPEG con `sips -s format jpeg -s formatOptions 85` (herramienta de macOS).
