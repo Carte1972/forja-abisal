@@ -34,3 +34,12 @@ Thumbs.db
 .playwright-mcp/
 playwright_screenshots/
 .claude/settings.local.json
+
+# Vídeo de presentación: todo lo generado se regenera con los scripts de video/
+video/node_modules/
+video/out/
+video/public/clips/
+video/public/narracion/
+video/public/musica/
+video/public/planos/
+video/narracion_real/
