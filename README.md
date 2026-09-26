@@ -24,6 +24,8 @@ FPS 3D retro para el navegador, hecho con Three.js y Rapier. Tiene el ritmo de a
 > **Demo:** https://carte1972.github.io/forja-abisal/ (juega en el navegador, sin instalar nada)
 >
 > **Guía del jugador:** [INSTRUCCIONES.md](INSTRUCCIONES.md), con cómo jugar, daño y premios, el automapa y los planos y rutas de cada nivel.
+>
+> **Tráiler:** botón **«Ver tráiler»** en el menú principal del juego. Se genera por código dentro del repositorio: [cómo se hizo](#vídeo-de-presentación).
 
 **Índice:** [Qué hay que hacer](#qué-hay-que-hacer) · [Funcionalidad](#funcionalidad) · [Controles](#controles) · [Instalación y ejecución](#instalación-y-ejecución) · [Arquitectura](#arquitectura) · [Cómo crear niveles nuevos](#cómo-crear-niveles-nuevos) · [Desarrollo](#desarrollo) · [Vídeo de presentación](#vídeo-de-presentación) · [Recursos empleados](#recursos-empleados) · [Créditos y licencia](#créditos-y-licencia)
 
@@ -533,7 +535,7 @@ Al cargar, el nivel se valida y los errores se muestran todos juntos, con la rut
 
 ### Tests
 
-Los tests (Vitest) están junto al código, como `*.test.ts`, y se ejecutan en Node. Cubren la lógica pura: movimiento, armas, IA, percepción, daño, puertas y ascensores, objetos, estadísticas, síntesis de sonido, texturas, parser y generador de geometría, además de la jugabilidad de cada nivel (llaves, salida y secretos alcanzables).
+Los tests (Vitest) están junto al código, como `*.test.ts`, y se ejecutan en Node. Cubren la lógica pura: movimiento, armas, IA, percepción, daño, puertas y ascensores, objetos, estadísticas, síntesis de sonido, texturas, parser y generador de geometría, además de la jugabilidad de cada nivel (llaves, salida y secretos alcanzables), los planos de los niveles y, para el vídeo de presentación, los recorridos de cámara, la temporización de acciones del modo de grabación y el lector del guion.
 
 ```bash
 npm test                                              # todos
@@ -581,25 +583,28 @@ El vídeo se puede ver desde el propio juego con el botón **«Ver tráiler»** 
 
 ## Recursos empleados
 
-El juego se desarrolló con [Claude Code](https://claude.com/claude-code) a partir de una especificación escrita por el autor, que tomó las decisiones de diseño, revisó y probó el resultado al final de cada fase.
+El juego y su vídeo de presentación se desarrollaron con [Claude Code](https://claude.com/claude-code) (CLI, versión 2.1.283), a partir de dos especificaciones escritas por el autor ([`especificacion_proyecto.md`](especificacion_proyecto.md) y [`especificacion_video.md`](especificacion_video.md)). El autor tomó las decisiones de diseño, revisó y probó el resultado al final de cada fase.
 
-| Recurso                   | Detalle                                                                                        |
-| ------------------------- | ---------------------------------------------------------------------------------------------- |
-| Herramienta               | Claude Code (CLI, versión 2.1.283)                                                             |
-| Modelo principal          | Claude Opus 5.5 (`claude-opus-5-5`), 644 llamadas                                              |
-| Esfuerzo de razonamiento  | Alto (`high`)                                                                                  |
-| Modelo auxiliar           | Claude Sonnet 5, en un subagente que analizó los niveles para la guía del jugador (6 llamadas) |
-| Tiempo de trabajo activo  | ~3 h 35 min                                                                                    |
-| Tokens totales procesados | ~297 millones                                                                                  |
-| Tokens generados          | ~937.000 (código, documentación y respuestas)                                                  |
-| Resultado                 | 10 fases, versión 1.0.0, 254 tests                                                             |
+| Recurso                   | Juego (hasta la versión 1.0.0)                                             | Vídeo de presentación                                                       |
+| ------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Modelo principal          | Claude Opus 5.5 (`claude-opus-5-5`), 644 llamadas                          | Claude Opus 5.5 (`claude-opus-5-5`), 203 llamadas                           |
+| Esfuerzo de razonamiento  | Alto (`high`)                                                              | Alto (`high`)                                                               |
+| Modelo auxiliar           | Claude Sonnet 5: analizó los niveles para la guía del jugador (6 llamadas) | —                                                                           |
+| Tiempo de trabajo activo  | ~3 h 35 min                                                                | ~1 h 57 min                                                                 |
+| Tokens totales procesados | ~297 millones                                                              | ~145,5 millones                                                             |
+| Tokens generados          | ~937.000                                                                   | ~327.000                                                                    |
+| Resultado                 | 10 fases, versión 1.0.0, capturas y guía del jugador, 254 tests            | 5 fases: guion, 24 clips, montaje y vídeo de 2 min 30 s; 277 tests en total |
 
-Casi todos los tokens procesados son contexto (el código, los resultados de las herramientas y el historial) que el modelo vuelve a leer de caché en cada paso. Los datos corresponden al desarrollo completo del 26 de septiembre de 2026, hasta la versión 1.0.0, las capturas y la guía del jugador. El tiempo activo es una estimación que no incluye las pausas para probar y revisar entre fases.
+**En total:** unas 5 h 32 min de trabajo activo y unos 443 millones de tokens procesados, de los que unos 1,26 millones son generados (código, documentación y respuestas).
+
+Casi todos los tokens procesados son contexto (el código, los resultados de las herramientas y el historial) que el modelo vuelve a leer de caché en cada paso. Los datos corresponden al 26 de septiembre de 2026. El tiempo activo es una estimación que no incluye las pausas para probar y revisar entre fases.
 
 ## Créditos y licencia
 
-Todo el contenido del juego es original y se genera por código: modelos, texturas, sonidos, niveles y nombres. No se usan assets, nombres ni niveles de otros juegos.
+Todo el contenido del juego y de su vídeo de presentación es original y se genera por código: modelos, texturas, sonidos, niveles, nombres, clips del vídeo y música. No se usan assets, nombres ni niveles de otros juegos.
 
 Hecho con [Three.js](https://threejs.org/), [Rapier](https://rapier.rs/), [recast-navigation-js](https://github.com/isaac-mason/recast-navigation-js), [postprocessing](https://github.com/pmndrs/postprocessing), [React](https://react.dev/) y [Vite](https://vite.dev/), cada uno con su propia licencia.
+
+El vídeo de presentación se monta con [Remotion](https://www.remotion.dev/), que tiene licencia propia: es gratuito para particulares y empresas de hasta 3 personas ([condiciones](https://www.remotion.dev/license)). Usa las tipografías Big Shoulders Display, Barlow Condensed e IBM Plex Mono, de Google Fonts, con licencia OFL.
 
 Publicado bajo licencia [MIT](LICENSE).
