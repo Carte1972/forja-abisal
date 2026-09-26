@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "levels": "node scripts/build_levels.ts && prettier --write src/levels/level_*.json"
+    "levels": "node scripts/build_levels.ts && prettier --write src/levels/level_*.json",
+    "planos": "node scripts/build_plans.ts"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",
