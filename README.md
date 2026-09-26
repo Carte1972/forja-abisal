@@ -292,6 +292,7 @@ Un nivel es una lista de **vértices 2D** y de **sectores**: polígonos que los 
 │   ├── check_node.cjs                   Comprueba la versión de Node.js contra package.json
 │   ├── node_portable.sh / .ps1          Descarga Node.js si falta (macOS y Linux / Windows)
 │   ├── build_levels.ts                  Genera los JSON de la campaña (npm run levels)
+│   ├── build_plans.ts                   Genera los planos SVG de docs/planos/ (npm run planos)
 │   └── levels/                          Fuentes de los niveles y kit de autoría (level_kit.ts)
 ├── src/
 │   ├── main.tsx                         Punto de entrada
@@ -514,17 +515,18 @@ Al cargar, el nivel se valida y los errores se muestran todos juntos, con la rut
 
 ## Desarrollo
 
-| Script               | Qué hace                                          |
-| -------------------- | ------------------------------------------------- |
-| `npm run dev`        | Servidor de desarrollo con recarga en caliente    |
-| `npm run build`      | Typecheck + build de producción en `dist/`        |
-| `npm run preview`    | Sirve el build de producción                      |
-| `npm test`           | Ejecuta los tests (Vitest)                        |
-| `npm run test:watch` | Tests en modo observación                         |
-| `npm run lint`       | ESLint                                            |
-| `npm run format`     | Formatea el código con Prettier                   |
-| `npm run typecheck`  | Comprobación de tipos de TypeScript               |
-| `npm run levels`     | Regenera los niveles JSON desde `scripts/levels/` |
+| Script               | Qué hace                                                 |
+| -------------------- | -------------------------------------------------------- |
+| `npm run dev`        | Servidor de desarrollo con recarga en caliente           |
+| `npm run build`      | Typecheck + build de producción en `dist/`               |
+| `npm run preview`    | Sirve el build de producción                             |
+| `npm test`           | Ejecuta los tests (Vitest)                               |
+| `npm run test:watch` | Tests en modo observación                                |
+| `npm run lint`       | ESLint                                                   |
+| `npm run format`     | Formatea el código con Prettier                          |
+| `npm run typecheck`  | Comprobación de tipos de TypeScript                      |
+| `npm run levels`     | Regenera los niveles JSON desde `scripts/levels/`        |
+| `npm run planos`     | Regenera los planos SVG de los niveles en `docs/planos/` |
 
 ### Tests
 

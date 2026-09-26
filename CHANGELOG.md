@@ -8,11 +8,13 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 ### Añadido
 
 - `INSTRUCCIONES.md`: guía del jugador con cómo empezar, el objetivo, salud y daño, qué pasa al morir, objetos, armas, secretos, enemigos, cómo leer el automapa y la descripción de cada nivel, con su plano completo y la ruta (ocultos como spoiler).
+- `npm run planos`: regenera los planos SVG de los niveles (`src/levels/level_plan.ts`, con tests, y `scripts/build_plans.ts`).
 - Sección "Recursos empleados" en el README: herramienta, modelo, nivel de esfuerzo, tiempo de trabajo y tokens del desarrollo.
 - Capturas del juego en el README (`docs/capturas/`) y planos de los tres niveles en SVG (`docs/planos/`), generados a partir de los datos de cada nivel. Los planos solo aparecen en la guía, ocultos como spoiler.
 
 ### Cambiado
 
+- `CLAUDE.md` al día: estado de la versión 1.0.0, documentación para jugadores, cómo generar planos y capturas, y varias notas de fases anteriores que se habían quedado viejas.
 - README: la introducción presenta el juego como homenaje a los shooters en primera persona de los años 90.
 
 ## [1.0.0] - 2026-09-26
